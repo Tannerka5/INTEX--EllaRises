@@ -917,3 +917,193 @@ h1 {
   padding: 2.2rem;
   border-radius: 1.8rem;
 }
+
+/* ===============================
+   LOGIN PAGE — CLEAN & CENTERED
+   =============================== */
+
+   .login-page-wrapper {
+    min-height: calc(100vh - 200px); /* 120px navbar + breathing room */
+    padding-top: 160px;              /* Push BELOW your huge navbar */
+    padding-bottom: 80px;
+    display: flex;
+    justify-content: center;
+  }
+  
+  /* THE CARD */
+  .login-card {
+    width: 100%;
+    max-width: 420px;
+    background: #ffffffee;
+    border-radius: 1.6rem;
+    padding: 2.2rem 2rem;
+    box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
+    border: 1px solid rgba(0,0,0,0.06);
+    animation: fadeIn 0.6s ease-out;
+    text-align: center;
+  }
+  
+  /* HEADINGS */
+  .login-title {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.4rem;
+  }
+  
+  .login-subtitle {
+    color: var(--color-muted);
+    font-size: 0.95rem;
+    margin-bottom: 1.8rem;
+  }
+  
+  /* FORM */
+  .login-form {
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+  }
+  
+  .login-field label {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin-bottom: 0.35rem;
+  }
+  
+  .login-field input {
+    width: 100%;
+    padding: 0.65rem 0.9rem;
+    border-radius: 0.6rem;
+    border: 1px solid rgba(0,0,0,0.15);
+    font-size: 0.95rem;
+    background: #fff;
+  }
+  
+  /* ROW */
+  .login-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .remember-me {
+    font-size: 0.9rem;
+    color: var(--color-muted);
+  }
+  
+  .forgot-link {
+    font-size: 0.9rem;
+    color: var(--color-primary);
+    text-decoration: none;
+  }
+  
+  .forgot-link:hover {
+    text-decoration: underline;
+  }
+  
+  /* BUTTON */
+  .login-btn {
+    width: 100%;
+    margin-top: 0.5rem;
+  }
+  
+  /* BOTTOM */
+  .login-bottom {
+    margin-top: 1.6rem;
+    font-size: 0.9rem;
+    color: var(--color-muted);
+  }
+  
+  .signup-link {
+    color: var(--color-primary);
+    font-weight: 600;
+    text-decoration: none;
+  }
+  
+  .signup-link:hover {
+    text-decoration: underline;
+  }
+
+  /* ===============================
+   REGISTER PAGE — CLEAN VERSION
+   =============================== */
+
+.register-page-wrapper {
+  min-height: calc(100vh - 200px);
+  padding-top: 160px;
+  padding-bottom: 80px;
+  display: flex;
+  justify-content: center;
+}
+
+.register-card {
+  width: 100%;
+  max-width: 440px;
+  background: #ffffffee;
+  border-radius: 1.6rem;
+  padding: 2.2rem 2rem;
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
+  border: 1px solid rgba(0,0,0,0.06);
+  text-align: center;
+  animation: fadeIn 0.6s ease-out;
+}
+
+.register-title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 0.4rem;
+}
+
+.register-subtitle {
+  color: var(--color-muted);
+  font-size: 0.95rem;
+  margin-bottom: 1.8rem;
+}
+
+.register-form {
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+/* Fields */
+.register-field label {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin-bottom: 0.35rem;
+}
+
+.register-field input {
+  width: 100%;
+  padding: 0.65rem 0.9rem;
+  border-radius: 0.6rem;
+  border: 1px solid rgba(0,0,0,0.15);
+  font-size: 0.95rem;
+  background: #fff;
+}
+
+/* Button */
+.register-btn {
+  width: 100%;
+  margin-top: 0.4rem;
+}
+
+/* Bottom text */
+.register-bottom {
+  margin-top: 1.6rem;
+  font-size: 0.9rem;
+  color: var(--color-muted);
+}
+
+.register-link {
+  color: var(--color-primary);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.register-link:hover {
+  text-decoration: underline;
+}
