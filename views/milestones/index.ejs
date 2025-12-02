@@ -1,0 +1,45 @@
+<%- include("../partials/header") %>
+<%- include("../partials/_navbar") %>
+
+<main class="main-container">
+  <%- include("../partials/_flash") %>
+  <div class="card">
+    <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
+      <span>Milestones</span>
+      <% if (currentUser && currentUser.role === "manager") { %>
+        <a href="/milestones/new" class="btn btn-primary">Add milestone</a>
+      <% } %>
+    </div>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Description</th>
+          <th>Max value</th>
+          <% if (currentUser && currentUser.role === "manager") { %>
+            <th>Actions</th>
+          <% } %>
+        </tr>
+      </thead>
+      <tbody>
+        <% milestones.forEach(m => { %>
+          <tr>
+            <td><%= m.name %></td>
+            <td><%= m.description || "" %></td>
+            <td><%= m.max_value %></td>
+            <% if (currentUser && currentUser.role === "manager") { %>
+              <td>
+                <a href="/milestones/<%= m.id %>/edit" class="btn btn-secondary">Edit</a>
+                <form action="/milestones/<%= m.id %>?_method=DELETE" method="POST" style="display:inline;">
+                  <button class="btn btn-danger" type="submit">Delete</button>
+                </form>
+              </td>
+            <% } %>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</main>
+
+<%- include("../partials/footer") %>

@@ -1,0 +1,119 @@
+<%- include("../partials/header") %>
+<%- include("../partials/_navbar") %>
+
+<main class="bg-gradient-hero min-h-screen py-12 page-main">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+    <!-- Header -->
+    <div class="flex-col md:flex-row flex justify-between items-start md:items-center gap-4 mb-8">
+      <div>
+        <h1 class="text-4xl font-bold text-foreground mb-2">Participants</h1>
+        <p class="text-muted-foreground">Manage program participants</p>
+      </div>
+      <a href="/participants/new" class="btn-pill btn-primary flex items-center gap-2">
+        + Add Participant
+      </a>
+    </div>
+
+    <!-- Filters -->
+    <div class="card-pastel mb-8">
+      <div class="flex-col md:flex-row flex gap-4">
+        <div class="flex-1 relative">
+          <span class="input-icon">🔍</span>
+          <input type="text" placeholder="Search participants..." class="input-pastel input-with-icon w-full" />
+        </div>
+
+        <button class="btn-pill bg-white border-2 border-border hover:border-primary flex items-center gap-2">
+          ⚙️ Filter
+        </button>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="grid md:grid-cols-4 gap-4 mb-8">
+      <div class="stat-card">
+        <div class="text-3xl font-bold text-foreground mb-1">124</div>
+        <div class="text-sm text-muted-foreground">Total Participants</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="text-3xl font-bold text-foreground mb-1">98</div>
+        <div class="text-sm text-muted-foreground">Active</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="text-3xl font-bold text-foreground mb-1">26</div>
+        <div class="text-sm text-muted-foreground">Inactive</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="text-3xl font-bold text-foreground mb-1">15</div>
+        <div class="text-sm text-muted-foreground">New This Month</div>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="card-pastel overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="table-pastel">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Program</th>
+              <th>Status</th>
+              <th>Join Date</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <% participants.forEach(p => { %>
+              <tr>
+                <td class="font-medium text-foreground"><%= p.name %></td>
+                <td class="text-muted-foreground"><%= p.email %></td>
+
+                <td>
+                  <span class="px-3 py-1 rounded-full text-sm bg-primary/10 text-primary">
+                    <%= p.program %>
+                  </span>
+                </td>
+
+                <td>
+                  <% if (p.status === "Active") { %>
+                    <span class="px-3 py-1 rounded-full text-sm bg-accent/10 text-accent">
+                      Active
+                    </span>
+                  <% } else { %>
+                    <span class="px-3 py-1 rounded-full text-sm bg-muted text-muted-foreground">
+                      Inactive
+                    </span>
+                  <% } %>
+                </td>
+
+                <td class="text-muted-foreground"><%= p.joinDate %></td>
+
+                <td>
+                  <div class="flex gap-2">
+                    <a href="/participants/<%= p.id %>/edit" class="text-sm text-primary hover:underline font-medium">Edit</a>
+
+                    <form action="/participants/<%= p.id %>/delete" method="POST">
+                      <button class="text-sm text-destructive hover:underline font-medium">
+                        Delete
+                      </button>
+                    </form>
+                  </div>
+                </td>
+
+              </tr>
+            <% }) %>
+          </tbody>
+
+        </table>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<%- include("../partials/footer") %>

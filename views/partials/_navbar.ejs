@@ -1,0 +1,67 @@
+<nav class="navbar-fixed">
+  <div class="navbar-inner">
+    <div class="navbar-main">
+      <!-- Logo -->
+      <a href="/" class="navbar-logo-link">
+        <img 
+          src="/images/Ella Rises Logo.avif" 
+          alt="Ella Rises Logo" 
+          class="navbar-logo-img"
+        />
+      </a>
+
+      <!-- Desktop navigation -->
+      <div class="navbar-links">
+        <a href="/" class="nav-link">Home</a>
+        <a href="/impact" class="nav-link">Impact</a>
+        <a href="/participants" class="nav-link">Participants</a>
+        <a href="/events" class="nav-link">Events</a>
+        <a href="/donations" class="nav-link">Donate</a>
+        <% if (!currentUser) { %>
+          <a href="/login" class="btn-pill btn-primary">Login</a>
+        <% } else { %>
+          <span class="nav-user-label">Hi, <%= currentUser.username %></span>
+          <% if (currentUser.role === 'manager') { %>
+            <a href="/dashboard/admin" class="nav-link">Dashboard</a>
+          <% } else { %>
+            <a href="/dashboard/user" class="nav-link">Dashboard</a>
+          <% } %>
+          <form action="/logout" method="POST" class="nav-logout-form">
+            <button type="submit" class="btn-pill btn-secondary">Logout</button>
+          </form>
+        <% } %>
+      </div>
+
+      <!-- Mobile menu button -->
+      <button
+        class="navbar-menu-button"
+        type="button"
+        onclick="document.documentElement.classList.toggle('nav-open')"
+      >
+        <span class="navbar-menu-icon"></span>
+      </button>
+    </div>
+
+    <!-- Mobile navigation -->
+    <div class="navbar-mobile">
+      <a href="/" class="nav-link-mobile">Home</a>
+      <a href="/impact" class="nav-link-mobile">Impact</a>
+      <a href="/participants" class="nav-link-mobile">Participants</a>
+      <a href="/events" class="nav-link-mobile">Events</a>
+      <a href="/donations" class="nav-link-mobile">Donate</a>
+      <% if (!currentUser) { %>
+        <a href="/login" class="nav-link-mobile nav-link-primary">Login</a>
+      <% } else { %>
+        <span class="nav-link-mobile">Hi, <%= currentUser.username %></span>
+        <% if (currentUser.role === 'manager') { %>
+          <a href="/dashboard/admin" class="nav-link-mobile">Dashboard</a>
+        <% } else { %>
+          <a href="/dashboard/user" class="nav-link-mobile">Dashboard</a>
+        <% } %>
+        <form action="/logout" method="POST" class="nav-mobile-logout-form">
+          <button type="submit" class="nav-link-mobile nav-link-primary">Logout</button>
+        </form>
+      <% } %>
+    </div>
+  </div>
+</nav>

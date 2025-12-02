@@ -1,0 +1,26 @@
+<%- include("../partials/header") %>
+<%- include("../partials/_navbar") %>
+
+<main class="main-container">
+  <%- include("../partials/_flash") %>
+  <div class="card">
+    <div class="card-header">Edit milestone</div>
+    <form action="/milestones/<%= milestone.id %>?_method=PUT" method="POST">
+      <div class="form-group">
+        <label>Name</label>
+        <input class="form-control" name="name" value="<%= milestone.name %>" required />
+      </div>
+      <div class="form-group">
+        <label>Description</label>
+        <textarea class="form-control" name="description" rows="3"><%= milestone.description || "" %></textarea>
+      </div>
+      <div class="form-group">
+        <label>Max value</label>
+        <input class="form-control" name="max_value" type="number" value="<%= milestone.max_value %>" min="1" />
+      </div>
+      <button class="btn btn-primary" type="submit">Update</button>
+    </form>
+  </div>
+</main>
+
+<%- include("../partials/footer") %>

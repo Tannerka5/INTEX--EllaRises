@@ -1,0 +1,65 @@
+<%- include("../partials/header", { title: "Events" }) %>
+<%- include("../partials/_navbar") %>
+
+<section class="bg-gradient-hero min-h-screen py-16">
+  <div class="max-w-7xl mx-auto px-6">
+
+    <!-- Page Title -->
+    <h1 class="text-4xl font-bold text-foreground mb-10">Events</h1>
+
+    <!-- Add Event Button -->
+    <div class="flex justify-end mb-12">
+      <a href="/events/new" class="btn-pill btn-primary flex items-center gap-2 text-lg px-8 py-3 shadow-md">
+        <span class="text-2xl font-bold">+</span>
+        Add Event
+      </a>
+    </div>
+
+    <!-- Events Grid -->
+    <div class="events-grid">
+      <% events.forEach(event => { %>
+
+        <div class="card-pastel event-card">
+
+          <!-- Icon -->
+          <div class="event-icon">📅</div>
+
+          <!-- Title -->
+          <h3 class="event-card-title"><%= event.eventname %></h3>
+
+          <!-- Date + Time -->
+          <p class="event-card-date">
+            <%= new Date(event.eventdatetimestart).toLocaleDateString() %>
+            at
+            <%= new Date(event.eventdatetimestart).toLocaleTimeString([], {hour:"numeric", minute:"2-digit"}) %>
+          </p>
+
+          <!-- Location -->
+          <% if (event.eventlocation) { %>
+            <p class="event-card-location">
+              <%= event.eventlocation %>
+            </p>
+          <% } %>
+
+          <!-- Attendees -->
+          <p class="event-card-attendees">
+            <%= event.attendees %> attendees
+          </p>
+
+          <!-- Edit Link -->
+          <a 
+            href="/events/<%= event.eventoccurrenceid %>/edit"
+            class="event-edit-link"
+          >
+            Edit Event →
+          </a>
+
+        </div>
+
+      <% }) %>
+    </div>
+
+  </div>
+</section>
+
+<%- include("../partials/footer") %>

@@ -1,0 +1,92 @@
+<%- include("../partials/header") %>
+<%- include("../partials/_navbar") %>
+
+<main class="bg-gradient-hero min-h-screen py-12 page-main">
+  <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+
+    <a href="/participants" class="flex items-center gap-2 text-muted-foreground hover:text-foreground mb-6">
+      ← Back to Participants
+    </a>
+
+    <div class="card-pastel">
+      <h1 class="text-3xl font-bold text-foreground mb-6">Edit Participant</h1>
+
+      <form action="/participants/<%= participant.id %>/edit" method="POST" class="space-y-6">
+
+        <div class="grid md:grid-cols-2 gap-6">
+
+          <div>
+            <label class="block text-sm font-medium text-foreground mb-2">Full Name *</label>
+            <input 
+              name="name" 
+              type="text"
+              required
+              value="<%= participant.name %>"
+              class="input-pastel"
+            />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-foreground mb-2">Email *</label>
+            <input 
+              name="email"
+              type="email"
+              required
+              value="<%= participant.email %>"
+              class="input-pastel"
+            />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-foreground mb-2">Phone</label>
+            <input 
+              name="phone"
+              type="tel"
+              value="<%= participant.phone %>"
+              class="input-pastel"
+            />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-foreground mb-2">Program *</label>
+            <select name="program" required class="input-pastel">
+              <option value="STEAM" <%= participant.program === "STEAM" ? "selected" : "" %>>STEAM Education</option>
+              <option value="Arts" <%= participant.program === "Arts" ? "selected" : "" %>>Arts & Culture</option>
+              <option value="Ballet" <%= participant.program === "Ballet" ? "selected" : "" %>>Ballet & Dance</option>
+              <option value="Mentorship" <%= participant.program === "Mentorship" ? "selected" : "" %>>Mentorship</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-foreground mb-2">Status</label>
+            <select name="status" class="input-pastel">
+              <option value="Active" <%= participant.status === "Active" ? "selected" : "" %>>Active</option>
+              <option value="Inactive" <%= participant.status === "Inactive" ? "selected" : "" %>>Inactive</option>
+            </select>
+          </div>
+
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-foreground mb-2">Notes</label>
+          <textarea 
+            name="notes"
+            class="input-pastel min-h-32"
+          ><%= participant.notes %></textarea>
+        </div>
+
+        <div class="flex gap-4">
+          <button type="submit" class="btn-pill btn-primary">Update Participant</button>
+
+          <a href="/participants" class="btn-pill bg-white border-2 border-border hover:border-primary">
+            Cancel
+          </a>
+        </div>
+
+      </form>
+    </div>
+
+  </div>
+</main>
+
+<%- include("../partials/footer") %>

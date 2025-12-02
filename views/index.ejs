@@ -1,0 +1,242 @@
+<%- include("partials/header") %>
+<%- include("partials/_navbar") %>
+
+<main class="page-main">
+  <%- include("partials/_flash") %>
+
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="curved-bg curved-bg-primary"></div>
+    <div class="curved-bg curved-bg-secondary"></div>
+
+    <div class="hero-inner">
+      <div class="hero-grid">
+        <!-- Hero Text -->
+        <div class="hero-text animate-fade-in">
+          <h1 class="hero-title">
+            Empowering Young Women Through
+            <span class="hero-title-accent">Education</span>
+          </h1>
+          <p class="hero-subtitle">
+            Building futures through mentorship, STEAM programs, and community support
+          </p>
+          <div class="hero-actions">
+            <a href="/donations" class="btn-pill btn-primary hero-btn-main">
+              Donate Now
+              <span class="hero-arrow">→</span>
+            </a>
+            <a href="/impact" class="btn-pill btn-outline-primary">
+              See Our Impact
+            </a>
+          </div>
+        </div>
+
+        <!-- Hero Image Collage -->
+        <div class="hero-collage animate-slide-in">
+          <div class="hero-collage-column hero-collage-column-1">
+            <img 
+              src="/images/steam1.avif" 
+              alt="STEAM Program" 
+              class="hero-img hero-img-small"
+            />
+            <img 
+              src="/images/mariachi1.avif" 
+              alt="Mariachi Program" 
+              class="hero-img hero-img-medium"
+            />
+          </div>
+          <div class="hero-collage-column hero-collage-column-2">
+            <img 
+              src="/images/classroom.avif" 
+              alt="Classroom Learning" 
+              class="hero-img hero-img-large"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Stats Section -->
+  <section class="stats-section">
+    <div class="section-inner">
+      <div class="stats-grid">
+        <div class="stat-card animate-fade-in">
+          <div class="stat-icon">👥</div>
+          <div class="stat-number">500+</div>
+          <div class="stat-label">Young Women Empowered</div>
+        </div>
+        <div class="stat-card animate-fade-in stat-delay-1">
+          <div class="stat-icon">🏅</div>
+          <div class="stat-number">50+</div>
+          <div class="stat-label">Programs Completed</div>
+        </div>
+        <div class="stat-card animate-fade-in stat-delay-2">
+          <div class="stat-icon">♥</div>
+          <div class="stat-number">100+</div>
+          <div class="stat-label">Community Partners</div>
+        </div>
+        <div class="stat-card animate-fade-in stat-delay-3">
+          <div class="stat-icon">📈</div>
+          <div class="stat-number">95%</div>
+          <div class="stat-label">Success Rate</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Programs Section -->
+  <section class="programs-section">
+    <div class="section-inner">
+      <div class="programs-header">
+        <h2 class="programs-title">Our Programs</h2>
+        <p class="programs-subtitle">
+          Diverse programs designed to inspire, educate, and empower
+        </p>
+      </div>
+
+      <div class="programs-grid">
+        <!-- STEAM Program -->
+        <div class="card-pastel">
+          <div class="program-row">
+            <img 
+              src="/images/steam2.avif" 
+              alt="STEAM Program" 
+              class="program-img"
+            />
+            <div class="program-copy">
+              <h3 class="program-heading">STEAM Education</h3>
+              <p class="program-text">
+                Hands-on learning in Science, Technology, Engineering, Arts, and Mathematics
+              </p>
+              <a href="/events" class="program-link">
+                Learn More →
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Arts & Culture -->
+        <div class="card-pastel">
+          <div class="program-row">
+            <img 
+              src="/images/mariachi2.avif" 
+              alt="Mariachi Program" 
+              class="program-img"
+            />
+            <div class="program-copy">
+              <h3 class="program-heading">Arts & Culture</h3>
+              <p class="program-text">
+                Celebrating heritage through music, dance, and cultural education
+              </p>
+              <a href="/events" class="program-link">
+                Learn More →
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Ballet -->
+        <div class="card-pastel">
+          <div class="program-row">
+            <img 
+              src="/images/ballet1.avif" 
+              alt="Ballet Program" 
+              class="program-img"
+            />
+            <div class="program-copy">
+              <h3 class="program-heading">Dance & Movement</h3>
+              <p class="program-text">
+                Building confidence and discipline through classical and modern dance
+              </p>
+              <a href="/events" class="program-link">
+                Learn More →
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mentorship -->
+        <div class="card-pastel">
+          <div class="program-row">
+            <img 
+              src="/images/ballet2.avif" 
+              alt="Mentorship Program" 
+              class="program-img"
+            />
+            <div class="program-copy">
+              <h3 class="program-heading">Mentorship</h3>
+              <p class="program-text">
+                One-on-one guidance from successful women in various fields
+              </p>
+              <a href="/events" class="program-link">
+                Learn More →
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Donate Section -->
+  <section class="donate-section">
+    <div class="section-inner">
+      <div class="donate-header">
+        <h2 class="donate-title">
+          Make a Difference Today
+        </h2>
+        <p class="donate-subtitle">
+          Your contribution helps us continue empowering young women in our community
+        </p>
+      </div>
+
+      <div class="donate-layout">
+        <img 
+          src="/images/flower-left.avif" 
+          alt="" 
+          class="donate-flower donate-flower-left animate-float"
+        />
+
+        <div class="donate-center">
+          <img 
+            src="/images/donategroup.avif" 
+            alt="Donate" 
+            class="donate-main-img"
+          />
+          <a href="/donations" class="btn-pill btn-primary donate-btn">
+            Donate Now
+          </a>
+        </div>
+
+        <img 
+          src="/images/flower-right.avif" 
+          alt="" 
+          class="donate-flower donate-flower-right animate-float delay-1"
+        />
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="cta-section">
+    <div class="cta-inner">
+      <h2 class="cta-title">
+        Join Our Mission
+      </h2>
+      <p class="cta-subtitle">
+        Together, we can create lasting change in our community
+      </p>
+      <div class="cta-actions">
+        <a href="/register" class="btn-pill btn-primary">
+          Get Involved
+        </a>
+        <a href="/impact" class="btn-pill btn-secondary">
+          Learn More
+        </a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<%- include("partials/footer") %>

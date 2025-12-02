@@ -1,0 +1,40 @@
+<%- include("../partials/header") %>
+<%- include("../partials/_navbar") %>
+
+<main class="main-container">
+  <%- include("../partials/_flash") %>
+  <div class="card">
+    <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
+      <span>Surveys</span>
+      <% if (currentUser && currentUser.role === "manager") { %>
+        <a href="/surveys/new" class="btn btn-primary">New survey</a>
+      <% } %>
+    </div>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Participant</th>
+          <th>Event</th>
+          <th>Satisfaction</th>
+          <th>Usefulness</th>
+          <th>Recommend</th>
+          <th>Submitted</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% surveys.forEach(s => { %>
+          <tr>
+            <td><%= s.first_name %> <%= s.last_name %></td>
+            <td><%= s.event_name || "" %></td>
+            <td><%= s.satisfaction %></td>
+            <td><%= s.usefulness %></td>
+            <td><%= s.recommendation_score %></td>
+            <td><%= s.created_at.toISOString().slice(0,10) %></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</main>
+
+<%- include("../partials/footer") %>

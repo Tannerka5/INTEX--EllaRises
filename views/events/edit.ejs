@@ -1,0 +1,119 @@
+<%- include("../partials/header") %>
+
+<section class="bg-gradient-hero min-h-screen py-12">
+  <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+
+    <a href="/events" class="text-muted-foreground hover:text-foreground mb-6 inline-flex items-center gap-2">
+      ← Back to Events
+    </a>
+
+    <div class="card-pastel">
+      <h1 class="text-3xl font-bold text-foreground mb-6">Edit Event</h1>
+
+      <form action="/events/<%= event.eventoccurrenceid %>/edit" method="POST" class="space-y-6">
+
+        <!-- TEMPLATE -->
+        <div>
+          <label class="block text-sm font-medium text-foreground mb-2">Event Template *</label>
+          <select name="eventtemplateid" class="input-pastel" required>
+            <% templates.forEach(t => { %>
+              <option 
+                value="<%= t.eventtemplateid %>" 
+                <%= t.eventtemplateid === event.eventtemplateid ? "selected" : "" %>
+              >
+                <%= t.eventname %>
+              </option>
+            <% }) %>
+          </select>
+        </div>
+
+        <!-- NAME -->
+        <div>
+          <label class="block text-sm font-medium text-foreground mb-2">Event Name *</label>
+          <input 
+            type="text"
+            name="eventname"
+            class="input-pastel"
+            value="<%= event.eventname %>"
+            required
+          />
+        </div>
+
+        <!-- DATETIME START -->
+        <div>
+          <label class="block text-sm font-medium text-foreground mb-2">Start Date & Time *</label>
+          <input
+            type="datetime-local"
+            name="eventdatetimestart"
+            class="input-pastel"
+            value="<%= event.startLocal %>"
+            required
+          />
+        </div>
+
+        <!-- DATETIME END -->
+        <div>
+          <label class="block text-sm font-medium text-foreground mb-2">End Date & Time</label>
+          <input
+            type="datetime-local"
+            name="eventdatetimeend"
+            class="input-pastel"
+            value="<%= event.endLocal %>"
+          />
+        </div>
+
+        <!-- LOCATION -->
+        <div>
+          <label class="block text-sm font-medium text-foreground mb-2">Location</label>
+          <input
+            type="text"
+            name="eventlocation"
+            class="input-pastel"
+            value="<%= event.eventlocation %>"
+          />
+        </div>
+
+        <!-- CAPACITY -->
+        <div>
+          <label class="block text-sm font-medium text-foreground mb-2">Capacity</label>
+          <input
+            type="number"
+            name="eventcapacity"
+            class="input-pastel"
+            min="1"
+            value="<%= event.eventcapacity %>"
+          />
+        </div>
+
+        <!-- DEADLINE -->
+        <div>
+          <label class="block text-sm font-medium text-foreground mb-2">Registration Deadline</label>
+          <input
+            type="datetime-local"
+            name="eventregistrationdeadline"
+            class="input-pastel"
+            value="<%= event.deadlineLocal %>"
+          />
+        </div>
+
+        <button type="submit" class="btn-pill btn-primary w-full">
+          Update Event
+        </button>
+
+      </form>
+
+      <form 
+        action="/events/<%= event.eventoccurrenceid %>/delete" 
+        method="POST" 
+        class="mt-6"
+      >
+        <button class="btn-pill bg-white border-2 border-destructive text-destructive w-full">
+          Delete Event
+        </button>
+      </form>
+
+    </div>
+  </div>
+</section>
+
+<%- include("../partials/footer") %>
