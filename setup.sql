@@ -6,6 +6,7 @@ DROP TABLE IF EXISTS registration CASCADE;
 DROP TABLE IF EXISTS eventoccurrence CASCADE;
 DROP TABLE IF EXISTS eventtemplate CASCADE;
 DROP TABLE IF EXISTS participant CASCADE;
+DROP TABLE IF EXISTS users CASCADE;
 
 CREATE TABLE participant (
     participantid INTEGER PRIMARY KEY,
@@ -80,10 +81,12 @@ CREATE TABLE donation (
     donationamount NUMERIC(10,2) NOT NULL
 );
 
-
-INSERT INTO eventtemplate (eventtemplateid, eventname)
-VALUES 
-  (1, 'STEAM Workshop'),
-  (2, 'Ballet Practice'),
-  (3, 'Mentorship Session'),
-  (4, 'Arts & Culture Event');
+CREATE TABLE users (
+    id integer NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1 ),
+    email character varying(50) COLLATE pg_catalog."default" NOT NULL,
+    password character varying(100) COLLATE pg_catalog."default" NOT NULL,
+    role character varying(7) COLLATE pg_catalog."default" NOT NULL,
+    created_date date NOT NULL DEFAULT CURRENT_DATE,
+    full_name character varying(50) COLLATE pg_catalog."default" NOT NULL,
+    CONSTRAINT users_pkey PRIMARY KEY (id)
+);
