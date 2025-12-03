@@ -2,20 +2,21 @@
 <%- include("../partials/_navbar") %>
 
 <main class="register-page-wrapper">
-
   <div class="register-card">
-
     <h1 class="register-title">Create Account</h1>
     <p class="register-subtitle">Join our community!</p>
 
-    <form action="/register" method="POST" class="register-form">
+    <% if (error && error.length > 0) { %>
+      <div class="alert alert-danger"><%= error %></div>
+    <% } %>
 
+    <form action="/register" method="POST" class="register-form">
       <!-- Full Name -->
       <div class="register-field">
         <label>Full Name</label>
         <input
           type="text"
-          name="name"
+          name="full_name"
           placeholder="Jane Doe"
           required
         />
@@ -40,6 +41,7 @@
           name="password"
           placeholder="••••••••"
           required
+          minlength="6"
         />
       </div>
 
@@ -48,26 +50,26 @@
         <label>Confirm Password</label>
         <input
           type="password"
-          name="confirmPassword"
+          name="confirm_password"
           placeholder="••••••••"
           required
+          minlength="6"
         />
       </div>
+
+      <input type="hidden" name="role" value="User">
 
       <!-- Button -->
       <button type="submit" class="btn-pill btn-primary register-btn">
         Create Account
       </button>
-
     </form>
 
     <p class="register-bottom">
       Already have an account?
       <a href="/login" class="register-link">Sign in</a>
     </p>
-
   </div>
-
 </main>
 
 <%- include("../partials/footer") %>

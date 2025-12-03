@@ -20,7 +20,7 @@
         <% if (!currentUser) { %>
           <a href="/login" class="btn-pill btn-primary">Login</a>
         <% } else { %>
-          <span class="nav-user-label">Hi, <%= currentUser.username %></span>
+          <span class="nav-user-label">Hi, <%= currentUser.full_name %></span>
           <% if (currentUser.role === 'manager') { %>
             <a href="/dashboard/admin" class="nav-link">Dashboard</a>
           <% } else { %>
@@ -52,7 +52,7 @@
       <% if (!currentUser) { %>
         <a href="/login" class="nav-link-mobile nav-link-primary">Login</a>
       <% } else { %>
-        <span class="nav-link-mobile">Hi, <%= currentUser.username %></span>
+        <span class="nav-link-mobile">Hi, <%= currentUser.full_name %></span>
         <% if (currentUser.role === 'manager') { %>
           <a href="/dashboard/admin" class="nav-link-mobile">Dashboard</a>
         <% } else { %>

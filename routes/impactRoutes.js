@@ -1,7 +1,13 @@
 const express = require("express");
 const router = express.Router();
-const { getImpactPage } = require("../controllers/impactController");
+const { requireLogin } = require("../middleware/authMiddleware");
 
-router.get("/", getImpactPage);
+// GET /impact - simple impact page
+router.get("/", requireLogin, (req, res) => {
+  res.render("impact/index", { 
+    title: "Impact", 
+    currentUser: req.session.user
+  });
+});
 
 module.exports = router;
