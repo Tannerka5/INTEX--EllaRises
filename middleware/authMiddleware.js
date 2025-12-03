@@ -1,28 +1,35 @@
-function ensureAuthenticated(req, res, next) {
-  if (req.session && req.session.user) {
-    return next();
-  }
-  req.flash("error", "You must be logged in to view that page.");
-  return res.redirect("/login");
-}
-
-function ensureManager(req, res, next) {
-  if (req.session && req.session.user && req.session.user.role === "manager") {
-    return next();
-  }
-  req.flash("error", "You do not have permission to view that page.");
-  return res.redirect("/");
-}
-
-function attachUserToLocals(req, res, next) {
+// Middleware to attach user to res.locals for all views
+const attachUserToLocals = (req, res, next) => {
   res.locals.currentUser = req.session.user || null;
   res.locals.success = req.flash("success");
   res.locals.error = req.flash("error");
   next();
-}
+};
+
+// Middleware to require login
+const requireLogin = (req, res, next) => {
+  if (!req.session.user) {
+    req.flash("error", "Please log in to access this page");
+    return res.redirect("/login");
+  }
+  next();
+};
+
+// Middleware to require manager role
+const requireManager = (req, res, next) => {
+  if (!req.session.user) {
+    req.flash("error", "Please log in to access this page");
+    return res.redirect("/login");
+  }
+  if (req.session.user.role !== "Manager") {
+    req.flash("error", "You do not have permission to access this page");
+    return res.redirect("/dashboard/user");
+  }
+  next();
+};
 
 module.exports = {
-  ensureAuthenticated,
-  ensureManager,
-  attachUserToLocals
+  attachUserToLocals,
+  requireLogin,
+  requireManager
 };
