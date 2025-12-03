@@ -1111,3 +1111,94 @@ h1 {
 .register-link:hover {
   text-decoration: underline;
 }
+
+/* IMPACT STYLING */
+/* Row that holds 4 vertical cards side-by-side */
+.impact-row {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  flex-wrap: nowrap;      /* THIS forces 4 cards in one row */
+  margin-top: 2rem;
+}
+
+/* Vertical cards */
+.impact-vertical-card {
+  width: 220px;
+  background: #ffffff;
+  padding: 1.8rem 1.4rem;
+  border-radius: 1.4rem;
+  text-align: center;
+  box-shadow: 0 12px 26px rgba(15,23,42,0.08);
+  border: 1px solid rgba(0,0,0,0.06);
+}
+
+.impact-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-foreground);
+  margin-bottom: 0.5rem;
+}
+
+.impact-number {
+  font-size: 1.9rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  margin-bottom: 0.4rem;
+}
+
+.impact-sub {
+  font-size: 0.85rem;
+  color: var(--color-muted);
+}
+
+.impact-wrapper-card {
+  background: #ffffffee;
+  padding: 3rem 2rem;
+  border-radius: 1.8rem;
+  box-shadow: 0 18px 32px rgba(15,23,42,0.08);
+  margin-bottom: 4rem;
+}
+.impact-section-title {
+  text-align: center;
+  font-size: 2.4rem;
+  font-weight: 700;
+  margin-bottom: 2.5rem;
+  color: var(--color-foreground);
+}
+
+.testimonial-carousel {
+  position: relative;
+  width: 100%;
+  max-width: 720px;
+  margin: 0 auto;
+  min-height: 150px;
+}
+
+.testimonial-slide {
+  opacity: 0;
+  display:none;
+  transition: opacity 0.8s ease;
+  position: absolute;
+  width: 100%;
+  text-align: center;
+}
+
+.testimonial-slide.active {
+  opacity: 1;
+  display: block;
+  position: static;
+}
+
+.testimonial-text {
+  font-size: 1.3rem;
+  color: var(--color-muted);
+  font-style: italic;
+  margin-bottom: 0.6rem;
+}
+
+.testimonial-author {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-foreground);
+}
