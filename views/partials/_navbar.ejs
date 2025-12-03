@@ -20,12 +20,12 @@
         <% if (!currentUser) { %>
           <a href="/login" class="btn-pill btn-primary">Login</a>
         <% } else { %>
-          <span class="nav-user-label">Hi, <%= currentUser.full_name %></span>
           <% if (currentUser.role === 'manager') { %>
             <a href="/dashboard/admin" class="nav-link">Dashboard</a>
           <% } else { %>
             <a href="/dashboard/user" class="nav-link">Dashboard</a>
           <% } %>
+          <span class="nav-user-label">Hi, <%= currentUser.full_name %></span>
           <form action="/logout" method="POST" class="nav-logout-form">
             <button type="submit" class="btn-pill btn-secondary">Logout</button>
           </form>
@@ -52,12 +52,12 @@
       <% if (!currentUser) { %>
         <a href="/login" class="nav-link-mobile nav-link-primary">Login</a>
       <% } else { %>
-        <span class="nav-link-mobile">Hi, <%= currentUser.full_name %></span>
         <% if (currentUser.role === 'manager') { %>
           <a href="/dashboard/admin" class="nav-link-mobile">Dashboard</a>
         <% } else { %>
           <a href="/dashboard/user" class="nav-link-mobile">Dashboard</a>
         <% } %>
+        <span class="nav-link-mobile">Hi, <%= currentUser.full_name %></span>
         <form action="/logout" method="POST" class="nav-mobile-logout-form">
           <button type="submit" class="nav-link-mobile nav-link-primary">Logout</button>
         </form>
