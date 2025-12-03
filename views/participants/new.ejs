@@ -1,79 +1,79 @@
 <%- include("../partials/header") %>
 <%- include("../partials/_navbar") %>
 
-<main class="bg-gradient-hero min-h-screen py-12 page-main">
-  <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+<main class="register-page-wrapper">
+  <div class="register-card">
+    <h1 class="register-title">Add Participant</h1>
+    <p class="register-subtitle">Create a new participant record.</p>
 
-    <!-- Back button -->
-    <a href="/participants" class="flex items-center gap-2 text-muted-foreground hover:text-foreground mb-6">
-      ← Back to Participants
-    </a>
+    <% if (error && error.length > 0) { %>
+      <div class="alert alert-danger"><%= error %></div>
+    <% } %>
 
-    <div class="card-pastel">
-      <h1 class="text-3xl font-bold text-foreground mb-6">Add New Participant</h1>
+    <form action="/participants" method="POST" class="register-form">
+      <div class="register-field">
+        <label>Email</label>
+        <input type="email" name="participantemail" required />
+      </div>
 
-      <form action="/participants/new" method="POST" class="space-y-6">
+      <div class="register-field">
+        <label>First Name</label>
+        <input type="text" name="participantfirstname" required />
+      </div>
 
-        <div class="grid md:grid-cols-2 gap-6">
+      <div class="register-field">
+        <label>Last Name</label>
+        <input type="text" name="participantlastname" required />
+      </div>
 
-          <!-- Name -->
-          <div>
-            <label class="block text-sm font-medium text-foreground mb-2">Full Name *</label>
-            <input name="name" type="text" required class="input-pastel" />
-          </div>
+      <div class="register-field">
+        <label>Date of Birth</label>
+        <input type="date" name="participantdob" />
+      </div>
 
-          <!-- Email -->
-          <div>
-            <label class="block text-sm font-medium text-foreground mb-2">Email *</label>
-            <input name="email" type="email" required class="input-pastel" />
-          </div>
+      <div class="register-field">
+        <label>Role</label>
+        <input type="text" name="participantrole" placeholder="Student, Mentor, etc." />
+      </div>
 
-          <!-- Phone -->
-          <div>
-            <label class="block text-sm font-medium text-foreground mb-2">Phone</label>
-            <input name="phone" type="tel" class="input-pastel" />
-          </div>
+      <div class="register-field">
+        <label>Phone</label>
+        <input type="text" name="participantphone" />
+      </div>
 
-          <!-- Program -->
-          <div>
-            <label class="block text-sm font-medium text-foreground mb-2">Program *</label>
-            <select name="program" required class="input-pastel">
-              <option value="">Select program</option>
-              <option value="STEAM">STEAM Education</option>
-              <option value="Arts">Arts & Culture</option>
-              <option value="Ballet">Ballet & Dance</option>
-              <option value="Mentorship">Mentorship</option>
-            </select>
-          </div>
+      <div class="register-field">
+        <label>City</label>
+        <input type="text" name="participantcity" />
+      </div>
 
-          <!-- Status -->
-          <div>
-            <label class="block text-sm font-medium text-foreground mb-2">Status</label>
-            <select name="status" class="input-pastel">
-              <option value="Active">Active</option>
-              <option value="Inactive">Inactive</option>
-            </select>
-          </div>
+      <div class="register-field">
+        <label>State</label>
+        <input type="text" name="participantstate" />
+      </div>
 
-        </div>
+      <div class="register-field">
+        <label>ZIP</label>
+        <input type="text" name="participantzip" />
+      </div>
 
-        <!-- Notes -->
-        <div>
-          <label class="block text-sm font-medium text-foreground mb-2">Notes</label>
-          <textarea name="notes" class="input-pastel min-h-32" placeholder="Additional notes..."></textarea>
-        </div>
+      <div class="register-field">
+        <label>School or Employer</label>
+        <input type="text" name="participantschooloremployer" />
+      </div>
 
-        <div class="flex gap-4">
-          <button type="submit" class="btn-pill btn-primary">Add Participant</button>
+      <div class="register-field">
+        <label>Field of Interest</label>
+        <input type="text" name="participantfieldofinterest" />
+      </div>
 
-          <a href="/participants" class="btn-pill bg-white border-2 border-border hover:border-primary">
-            Cancel
-          </a>
-        </div>
+      <button type="submit" class="btn-pill btn-primary register-btn">
+        Save Participant
+      </button>
+    </form>
 
-      </form>
-    </div>
-
+    <p class="register-bottom">
+      <a href="/participants" class="register-link">Back to Participants</a>
+    </p>
   </div>
 </main>
 

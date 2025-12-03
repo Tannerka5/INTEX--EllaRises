@@ -1,47 +1,83 @@
 <%- include("../partials/header") %>
 <%- include("../partials/_navbar") %>
 
-<main class="main-container">
-  <%- include("../partials/_flash") %>
-  <div class="card">
-    <div class="card-header">New survey</div>
-    <form action="/surveys" method="POST">
-      <div class="form-group">
+<main class="register-page-wrapper">
+  <div class="register-card">
+    <h1 class="register-title">Add Survey</h1>
+    <p class="register-subtitle">Enter survey results for an event.</p>
+
+    <% if (error && error.length > 0) { %>
+      <div class="alert alert-danger"><%= error %></div>
+    <% } %>
+
+    <form action="/surveys" method="POST" class="register-form">
+      <div class="register-field">
         <label>Participant</label>
-        <select class="form-control" name="participant_id" required>
-          <option value="">Select participant</option>
+        <select name="participantid" required>
+          <option value="">Select participant...</option>
           <% participants.forEach(p => { %>
-            <option value="<%= p.id %>"><%= p.first_name %> <%= p.last_name %></option>
+            <option value="<%= p.participantid %>">
+              <%= p.participantlastname %>, <%= p.participantfirstname %>
+            </option>
           <% }) %>
         </select>
       </div>
-      <div class="form-group">
+
+      <div class="register-field">
         <label>Event</label>
-        <select class="form-control" name="event_id" required>
-          <option value="">Select event</option>
+        <select name="eventoccurrenceid" required>
+          <option value="">Select event...</option>
           <% events.forEach(e => { %>
-            <option value="<%= e.id %>"><%= e.name %> (<%= e.event_date %>)</option>
+            <option value="<%= e.eventoccurrenceid %>">
+              <%= e.eventname %> – <%= new Date(e.eventdatetimestart).toLocaleString() %>
+            </option>
           <% }) %>
         </select>
       </div>
-      <div class="form-group">
-        <label>Satisfaction (1–5)</label>
-        <input class="form-control" type="number" name="satisfaction" min="1" max="5" required />
+
+      <div class="register-field">
+        <label>Satisfaction Score</label>
+        <input type="number" name="surveysatisfactionscore" min="1" max="10" />
       </div>
-      <div class="form-group">
-        <label>Usefulness (1–5)</label>
-        <input class="form-control" type="number" name="usefulness" min="1" max="5" required />
+
+      <div class="register-field">
+        <label>Usefulness Score</label>
+        <input type="number" name="surveyusefulnessscore" min="1" max="10" />
       </div>
-      <div class="form-group">
-        <label>Recommendation score (1–10)</label>
-        <input class="form-control" type="number" name="recommendation_score" min="1" max="10" required />
+
+      <div class="register-field">
+        <label>Instructor Score</label>
+        <input type="number" name="surveyinstructorscore" min="1" max="10" />
       </div>
-      <div class="form-group">
+
+      <div class="register-field">
+        <label>Recommendation Score</label>
+        <input type="number" name="surveyrecommendationscore" min="1" max="10" />
+      </div>
+
+      <div class="register-field">
+        <label>Overall Score</label>
+        <input type="number" name="surveyoverallscore" min="1" max="10" />
+      </div>
+
+      <div class="register-field">
+        <label>NPS Bucket</label>
+        <input type="text" name="surveynpsbucket" placeholder="Promoter / Passive / Detractor" />
+      </div>
+
+      <div class="register-field">
         <label>Comments</label>
-        <textarea class="form-control" name="comments" rows="3"></textarea>
+        <textarea name="surveycomments" rows="3" style="width:100%; padding:0.65rem 0.9rem; border-radius:0.6rem; border:1px solid rgba(0,0,0,0.15); font-size:0.95rem;"></textarea>
       </div>
-      <button class="btn btn-primary" type="submit">Submit survey</button>
+
+      <button type="submit" class="btn-pill btn-primary register-btn">
+        Save Survey
+      </button>
     </form>
+
+    <p class="register-bottom">
+      <a href="/surveys" class="register-link">Back to Surveys</a>
+    </p>
   </div>
 </main>
 

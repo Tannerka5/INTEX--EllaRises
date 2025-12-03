@@ -1,86 +1,62 @@
 <%- include("../partials/header") %>
+<%- include("../partials/_navbar") %>
 
-<section class="bg-gradient-hero min-h-screen py-12">
-  <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+<main class="register-page-wrapper">
+  <div class="register-card">
+    <h1 class="register-title">Add Event</h1>
+    <p class="register-subtitle">Schedule a new Ella Rises event.</p>
 
-    <a href="/events" class="text-muted-foreground hover:text-foreground mb-6 inline-flex items-center gap-2">
-      ← Back to Events
-    </a>
+    <% if (error && error.length > 0) { %>
+      <div class="alert alert-danger"><%= error %></div>
+    <% } %>
 
-    <div class="card-pastel">
-      <h1 class="text-3xl font-bold text-foreground mb-6">Add New Event</h1>
+    <form action="/events" method="POST" class="register-form">
+      <div class="register-field">
+        <label>Event Template</label>
+        <select name="eventtemplateid" required>
+          <option value="">Select event type...</option>
+          <% templates.forEach(t => { %>
+            <option value="<%= t.eventtemplateid %>">
+              <%= t.eventname %> (<%= t.eventtype %>)
+            </option>
+          <% }) %>
+        </select>
+      </div>
 
-      <form action="/events/new" method="POST" class="space-y-6">
+      <div class="register-field">
+        <label>Start Date & Time</label>
+        <input type="datetime-local" name="eventdatetimestart" required />
+      </div>
 
-        <!-- TEMPLATE -->
-        <div>
-          <label class="block text-sm font-medium text-foreground mb-2">
-            Event Template *
-          </label>
-          <select name="eventtemplateid" class="input-pastel" required>
-            <% templates.forEach(t => { %>
-              <option value="<%= t.eventtemplateid %>">
-                <%= t.eventname %>
-              </option>
-            <% }) %>
-          </select>
-        </div>
+      <div class="register-field">
+        <label>End Date & Time</label>
+        <input type="datetime-local" name="eventdatetimeend" />
+      </div>
 
-        <!-- NAME -->
-        <div>
-          <label class="block text-sm font-medium text-foreground mb-2">
-            Event Name *
-          </label>
-          <input type="text" name="eventname" class="input-pastel" required />
-        </div>
+      <div class="register-field">
+        <label>Location</label>
+        <input type="text" name="eventlocation" required />
+      </div>
 
-        <!-- DATETIME START -->
-        <div>
-          <label class="block text-sm font-medium text-foreground mb-2">
-            Start Date & Time *
-          </label>
-          <input type="datetime-local" name="eventdatetimestart" class="input-pastel" required />
-        </div>
+      <div class="register-field">
+        <label>Capacity</label>
+        <input type="number" name="eventcapacity" min="1" />
+      </div>
 
-        <!-- DATETIME END -->
-        <div>
-          <label class="block text-sm font-medium text-foreground mb-2">
-            End Date & Time
-          </label>
-          <input type="datetime-local" name="eventdatetimeend" class="input-pastel" />
-        </div>
+      <div class="register-field">
+        <label>Registration Deadline</label>
+        <input type="datetime-local" name="eventregistrationdeadline" />
+      </div>
 
-        <!-- LOCATION -->
-        <div>
-          <label class="block text-sm font-medium text-foreground mb-2">
-            Location
-          </label>
-          <input type="text" name="eventlocation" class="input-pastel" />
-        </div>
+      <button type="submit" class="btn-pill btn-primary register-btn">
+        Save Event
+      </button>
+    </form>
 
-        <!-- CAPACITY -->
-        <div>
-          <label class="block text-sm font-medium text-foreground mb-2">
-            Capacity
-          </label>
-          <input type="number" name="eventcapacity" class="input-pastel" min="1" />
-        </div>
-
-        <!-- DEADLINE -->
-        <div>
-          <label class="block text-sm font-medium text-foreground mb-2">
-            Registration Deadline
-          </label>
-          <input type="datetime-local" name="eventregistrationdeadline" class="input-pastel" />
-        </div>
-
-        <button type="submit" class="btn-pill btn-primary w-full">
-          Create Event
-        </button>
-
-      </form>
-    </div>
+    <p class="register-bottom">
+      <a href="/events" class="register-link">Back to Events</a>
+    </p>
   </div>
-</section>
+</main>
 
 <%- include("../partials/footer") %>

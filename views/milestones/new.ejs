@@ -1,25 +1,46 @@
 <%- include("../partials/header") %>
 <%- include("../partials/_navbar") %>
 
-<main class="main-container">
-  <%- include("../partials/_flash") %>
-  <div class="card">
-    <div class="card-header">Add milestone</div>
-    <form action="/milestones" method="POST">
-      <div class="form-group">
-        <label>Name</label>
-        <input class="form-control" name="name" required />
+<main class="register-page-wrapper">
+  <div class="register-card">
+    <h1 class="register-title">Add Milestone</h1>
+    <p class="register-subtitle">Record a new participant milestone.</p>
+
+    <% if (error && error.length > 0) { %>
+      <div class="alert alert-danger"><%= error %></div>
+    <% } %>
+
+    <form action="/milestones" method="POST" class="register-form">
+      <div class="register-field">
+        <label>Participant</label>
+        <select name="participantid" required>
+          <option value="">Select participant...</option>
+          <% participants.forEach(p => { %>
+            <option value="<%= p.participantid %>">
+              <%= p.participantlastname %>, <%= p.participantfirstname %>
+            </option>
+          <% }) %>
+        </select>
       </div>
-      <div class="form-group">
-        <label>Description</label>
-        <textarea class="form-control" name="description" rows="3"></textarea>
+
+      <div class="register-field">
+        <label>Milestone Title</label>
+        <input type="text" name="milestonetitle" required />
       </div>
-      <div class="form-group">
-        <label>Max value</label>
-        <input class="form-control" name="max_value" type="number" value="1" min="1" />
+
+      <div class="register-field">
+        <label>Milestone Date</label>
+        <input type="date" name="milestonedate" required />
       </div>
-      <button class="btn btn-primary" type="submit">Save</button>
+
+      <button type="submit" class="btn-pill btn-primary register-btn">
+        Save Milestone
+      </button>
     </form>
+
+    <p class="register-bottom">
+      <a href="/milestones" class="register-link">Back to Milestones</a>
+    </p>
   </div>
 </main>
 
