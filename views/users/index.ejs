@@ -1,0 +1,305 @@
+<%- include("../partials/header") %>
+<%- include("../partials/_navbar") %>
+
+<main class="register-page-wrapper">
+  <div class="register-card" style="max-width: 900px; width:100%;">
+
+    <h1 class="register-title">User Maintenance</h1>
+    <p class="register-subtitle">Manage application users and permissions.</p>
+
+    <% if (success && success.length > 0) { %>
+      <div class="alert alert-success"><%= success %></div>
+    <% } %>
+    <% if (error && error.length > 0) { %>
+      <div class="alert alert-danger"><%= error %></div>
+    <% } %>
+
+    <!-- Top row: search + Add User -->
+    <div style="display:flex; justify-content:space-between; gap:1rem; margin-bottom:1rem; align-items:flex-end;">
+      <div class="register-field" style="flex:1; margin-bottom:0; position:relative;">
+        <label>Search users</label>
+        <input
+          type="text"
+          id="userSearch"
+          placeholder="Search by name, email, or role…"
+          style="padding-right:2rem;"
+        />
+        <button
+          type="button"
+          id="clearUserSearch"
+          aria-label="Clear search"
+          style="
+            position:absolute;
+            right:0.5rem;
+            top:50%;
+            transform:translateY(10%);
+            border:none;
+            background:transparent;
+            font-size:1.1rem;
+            cursor:pointer;
+            color:#9CA3AF;
+            transition:0.15s ease;
+          "
+        >
+          &times;
+        </button>
+      </div>
+
+      <% if (currentUser && currentUser.role === 'Manager') { %>
+        <a href="/users/new" class="btn-pill btn-primary register-btn" style="width:auto; white-space:nowrap;">
+          + Add User
+        </a>
+      <% } %>
+    </div>
+
+    <!-- Users table -->
+    <div style="overflow-x:auto;">
+      <table class="table table-striped" id="usersTable" style="width:100%; border-collapse:collapse;">
+        <thead>
+          <tr>
+            <th style="padding:0.6rem;">Name</th>
+            <th style="padding:0.6rem;">Email</th>
+            <th style="padding:0.6rem;">Role</th>
+            <th style="padding:0.6rem;">Actions</th>
+          </tr>
+        </thead>
+
+        <tbody>
+            <% users.forEach(u => {
+                const canViewPassword =
+                (currentUser.role === "Manager" && u.role === "User") ||
+                superManager;
+
+                const canEditPassword = canViewPassword;
+            %>
+
+            <tr class="user-row" data-user-id="<%= u.id %>">
+
+                <!-- NAME -->
+                <td class="cell">
+                <span class="display-mode"><%= u.full_name %></span>
+
+                <input 
+                    type="text"
+                    class="edit-mode inline-input edit-fullname"
+                    value="<%= u.full_name %>"
+                    style="display:none;"
+                />
+                </td>
+
+                <!-- EMAIL -->
+                <td class="cell">
+                <span class="display-mode"><%= u.email %></span>
+
+                <input 
+                    type="email"
+                    class="edit-mode inline-input edit-email"
+                    value="<%= u.email %>"
+                    style="display:none;"
+                />
+                </td>
+
+                <!-- ROLE -->
+                <td class="cell">
+                <span class="display-mode"><%= u.role %></span>
+
+                <% if (superManager && u.id !== 1) { %>
+                    <select class="edit-mode inline-input edit-role" style="display:none;">
+                    <option value="User" <%= u.role === "User" ? "selected" : "" %>>User</option>
+                    <option value="Manager" <%= u.role === "Manager" ? "selected" : "" %>>Manager</option>
+                    </select>
+                <% } else { %>
+                    <input type="hidden" class="edit-role" value="<%= u.role %>">
+                <% } %>
+                </td>
+
+                <!-- PASSWORD -->
+                <td class="cell">
+                <% if (canViewPassword) { %>
+                    <span class="display-mode">
+                    ****** 
+                    <button class="show-pass register-link" data-user-id="<%= u.id %>">Show</button>
+                    </span>
+                <% } else { %>
+                    <span class="display-mode text-muted-foreground">Hidden</span>
+                <% } %>
+
+                <% if (canEditPassword) { %>
+                    <input 
+                    type="password"
+                    class="edit-mode inline-input edit-password"
+                    placeholder="New password (optional)"
+                    style="display:none;"
+                    />
+                <% } else { %>
+                    <input type="hidden" class="edit-password" value="">
+                <% } %>
+                </td>
+
+                <!-- ACTIONS -->
+                <td class="cell actions-cell">
+
+                <!-- VIEW MODE -->
+                <div class="display-mode">
+                    <button class="btn-edit">Edit</button>
+
+                    <% if (superManager || u.role !== "Manager") { %>
+                    <a href="/users/<%= u.id %>/delete" class="link-delete">Delete</a>
+                    <% } %>
+                </div>
+
+                <!-- EDIT MODE -->
+                <div class="edit-mode" style="display:none;">
+                    <button class="btn-save">Save</button>
+                    <button class="btn-cancel">Cancel</button>
+                </div>
+
+                </td>
+
+            </tr>
+
+            <% }) %>
+            </tbody>
+
+
+
+      </table>
+    </div>
+
+    <p class="register-bottom" style="margin-top:1.2rem;">
+      Total users: <strong><%= users.length %></strong>
+    </p>
+
+  </div>
+</main>
+
+<script>
+(function () {
+  const table = document.getElementById("usersTable");
+  if (!table) return;
+
+  // EDIT MODE HANDLING
+    table.addEventListener("click", async function (e) {
+    const row = e.target.closest(".user-row");
+    if (!row) return;
+
+    const display = row.querySelectorAll(".display-mode");
+    const edit = row.querySelectorAll(".edit-mode");
+
+    // EDIT
+    if (e.target.classList.contains("btn-edit")) {
+        row.classList.add("editing");
+        display.forEach(d => d.style.display = "none");
+        edit.forEach(d => d.style.display = "");
+        return;
+    }
+
+    // CANCEL
+    if (e.target.classList.contains("btn-cancel")) {
+        row.classList.remove("editing");
+        display.forEach(d => d.style.display = "");
+        edit.forEach(d => d.style.display = "none");
+        return;
+    }
+
+    // SAVE
+   if (e.target.classList.contains("btn-save")) {
+    const id = row.dataset.userId;
+
+    const originalName  = row.querySelector("td:nth-child(1) .display-mode")?.innerText.trim();
+    const originalEmail = row.querySelector("td:nth-child(2) .display-mode")?.innerText.trim();
+    const originalRole  = row.querySelector("td:nth-child(3) .display-mode")?.innerText.trim();
+
+    const newName  = row.querySelector(".edit-fullname")?.value.trim();
+    const newEmail = row.querySelector(".edit-email")?.value.trim();
+    const newRole  = row.querySelector(".edit-role")?.value;
+    const newPassword = row.querySelector(".edit-password")?.value.trim();
+
+    const payload = {};
+
+    if (newName && newName !== originalName) payload.full_name = newName;
+    if (newEmail && newEmail !== originalEmail) payload.email = newEmail;
+    if (newRole && newRole !== originalRole) payload.role = newRole;
+    if (newPassword && newPassword.length > 0) payload.password = newPassword;
+
+    console.log("Original:", { originalName, originalEmail, originalRole });
+    console.log("New:", { newName, newEmail, newRole, newPassword });
+    console.log("Payload about to send:", payload);
+
+    if (Object.keys(payload).length === 0) {
+        console.log("No changes detected, aborting save.");
+        alert("No changes detected.");
+        return;
+    }
+
+    fetch(`/users/${id}/edit-inline`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+    })
+        .then(async res => {
+        const text = await res.text();
+        console.log("Response status:", res.status);
+        console.log("Response body:", text);
+        if (!res.ok) {
+            alert("Update failed: " + text);
+            return;
+        }
+        location.reload();
+        })
+        .catch(err => {
+        console.error("Fetch error:", err);
+        alert("Network error while saving.");
+        });
+    }
+
+
+    // SHOW PASSWORD
+    if (e.target.classList.contains("show-pass")) {
+        const id = e.target.dataset.userId;
+
+        const res = await fetch(`/users/${id}/password`);
+        if (!res.ok) return alert("Not allowed.");
+
+        const pw = await res.text();
+        e.target.parentElement.textContent = pw;
+    }
+    });
+
+
+
+  // SEARCH
+  const input = document.getElementById('userSearch');
+  const clearBtn = document.getElementById('clearUserSearch');
+  const rows = table.querySelectorAll("tbody tr");
+
+  function filterRows() {
+    const q = input.value.toLowerCase();
+    rows.forEach(r => {
+      const text = r.textContent.toLowerCase();
+      r.style.display = text.includes(q) ? "" : "none";
+    });
+  }
+
+  input.addEventListener("input", filterRows);
+  clearBtn.addEventListener("click", () => {
+    input.value = "";
+    filterRows();
+    input.focus();
+  });
+})();
+
+table.addEventListener("click", async function (e) {
+  // show password
+  if (e.target.classList.contains("show-pass")) {
+    const userId = e.target.dataset.userId;
+    const res = await fetch(`/users/${userId}/password`);
+    if (!res.ok) return alert("Not allowed");
+
+    const pw = await res.text();
+    e.target.parentElement.innerHTML = pw;
+  }
+});
+</script>
+
+<%- include("../partials/footer") %>

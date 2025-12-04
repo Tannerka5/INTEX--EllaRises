@@ -6,6 +6,7 @@ const session = require("express-session");
 const flash = require("connect-flash");
 const methodOverride = require("method-override");
 
+
 const authRoutes = require("./routes/authRoutes");
 const participantRoutes = require("./routes/participantRoutes");
 const eventRoutes = require("./routes/eventRoutes");
@@ -14,6 +15,8 @@ const surveyRoutes = require("./routes/surveyRoutes");
 const donationRoutes = require("./routes/donationRoutes");
 const dashboardRoutes = require("./routes/dashboardRoutes");
 const impactRoutes = require("./routes/impactRoutes");
+const userRoutes = require("./routes/userRoutes");
+
 
 const { attachUserToLocals } = require("./middleware/authMiddleware");
 
@@ -30,6 +33,7 @@ app.locals.basedir = path.join(__dirname, "views");
 app.use(express.static(path.join(__dirname, "public")));
 app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride("_method"));
+app.use(express.json());
 
 app.use(express.static("public"));
 
@@ -57,6 +61,8 @@ app.use("/surveys", surveyRoutes);
 app.use("/donations", donationRoutes);
 app.use("/dashboard", dashboardRoutes);
 app.use("/impact", impactRoutes);
+app.use("/users", userRoutes);
+
 
 // 418 Easter egg – I'm a teapot
 app.get("/418", (req, res) => {
