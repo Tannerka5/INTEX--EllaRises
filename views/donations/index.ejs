@@ -4,7 +4,13 @@
 <main class="register-page-wrapper">
   <div class="register-card" style="max-width: 900px; width:100%;">
     <h1 class="register-title">Donations</h1>
-    <p class="register-subtitle">Review contributions that support Ella Rises.</p>
+    <p class="register-subtitle">
+      <% if (currentUser && currentUser.role === 'Manager') { %>
+        Review contributions that support Ella Rises.
+      <% } else { %>
+        Donations recorded under your name.
+      <% } %>
+    </p>
 
     <% if (success && success.length > 0) { %>
       <div class="alert alert-success"><%= success %></div>
@@ -20,7 +26,7 @@
         <input
           type="text"
           id="donationSearch"
-          placeholder="Search by amount, participant, or date…"
+          placeholder="Search by amount<% if (currentUser && currentUser.role === 'Manager') { %>, participant<% } %>, or date…"
           style="padding-right:2rem;"
         />
         <button
@@ -60,34 +66,50 @@
         <thead>
           <tr>
             <th style="text-align:left; padding:0.6rem;">Amount</th>
-            <th style="text-align:left; padding:0.6rem;">Participant</th>
+            <% if (currentUser && currentUser.role === 'Manager') { %>
+              <th style="text-align:left; padding:0.6rem;">Participant</th>
+            <% } %>
             <th style="text-align:left; padding:0.6rem;">Donation Date</th>
           </tr>
         </thead>
         <tbody>
-          <% donations.forEach(d => { %>
+          <% if (!donations || donations.length === 0) { %>
             <tr>
-              <td style="padding:0.6rem;">
-                <a
-                  href="/donations/<%= d.donationid %>"
-                  class="register-link"
-                  style="color:#ffc2b5; transition:color 0.15s ease, transform 0.15s ease; display:inline-block;"
-                  onmouseover="this.style.transform='translateY(-1px)';"
-                  onmouseout="this.style.transform='translateY(0)';"
-                >
-                  $<%= Number(d.donationamount).toFixed(2) %>
-                </a>
-              </td>
-              <td style="padding:0.6rem;">
-                <%= d.participantfirstname %> <%= d.participantlastname %>
-              </td>
-              <td style="padding:0.6rem;">
-                <% if (d.donationdate) { %>
-                  <%= d.donationdate.toISOString().slice(0,10) %>
+              <td colspan="<%= currentUser && currentUser.role === 'Manager' ? '3' : '2' %>" style="padding:1rem; text-align:center; color:#9CA3AF;">
+                <% if (currentUser && currentUser.role === 'Manager') { %>
+                  No donations have been recorded yet.
+                <% } else { %>
+                  You have no recorded donations yet.
                 <% } %>
               </td>
             </tr>
-          <% }) %>
+          <% } else { %>
+            <% donations.forEach(d => { %>
+              <tr>
+                <td style="padding:0.6rem;">
+                  <a
+                    href="/donations/<%= d.donationid %>"
+                    class="register-link"
+                    style="color:#ffc2b5; transition:color 0.15s ease, transform 0.15s ease; display:inline-block;"
+                    onmouseover="this.style.transform='translateY(-1px)';"
+                    onmouseout="this.style.transform='translateY(0)';"
+                  >
+                    $<%= Number(d.donationamount).toFixed(2) %>
+                  </a>
+                </td>
+                <% if (currentUser && currentUser.role === 'Manager') { %>
+                  <td style="padding:0.6rem;">
+                    <%= d.participantfirstname %> <%= d.participantlastname %>
+                  </td>
+                <% } %>
+                <td style="padding:0.6rem;">
+                  <% if (d.donationdate) { %>
+                    <%= d.donationdate.toISOString().slice(0,10) %>
+                  <% } %>
+                </td>
+              </tr>
+            <% }) %>
+          <% } %>
         </tbody>
       </table>
     </div>

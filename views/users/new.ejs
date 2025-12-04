@@ -2,17 +2,15 @@
 <%- include("../partials/_navbar") %>
 
 <main class="register-page-wrapper">
-  <div class="register-card" style="max-width:600px;">
-
-    <h1 class="register-title">Add New User</h1>
-    <p class="register-subtitle">Create a new login for the Ella Rises system.</p>
+  <div class="register-card">
+    <h1 class="register-title">Add User</h1>
+    <p class="register-subtitle">Create a new user account.</p>
 
     <% if (error && error.length > 0) { %>
       <div class="alert alert-danger"><%= error %></div>
     <% } %>
 
-    <form action="/users/new" method="POST">
-
+    <form action="/users" method="POST" class="register-form">
       <div class="register-field">
         <label>Full Name</label>
         <input type="text" name="full_name" required />
@@ -28,23 +26,145 @@
         <input type="password" name="password" required />
       </div>
 
-      <% if (superManager) { %>
-        <div class="register-field">
-          <label>Role</label>
-          <select name="role">
-            <option value="User">User</option>
-            <option value="Manager">Manager</option>
+      <div class="register-field">
+        <label>Role</label>
+        <div style="display:flex; align-items:center; gap:1rem;">
+          <span id="roleDisplay" style="font-weight:600; color:#6B7280;">User</span>
+          <button
+            type="button"
+            id="roleToggle"
+            class="btn-pill btn-secondary"
+            style="padding:0.4rem 1rem; font-size:0.85rem;"
+          >
+            Switch to Manager
+          </button>
+        </div>
+        <input type="hidden" name="role" id="roleInput" value="User" required />
+      </div>
+
+      <div class="register-field">
+        <label>Linked Participant (optional)</label>
+        
+        <!-- Display-only text input -->
+        <input
+          type="text"
+          id="participantDisplay"
+          value="None"
+          disabled
+          style="width:100%;"
+        />
+
+        <!-- Button to open dropdown -->
+        <button
+          type="button"
+          id="participantOpenBtn"
+          class="btn-pill btn-secondary"
+          style="
+            margin-top:0.5rem;
+            padding:0.35rem 0.9rem;
+            font-size:0.8rem;
+          "
+        >
+          Select participant
+        </button>
+
+        <!-- Dropdown container -->
+        <div
+          id="participantSelectWrapper"
+          style="
+            display:none;
+            margin-top:0.5rem;
+            padding:0.75rem;
+            border-radius:0.8rem;
+            background:#ffffff;
+            border:1px solid rgba(0,0,0,0.08);
+            box-shadow:0 10px 25px rgba(15,23,42,0.08);
+          "
+        >
+          <input
+            type="text"
+            id="participantSearch"
+            placeholder="Search participant…"
+            style="width:100%; margin-bottom:0.5rem; padding:0.55rem 0.8rem; border-radius:0.6rem; border:1px solid rgba(0,0,0,0.12);"
+          />
+        <select
+            name="participantid"
+            id="participantSelect"
+            size="6"
+            style="width:100%; border-radius:0.6rem; padding:0.4rem;"
+            >
+            <option value="">None</option>
+            <% participants.forEach(p => { %>
+                <option value="<%= p.participantid %>">
+                <%= p.participantlastname %>, <%= p.participantfirstname %> —
+                <%= p.participantdob ? p.participantdob.toISOString().slice(0,10) : '' %>
+                </option>
+            <% }) %>
+        </select>
+            <option value="">None</option>
+            <% participants.forEach(p => { %>
+              <option value="<%= p.participantid %>">
+                <%= p.participantlastname %>, <%= p.participantfirstname %> —
+                <%= p.participantdob ? p.participantdob.toISOString().slice(0,10) : '' %>
+              </option>
+            <% }) %>
           </select>
         </div>
-      <% } %>
+      </div>
 
-      <button type="submit" class="btn-pill btn-primary register-btn" style="width:100%; margin-top:1rem;">
+      <button type="submit" class="btn-pill btn-primary register-btn">
         Create User
       </button>
-
     </form>
 
+    <p class="register-bottom">
+      <a href="/users" class="register-link">Back to Users</a>
+    </p>
   </div>
 </main>
+
+<script>
+  (function () {
+    // Role toggle
+    const roleInput = document.getElementById('roleInput');
+    const roleDisplay = document.getElementById('roleDisplay');
+    const roleToggle = document.getElementById('roleToggle');
+
+    roleToggle.addEventListener('click', function () {
+      const newRole = roleInput.value === 'Manager' ? 'User' : 'Manager';
+      roleInput.value = newRole;
+      roleDisplay.textContent = newRole;
+      roleToggle.textContent = 'Switch to ' + (newRole === 'Manager' ? 'User' : 'Manager');
+    });
+
+    // Participant dropdown
+    const participantDisplay = document.getElementById('participantDisplay');
+    const participantWrapper = document.getElementById('participantSelectWrapper');
+    const participantSelect = document.getElementById('participantSelect');
+    const participantSearch = document.getElementById('participantSearch');
+    const participantOpenBtn = document.getElementById('participantOpenBtn');
+
+    participantOpenBtn.addEventListener('click', () => {
+      participantWrapper.style.display =
+        participantWrapper.style.display === 'none' ? 'block' : 'none';
+    });
+
+    participantSelect.addEventListener('change', function () {
+      const selectedOption = this.selectedOptions[0];
+      if (selectedOption && selectedOption.value) {
+        participantDisplay.value = selectedOption.text.split(' — ')[0];
+      } else {
+        participantDisplay.value = 'None';
+      }
+    });
+
+    participantSearch.addEventListener('input', function () {
+      const q = this.value.toLowerCase();
+      Array.from(participantSelect.options).forEach(opt => {
+        opt.style.display = opt.text.toLowerCase().includes(q) ? '' : 'none';
+      });
+    });
+  })();
+</script>
 
 <%- include("../partials/footer") %>

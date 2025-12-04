@@ -18,7 +18,12 @@ router.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    const result = await db.query("SELECT * FROM users WHERE email = $1", [email]);
+    const result = await db.query(`
+      SELECT id, email, password, role, full_name, participantid
+      FROM users
+      WHERE email = $1
+    `, [email]);
+    
     const user = result.rows[0];
 
     if (!user) {
@@ -36,7 +41,8 @@ router.post("/login", async (req, res) => {
       id: user.id,
       email: user.email,
       full_name: user.full_name,
-      role: user.role
+      role: user.role,
+      participantid: user.participantid
     };
 
     return res.render("auth/login-success");
@@ -81,19 +87,45 @@ router.post("/register", async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const inserted = await db.query(
-      "INSERT INTO users (email, password, role, full_name, created_date) VALUES ($1, $2, $3, $4, NOW()) RETURNING *",
-      [email, hashedPassword, role || "User", full_name]
-    );
+    // 1️⃣ Create participant record for this user
+const participantInsert = await db.query(
+  `INSERT INTO participant (
+     participantid,
+     participantemail,
+     participantfirstname,
+     participantlastname
+   ) VALUES (
+     (SELECT COALESCE(MAX(participantid), 0) + 1 FROM participant),
+     $1, $2, $3
+   ) RETURNING participantid`,
+  [
+    email,
+    full_name.split(" ")[0],            // first name guess
+    full_name.split(" ").slice(1).join(" ") || "" // last name guess
+  ]
+);
 
-    const user = inserted.rows[0];
+const participantid = participantInsert.rows[0].participantid;
 
-    req.session.user = {
-      id: user.id,
-      email: user.email,
-      full_name: user.full_name,
-      role: user.role
-    };
+// 2️⃣ Create user linked to participant
+const userInsert = await db.query(
+  `INSERT INTO users (
+     email, password, role, full_name, participantid, created_date
+   ) VALUES ($1, $2, $3, $4, $5, NOW())
+   RETURNING *`,
+  [email, hashedPassword, role || "User", full_name, participantid]
+);
+
+const user = userInsert.rows[0];
+
+// 3️⃣ Store participantid in session
+req.session.user = {
+  id: user.id,
+  email: user.email,
+  full_name: user.full_name,
+  role: user.role,
+  participantid: user.participantid
+};
 
     return res.render("auth/login-success");
 

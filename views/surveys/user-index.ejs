@@ -1,0 +1,74 @@
+<%- include("../partials/header") %>
+<%- include("../partials/_navbar") %>
+
+<link rel="stylesheet" href="/css/surveys-index.css">
+
+<main>
+  <br><br><br><br><br><br><br>
+
+  <div class="survey-index-card">
+
+    <h1 class="survey-index-title">My Surveys</h1>
+    <p class="survey-index-subtitle">Your submitted feedback</p>
+
+    <% if (error && error.length > 0) { %>
+      <div class="alert alert-danger"><%= error %></div>
+    <% } %>
+
+    <% if (success && success.length > 0) { %>
+      <div class="alert alert-success"><%= success %></div>
+    <% } %>
+
+    <% if (surveys.length === 0) { %>
+      <p style="text-align:center; margin-top:1.5rem; font-size:1.1rem; color:#666;">
+        You haven’t completed any surveys yet.
+      </p>
+    <% } else { %>
+
+      <div class="survey-index-table-container">
+        <table class="survey-index-table">
+          <thead>
+            <tr>
+              <th>Event</th>
+              <th style="text-align:center;">Overall Score</th>
+              <th style="text-align:center;">Submitted</th>
+              <th style="text-align:center;">View</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <% surveys.forEach(s => { %>
+              <tr>
+                <!-- Event name -->
+                <td><%= s.eventname %></td>
+
+                <!-- Score -->
+                <td class="avg-score-cell">
+                  <%= s.surveyoverallscore %>
+                </td>
+
+                <!-- Submission date -->
+                <td style="text-align:center;">
+                  <% if (s.surveysubmissiondate) { %>
+                    <%= new Date(s.surveysubmissiondate).toLocaleDateString("en-US") %>
+                  <% } %>
+                </td>
+
+                <!-- View survey button -->
+                <td class="view-btn-cell">
+                  <a href="/surveys/<%= s.surveyid %>" class="survey-view-btn">
+                    View
+                  </a>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+
+    <% } %>
+
+  </div>
+</main>
+
+<%- include("../partials/footer") %>

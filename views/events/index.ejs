@@ -60,17 +60,20 @@
         <thead>
           <tr>
             <th style="text-align:left; padding:0.6rem;">Event Name</th>
-            <th style="text-align:left; padding:0.6rem;">Template Name</th>
             <th style="text-align:left; padding:0.6rem;">Start</th>
             <th style="text-align:left; padding:0.6rem;">End</th>
             <th style="text-align:left; padding:0.6rem;">Location</th>
             <th style="text-align:left; padding:0.6rem;">Capacity</th>
             <th style="text-align:left; padding:0.6rem;">Registration Deadline</th>
+            <th style="text-align:left; padding:0.6rem;">Action</th>
           </tr>
         </thead>
+
         <tbody>
           <% events.forEach(e => { %>
             <tr>
+
+              <!-- Event Name -->
               <td style="padding:0.6rem;">
                 <a
                   href="/events/<%= e.eventoccurrenceid %>"
@@ -79,10 +82,11 @@
                   onmouseover="this.style.transform='translateY(-1px)';"
                   onmouseout="this.style.transform='translateY(0)';"
                 >
-                  <%= e.eventname %>
+                  <%= e.template_eventname %>
                 </a>
               </td>
-              <td style="padding:0.6rem;"><%= e.eventname || e.template_eventname %></td>
+
+              <!-- Start -->
               <td style="padding:0.6rem;">
                 <% if (e.eventdatetimestart) { %>
                   <%= new Date(e.eventdatetimestart).toLocaleString("en-US", {
@@ -95,6 +99,8 @@
                   }) %>
                 <% } %>
               </td>
+
+              <!-- End -->
               <td style="padding:0.6rem;">
                 <% if (e.eventdatetimeend) { %>
                   <%= new Date(e.eventdatetimeend).toLocaleString("en-US", {
@@ -107,8 +113,20 @@
                   }) %>
                 <% } %>
               </td>
+
+              <!-- Location -->
               <td style="padding:0.6rem;"><%= e.eventlocation %></td>
-              <td style="padding:0.6rem;"><%= e.eventcapacity || '' %></td>
+
+              <!-- Capacity -->
+              <td style="padding:0.6rem;">
+                <% if (e.eventcapacity) { %>
+                  <%= e.registrationcount || 0 %> / <%= e.eventcapacity %>
+                <% } else { %>
+                  —
+                <% } %>
+              </td>
+
+              <!-- Deadline -->
               <td style="padding:0.6rem;">
                 <% if (e.eventregistrationdeadline) { %>
                   <%= new Date(e.eventregistrationdeadline).toLocaleString("en-US", {
@@ -121,6 +139,57 @@
                   }) %>
                 <% } %>
               </td>
+
+              <!-- ACTION BUTTON -->
+              <td style="padding:0.6rem;">
+
+                <% 
+                  const isManager = currentUser && currentUser.role === 'Manager'; 
+                  const regCount = e.registrationcount || 0;
+                  const isFull = e.eventcapacity && regCount >= e.eventcapacity;
+                  const deadlinePassed = e.eventregistrationdeadline && new Date() > new Date(e.eventregistrationdeadline);
+              
+                  // Check if user is registered for THIS event
+                  const userRegistered = registrations.some(r => r.eventoccurrenceid == e.eventoccurrenceid);
+                %>
+              
+                <% if (isManager) { %>
+              
+                  <!-- Managers see nothing here -->
+                  —
+              
+                <% } else if (userRegistered) { %>
+              
+                  <!-- Registered: show unregister -->
+                  <form action="/events/<%= e.eventoccurrenceid %>/unregister" method="POST" style="display:inline;">
+                    <button class="btn-pill btn-secondary" style="padding-inline:1.2rem;">
+                    Unregister
+                    </button>
+                  </form>
+              
+                <% } else if (isFull) { %>
+              
+                  <span class="alert alert-danger" style="padding:0.2rem 0.5rem;">Full</span>
+              
+                <% } else if (deadlinePassed) { %>
+              
+                  <span class="alert alert-danger" style="padding:0.2rem 0.5rem;">Closed</span>
+              
+                <% } else { %>
+              
+                  <!-- Not registered + not full + before deadline -->
+                  <a 
+                    href="/events/<%= e.eventoccurrenceid %>"
+                    class="btn-pill btn-primary"
+                    style="padding-inline:1.2rem;"
+                  >
+                    Sign Up
+                  </a>
+              
+                <% } %>
+              
+              </td>
+
             </tr>
           <% }) %>
         </tbody>

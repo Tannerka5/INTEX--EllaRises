@@ -34,8 +34,44 @@
       <h1 class="register-title">
         <%= event.eventname %>
       </h1>
-      <p class="register-subtitle">Event details</p>
+      <h2>Event details</h2>
     </div>
+
+    <%
+// Determine if user is already registered
+let alreadyRegistered = false;
+
+if (registrations && currentUser && currentUser.participantid) {
+  alreadyRegistered = registrations.some(r => r.participantid == currentUser.participantid);
+}
+%>
+
+<% if (currentUser && currentUser.role !== 'Manager') { %>
+
+  <% if (alreadyRegistered) { %>
+    <div class="alert alert-success" style="margin-top:1rem;">
+      You are already registered for this event.
+    </div>
+
+  <% } else if (event.eventcapacity && registrations.length >= event.eventcapacity) { %>
+    <div class="alert alert-danger" style="margin-top:1rem;">
+      This event is full.
+    </div>
+
+  <% } else if (event.eventregistrationdeadline && new Date() > new Date(event.eventregistrationdeadline)) { %>
+    <div class="alert alert-danger" style="margin-top:1rem;">
+      Registration deadline has passed.
+    </div>
+
+  <% } else { %>
+    <form action="/events/<%= event.eventoccurrenceid %>/register" method="POST" style="margin-top:1rem;">
+      <button class="btn-pill btn-primary" style="padding-inline:1.4rem;">
+        Sign Up for This Event
+      </button>
+    </form>
+  <% } %>
+
+<% } %>
 
     <% if (success && success.length > 0) { %>
       <div class="alert alert-success"><%= success %></div>
@@ -51,15 +87,6 @@
       class="register-form"
       style="margin-top:1.4rem;"
     >
-      <div class="register-field">
-        <label>Event Name</label>
-        <input
-          type="text"
-          name="eventname"
-          value="<%= event.eventname %>"
-          disabled
-        />
-      </div>
 
       <div class="register-field">
   <label>Template Name</label>
@@ -321,9 +348,5 @@
     return window.confirm("Are you sure you want to delete this event? This action cannot be undone.");
   }
 </script>
-
-
-
-
 
 <%- include("../partials/footer") %>

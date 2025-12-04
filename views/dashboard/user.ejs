@@ -9,7 +9,7 @@
       Welcome back, <%= currentUser.full_name %>!
     </h1>
     <p class="text-muted-foreground">
-      Here’s what’s happening with your events, surveys, milestones, and donations.
+      Here's what's happening with your events, surveys, milestones, and donations.
     </p>
   </div>
 
@@ -17,17 +17,17 @@
   <div class="dashboard-grid">
 
     <!-- Your Events -->
-    <div class="dashboard-card">
+    <a href="/events" class="dashboard-card dashboard-card-link">
       <h2 class="text-xl font-semibold mb-2">Your Events</h2>
       <div class="text-4xl font-bold text-primary mb-2"><%= upcomingEvents.length %></div>
-      <p class="text-muted-foreground mb-4">Upcoming events you’re registered for</p>
+      <p class="text-muted-foreground mb-4">Upcoming events you're registered for</p>
 
       <h3 class="font-semibold mb-2">Upcoming:</h3>
 
       <% if (!upcomingEvents || upcomingEvents.length === 0) { %>
         <p class="text-muted-foreground">You are not registered for any upcoming events.</p>
       <% } else { %>
-        <% upcomingEvents.forEach(e => { %>
+        <% upcomingEvents.slice(0, 3).forEach(e => { %>
           <p class="mb-2">
             <strong><%= e.eventname %></strong><br>
             <span class="text-muted-foreground text-sm">
@@ -36,12 +36,10 @@
           </p>
         <% }) %>
       <% } %>
-
-      <a href="/events" class="dashboard-section-link mt-3 inline-block">View all events →</a>
-    </div>
+    </a>
 
     <!-- Available Surveys -->
-    <div class="dashboard-card">
+    <a href="/surveys" class="dashboard-card dashboard-card-link">
       <h2 class="text-xl font-semibold mb-2">Available Surveys</h2>
       <div class="text-4xl font-bold text-secondary mb-2"><%= postSurveyEvents.length %></div>
       <p class="text-muted-foreground mb-4">Surveys waiting for your feedback</p>
@@ -51,7 +49,7 @@
       <% if (!postSurveyEvents || postSurveyEvents.length === 0) { %>
         <p class="text-muted-foreground">No surveys available at this time.</p>
       <% } else { %>
-        <% postSurveyEvents.forEach(ev => { %>
+        <% postSurveyEvents.slice(0, 3).forEach(ev => { %>
           <p class="mb-3">
             <strong><%= ev.eventname %></strong><br>
             <span class="text-muted-foreground text-sm">
@@ -60,22 +58,20 @@
           </p>
         <% }) %>
       <% } %>
-
-      <a href="/surveys" class="dashboard-section-link mt-3 inline-block">Go to surveys →</a>
-    </div>
+    </a>
 
     <!-- Milestones -->
-    <div class="dashboard-card">
+    <a href="/milestones" class="dashboard-card dashboard-card-link">
       <h2 class="text-xl font-semibold mb-2">Your Milestones</h2>
       <div class="text-4xl font-bold text-accent mb-2"><%= milestones.length %></div>
-      <p class="text-muted-foreground mb-4">Milestones you’ve earned</p>
+      <p class="text-muted-foreground mb-4">Milestones you've earned</p>
 
       <h3 class="font-semibold mb-2">Recently earned:</h3>
 
       <% if (!milestones || milestones.length === 0) { %>
-        <p class="text-muted-foreground">No milestones yet. Keep going—you’re on your way!</p>
+        <p class="text-muted-foreground">No milestones yet. Keep going—you're on your way!</p>
       <% } else { %>
-        <% milestones.forEach(m => { %>
+        <% milestones.slice(0, 3).forEach(m => { %>
           <p class="mb-2">
             <strong><%= m.milestonetitle %></strong><br>
             <span class="text-muted-foreground text-sm">
@@ -84,12 +80,10 @@
           </p>
         <% }) %>
       <% } %>
+    </a>
 
-      <a href="/milestones" class="dashboard-section-link mt-3 inline-block">View milestones →</a>
-    </div>
-
-        <!-- Donations -->
-    <div class="dashboard-card">
+    <!-- Donations -->
+    <a href="/donations" class="dashboard-card dashboard-card-link">
       <h2 class="text-xl font-semibold mb-2">Your Donations</h2>
       <div class="text-4xl font-bold text-pink-500 mb-2">
         $<%= (userDonationTotal || 0).toFixed(2) %>
@@ -97,11 +91,7 @@
       <p class="text-muted-foreground mb-4">
         Total amount you have donated through Ella Rises.
       </p>
-      <a href="/donations" class="dashboard-section-link mt-3 inline-block">
-        See full donation history →
-      </a>
-    </div>
-
+    </a>
 
   </div>
 

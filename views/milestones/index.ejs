@@ -4,7 +4,13 @@
 <main class="register-page-wrapper">
   <div class="register-card" style="max-width: 900px; width:100%;">
     <h1 class="register-title">Milestones</h1>
-    <p class="register-subtitle">Track participant milestones over time.</p>
+    <p class="register-subtitle">
+      <% if (currentUser && currentUser.role === 'Manager') { %>
+        Track participant milestones over time.
+      <% } else { %>
+        Milestones you have earned with Ella Rises.
+      <% } %>
+    </p>
 
     <% if (success && success.length > 0) { %>
       <div class="alert alert-success"><%= success %></div>
@@ -20,7 +26,7 @@
         <input
           type="text"
           id="milestoneSearch"
-          placeholder="Search by title, participant, or date…"
+          placeholder="Search by title<% if (currentUser && currentUser.role === 'Manager') { %>, participant<% } %>, or date…"
           style="padding-right:2rem;"
         />
         <button
@@ -60,34 +66,50 @@
         <thead>
           <tr>
             <th style="text-align:left; padding:0.6rem;">Milestone Title</th>
-            <th style="text-align:left; padding:0.6rem;">Participant</th>
+            <% if (currentUser && currentUser.role === 'Manager') { %>
+              <th style="text-align:left; padding:0.6rem;">Participant</th>
+            <% } %>
             <th style="text-align:left; padding:0.6rem;">Milestone Date</th>
           </tr>
         </thead>
         <tbody>
-          <% milestones.forEach(m => { %>
+          <% if (!milestones || milestones.length === 0) { %>
             <tr>
-              <td style="padding:0.6rem;">
-                <a
-                  href="/milestones/<%= m.milestoneid %>"
-                  class="register-link"
-                  style="color:#ffc2b5; transition:color 0.15s ease, transform 0.15s ease; display:inline-block;"
-                  onmouseover="this.style.transform='translateY(-1px)';"
-                  onmouseout="this.style.transform='translateY(0)';"
-                >
-                  <%= m.milestonetitle %>
-                </a>
-              </td>
-              <td style="padding:0.6rem;">
-                <%= m.participantfirstname %> <%= m.participantlastname %>
-              </td>
-              <td style="padding:0.6rem;">
-                <% if (m.milestonedate) { %>
-                  <%= m.milestonedate.toISOString().slice(0,10) %>
+              <td colspan="<%= currentUser && currentUser.role === 'Manager' ? '3' : '2' %>" style="padding:1rem; text-align:center; color:#9CA3AF;">
+                <% if (currentUser && currentUser.role === 'Manager') { %>
+                  No milestones have been added yet.
+                <% } else { %>
+                  No milestones earned yet. Keep going—you're just getting started!
                 <% } %>
               </td>
             </tr>
-          <% }) %>
+          <% } else { %>
+            <% milestones.forEach(m => { %>
+              <tr>
+                <td style="padding:0.6rem;">
+                  <a
+                    href="/milestones/<%= m.milestoneid %>"
+                    class="register-link"
+                    style="color:#ffc2b5; transition:color 0.15s ease, transform 0.15s ease; display:inline-block;"
+                    onmouseover="this.style.transform='translateY(-1px)';"
+                    onmouseout="this.style.transform='translateY(0)';"
+                  >
+                    <%= m.milestonetitle %>
+                  </a>
+                </td>
+                <% if (currentUser && currentUser.role === 'Manager') { %>
+                  <td style="padding:0.6rem;">
+                    <%= m.participantfirstname %> <%= m.participantlastname %>
+                  </td>
+                <% } %>
+                <td style="padding:0.6rem;">
+                  <% if (m.milestonedate) { %>
+                    <%= m.milestonedate.toISOString().slice(0,10) %>
+                  <% } %>
+                </td>
+              </tr>
+            <% }) %>
+          <% } %>
         </tbody>
       </table>
     </div>
