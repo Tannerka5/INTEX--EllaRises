@@ -1,5 +1,5 @@
 {
-  "name": "INTEX--EllaRises",
+  "name": "intex--ellarises",
   "version": "1.0.0",
   "description": "Ella Rises INTEX - Node/Express/Knex/Postgres web app",
   "main": "app.js",
@@ -26,5 +26,7 @@
   },
   "devDependencies": {
     "nodemon": "^3.1.7"
-  }
+  },
+  "author": "",
+  "license": "ISC"
 }

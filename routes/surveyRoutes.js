@@ -3,89 +3,73 @@ const router = express.Router();
 const db = require("../db");
 const { requireLogin, requireManager } = require("../middleware/authMiddleware");
 
-
 // ==========================================
-// GET /surveys  – Survey Index (grouped by event)
+// GET /surveys — Manager sees summary, User sees ONLY their surveys
 // ==========================================
 router.get("/", requireLogin, async (req, res) => {
   try {
-    const result = await db.query(`
+    const isManager = req.session.user.role === "Manager";
+    const participantId = req.session.user.participantid;
+
+    // ================================
+    // MANAGER — see full survey summary (existing behavior)
+    // ================================
+    if (isManager) {
+      const result = await db.query(`
+        SELECT
+          eo.eventoccurrenceid,
+          et.eventtemplateid,
+          et.eventname,
+          ROUND(AVG(s.surveysatisfactionscore)::numeric, 2) AS avg_satisfaction,
+          ROUND(AVG(s.surveyusefulnessscore)::numeric, 2) AS avg_usefulness,
+          ROUND(AVG(s.surveyinstructorscore)::numeric, 2) AS avg_instructor,
+          ROUND(AVG(s.surveyrecommendationscore)::numeric, 2) AS avg_recommendation,
+          ROUND(AVG(s.surveyoverallscore)::numeric, 2) AS avg_overall
+        FROM survey s
+        JOIN eventoccurrence eo ON s.eventoccurrenceid = eo.eventoccurrenceid
+        JOIN eventtemplate et ON eo.eventtemplateid = et.eventtemplateid
+        GROUP BY eo.eventoccurrenceid, et.eventname, et.eventtemplateid
+        ORDER BY et.eventname
+      `);
+
+      return res.render("surveys/index", {
+        title: "Surveys",
+        events: result.rows,
+        currentUser: req.session.user,
+        success: req.flash("success"),
+        error: req.flash("error")
+      });
+    }
+
+    // ================================
+    // USER — show ONLY THEIR survey submissions
+    // ================================
+    const userSurveys = await db.query(`
       SELECT
-        eo.eventoccurrenceid,
-        et.eventtemplateid,
-        et.eventname,
-        ROUND(AVG(s.surveysatisfactionscore)::numeric, 2) AS avg_satisfaction,
-        ROUND(AVG(s.surveyusefulnessscore)::numeric, 2) AS avg_usefulness,
-        ROUND(AVG(s.surveyinstructorscore)::numeric, 2) AS avg_instructor,
-        ROUND(AVG(s.surveyrecommendationscore)::numeric, 2) AS avg_recommendation,
-        ROUND(AVG(s.surveyoverallscore)::numeric, 2) AS avg_overall
+        s.surveyid,
+        s.surveyoverallscore,
+        s.surveysubmissiondate,
+        s.surveycomments,
+        et.eventname
       FROM survey s
       JOIN eventoccurrence eo ON s.eventoccurrenceid = eo.eventoccurrenceid
       JOIN eventtemplate et ON eo.eventtemplateid = et.eventtemplateid
-      GROUP BY eo.eventoccurrenceid, et.eventname, et.eventtemplateid
-      ORDER BY et.eventname
-    `);
+      WHERE s.participantid = $1
+      ORDER BY s.surveysubmissiondate DESC
+    `, [participantId]);
 
-    res.render("surveys/index", {
-      title: "Surveys",
-      events: result.rows,
+    return res.render("surveys/user-index", {
+      title: "My Surveys",
+      surveys: userSurveys.rows,
       currentUser: req.session.user,
       success: req.flash("success"),
       error: req.flash("error")
     });
+
   } catch (err) {
     console.error("ERROR loading /surveys:", err);
     req.flash("error", "Failed to load surveys");
     res.redirect("/");
-  }
-});
-
-
-// ==========================================
-// GET /surveys/event/:id  – Surveys for one event
-// ==========================================
-router.get("/event/:id", requireLogin, async (req, res) => {
-  try {
-    // STEP 1 FIX — eventtemplate lookup instead of eventoccurrence lookup
-    const eventResult = await db.query(`
-    SELECT eventtemplateid, eventname
-    FROM eventtemplate
-    WHERE eventtemplateid = $1
-`,  [req.params.id]);
-
-    if (eventResult.rows.length === 0) {
-      req.flash("error", "Event not found");
-      return res.redirect("/surveys");
-    }
-
-    const surveysResult = await db.query(`
-      SELECT
-        s.surveyid,
-        s.surveyoverallscore,
-        s.surveycomments,
-        s.surveysubmissiondate,
-        p.participantfirstname,
-        p.participantlastname
-      FROM survey s
-      JOIN participant p ON s.participantid = p.participantid
-      JOIN eventoccurrence eo ON s.eventoccurrenceid = eo.eventoccurrenceid
-      JOIN eventtemplate et ON eo.eventtemplateid = et.eventtemplateid
-      WHERE et.eventtemplateid = $1
-      ORDER BY s.surveysubmissiondate DESC
-    `, [req.params.id]);
-
-    res.render("surveys/event", {
-      title: "Event Surveys",
-      event: eventResult.rows[0],
-      surveys: surveysResult.rows,
-      currentUser: req.session.user,
-      success: req.flash("success"),
-      error: req.flash("error")
-    });
-  } catch (err) {
-    console.error("ERROR loading event surveys:", err);
-    req.flash("error", "Failed to load event surveys");
-    res.redirect("/surveys");
   }
 });
 
@@ -248,6 +232,54 @@ router.delete("/:id", requireLogin, requireManager, async (req, res) => {
   }
 });
 
+// ==========================================
+// GET /surveys/event/:id – Surveys for one event template
+// (Manager only)
+// ==========================================
+router.get("/event/:id", requireLogin, requireManager, async (req, res) => {
+  try {
+    const eventResult = await db.query(`
+      SELECT eventtemplateid, eventname
+      FROM eventtemplate
+      WHERE eventtemplateid = $1
+    `, [req.params.id]);
+
+    if (eventResult.rows.length === 0) {
+      req.flash("error", "Event not found");
+      return res.redirect("/surveys");
+    }
+
+    const surveysResult = await db.query(`
+      SELECT
+        s.surveyid,
+        s.surveyoverallscore,
+        s.surveynpsbucket,
+        s.surveysubmissiondate,
+        s.surveycomments,
+        p.participantfirstname,
+        p.participantlastname
+      FROM survey s
+      JOIN participant p ON s.participantid = p.participantid
+      JOIN eventoccurrence eo ON s.eventoccurrenceid = eo.eventoccurrenceid
+      WHERE eo.eventtemplateid = $1
+      ORDER BY s.surveysubmissiondate DESC
+    `, [req.params.id]);
+
+    return res.render("surveys/event", {
+      title: "Survey Results",
+      event: eventResult.rows[0],
+      surveys: surveysResult.rows,
+      currentUser: req.session.user,
+      success: req.flash("success"),
+      error: req.flash("error")
+    });
+
+  } catch (err) {
+    console.error("ERROR loading event surveys:", err);
+    req.flash("error", "Failed to load event surveys");
+    res.redirect("/surveys");
+  }
+});
 
 // ==========================================
 // GET /surveys/:id – View single survey
@@ -269,6 +301,13 @@ router.get("/:id", requireLogin, async (req, res) => {
 
     if (result.rows.length === 0) {
       req.flash("error", "Survey not found");
+      return res.redirect("/surveys");
+    }
+
+    // SECURITY: users may only view THEIR survey
+    if (req.session.user.role !== "Manager" &&
+        result.rows[0].participantid !== req.session.user.participantid) {
+      req.flash("error", "You are not allowed to view this survey.");
       return res.redirect("/surveys");
     }
 
