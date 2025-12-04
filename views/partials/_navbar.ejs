@@ -12,18 +12,31 @@
 
       <!-- Desktop navigation -->
       <div class="navbar-links">
-        <!-- Always shown with high contrast -->
-        <a href="/" class="nav-link nav-link-primary">Home</a>
-        <a href="/impact" class="nav-link nav-link-primary">Impact</a>
+
+        <!-- Normal black links -->
+        <a href="/" class="nav-link">Home</a>
+        <a href="/impact" class="nav-link">Impact</a>
+
+        <% if (!currentUser) { %>
+          <!-- Donate shows only when LOGGED OUT -->
+          <a 
+            href="https://givebutter.com/EllaRises" 
+            class="nav-link"
+            target="_blank"
+          >
+            Donate Now
+          </a>
+        <% } %>
 
         <% if (currentUser) { %>
-          <!-- Logged in: show all admin/dashboard links -->
           <a href="/participants" class="nav-link">Participants</a>
           <a href="/milestones" class="nav-link">Milestones</a>
           <a href="/events" class="nav-link">Events</a>
           <a href="/surveys" class="nav-link">Surveys</a>
           <a href="/donations" class="nav-link">Donations</a>
-          <a href="/dashboard" class="nav-link nav-link-primary">Dashboard</a>
+
+          <!-- Dashboard now normal black link -->
+          <a href="/dashboard" class="nav-link">Dashboard</a>
 
           <!-- User greeting -->
           <span class="nav-user-label">
@@ -35,7 +48,7 @@
             <button type="submit" class="btn-pill btn-secondary">Logout</button>
           </form>
         <% } else { %>
-          <!-- Not logged in: only show Login -->
+          <!-- Logged-out links -->
           <a href="/login" class="btn-pill btn-primary">Login</a>
         <% } %>
       </div>
@@ -52,32 +65,42 @@
 
     <!-- Mobile navigation -->
     <div class="navbar-mobile">
-      <!-- Always shown with high contrast -->
-      <a href="/" class="nav-link-mobile nav-link-primary">Home</a>
-      <a href="/impact" class="nav-link-mobile nav-link-primary">Impact</a>
+      
+      <a href="/" class="nav-link-mobile">Home</a>
+      <a href="/impact" class="nav-link-mobile">Impact</a>
+
+      <% if (!currentUser) { %>
+        <!-- Mobile donate -->
+        <a 
+          href="https://givebutter.com/EllaRises" 
+          class="nav-link-mobile"
+          target="_blank"
+        >
+          Donate Now
+        </a>
+      <% } %>
 
       <% if (currentUser) { %>
-        <!-- Logged in: show all admin/dashboard links -->
         <a href="/participants" class="nav-link-mobile">Participants</a>
         <a href="/milestones" class="nav-link-mobile">Milestones</a>
         <a href="/events" class="nav-link-mobile">Events</a>
         <a href="/surveys" class="nav-link-mobile">Surveys</a>
         <a href="/donations" class="nav-link-mobile">Donations</a>
-        <a href="/dashboard" class="nav-link-mobile nav-link-primary">Dashboard</a>
 
-        <!-- User greeting -->
+        <a href="/dashboard" class="nav-link-mobile">Dashboard</a>
+
         <span class="nav-link-mobile nav-user-label">
           Hi, <%= currentUser.full_name %>
         </span>
 
-        <!-- Logout -->
         <form action="/logout" method="POST" class="nav-mobile-logout-form">
           <button type="submit" class="nav-link-mobile btn-logout-mobile">Logout</button>
         </form>
+
       <% } else { %>
-        <!-- Not logged in: only show Login -->
         <a href="/login" class="nav-link-mobile nav-link-primary">Login</a>
       <% } %>
+
     </div>
   </div>
 </nav>

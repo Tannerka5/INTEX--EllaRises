@@ -1,0 +1,56 @@
+<%- include("../partials/header") %>
+<%- include("../partials/_navbar") %>
+
+<main class="register-page-wrapper">
+  <div class="register-card" style="max-width:600px; width:100%;">
+
+    <h1 class="register-title">Your Account</h1>
+    <p class="register-subtitle">Update your personal information.</p>
+
+    <% if (success) { %>
+      <div class="alert alert-success"><%= success %></div>
+    <% } %>
+    <% if (error) { %>
+      <div class="alert alert-danger"><%= error %></div>
+    <% } %>
+
+    <form method="POST" action="/account/update" class="register-form">
+
+      <div class="register-field">
+        <label>Full Name</label>
+        <input type="text" name="full_name" value="<%= user.full_name %>">
+      </div>
+
+      <div class="register-field">
+        <label>Email</label>
+        <input type="email" name="email" value="<%= user.email %>">
+      </div>
+
+      <div class="register-field">
+        <label>New Password</label>
+        <input type="password" name="password" placeholder="Leave blank to keep current password">
+      </div>
+
+      <button class="btn-pill btn-primary register-btn" type="submit">
+        Save Changes
+      </button>
+
+    </form>
+
+  </div>
+</main>
+
+<script>
+  const alert = document.querySelector(".alert-success");
+  if (alert) {
+    setTimeout(() => {
+      alert.style.transition = "opacity 0.6s ease";
+      alert.style.opacity = "0";
+
+      setTimeout(() => alert.remove(), 600);
+    }, 2500);  // visible for 2.5 seconds
+  }
+</script>
+
+
+<%- include("../partials/footer") %>
