@@ -30,14 +30,14 @@ router.get("/new", requireManager, (req, res) => {
   });
 });
 
-// POST /participants - create
 router.post("/", requireManager, async (req, res) => {
+  console.log("POST /participants body:", req.body);
   const { 
     participantemail, participantfirstname, participantlastname, participantdob,
     participantrole, participantphone, participantcity, participantstate,
     participantzip, participantschooloremployer, participantfieldofinterest 
   } = req.body;
-  
+
   try {
     await db.query(
       `INSERT INTO participant (
@@ -45,18 +45,29 @@ router.post("/", requireManager, async (req, res) => {
         participantrole, participantphone, participantcity, participantstate,
         participantzip, participantschooloremployer, participantfieldofinterest
       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
-      [participantemail, participantfirstname, participantlastname, participantdob || null,
-       participantrole, participantphone, participantcity, participantstate,
-       participantzip, participantschooloremployer, participantfieldofinterest]
+      [
+        participantemail,
+        participantfirstname,
+        participantlastname,
+        participantdob || null,
+        participantrole,
+        participantphone,
+        participantcity,
+        participantstate,
+        participantzip,
+        participantschooloremployer,
+        participantfieldofinterest
+      ]
     );
     req.flash("success", "Participant created successfully");
     res.redirect("/participants");
   } catch (err) {
-    console.error(err);
+    console.error("Error inserting participant:", err);
     req.flash("error", "Failed to create participant");
     res.redirect("/participants/new");
   }
 });
+
 
 // GET /participants/:id - show single
 router.get("/:id", requireLogin, async (req, res) => {

@@ -1,93 +1,125 @@
 <%- include("../partials/header") %>
 <%- include("../partials/_navbar") %>
 
-<main class="bg-gradient-hero min-h-screen py-12 dashboard-main dashboard-container">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<main class="dashboard-main bg-gradient-hero">
+  <div class="dashboard-container">
 
-    <!-- Welcome Section -->
-    <div class="mb-12">
-      <h1 class="text-4xl font-bold text-foreground mb-2">
+    <!-- Welcome -->
+    <header>
+      <h1 class="page-title">
         Welcome back, <%= currentUser.full_name %>!
       </h1>
-      <p class="text-muted-foreground">Track your activities and stay involved</p>
-    </div>
+      <p class="text-muted-foreground">
+        See your upcoming events, surveys to complete, milestones, and donations.
+      </p>
+    </header>
 
-    <div class="dashboard-grid">
+    <!-- Primary row: one card per main area (clickable) -->
+    <section class="dashboard-grid">
+      <!-- Events -->
+      <a href="/events" class="dashboard-card dashboard-card-link">
+        <h2>Your Events</h2>
+        <p class="stat-number"><%= upcomingEvents.length %></p>
+        <p class="text-muted-foreground">Upcoming events you are registered for</p>
+      </a>
 
-        <!-- Participants -->
-        <div class="dashboard-card">
-          <h2>👥 Participants</h2>
-          <a href="/participants" class="dashboard-section-link">View all →</a>
+      <!-- Surveys -->
+      <a href="/surveys" class="dashboard-card dashboard-card-link">
+        <h2>Your Surveys</h2>
+        <p class="stat-number"><%= postSurveyEvents.length %></p>
+        <p class="text-muted-foreground">Events waiting for your feedback</p>
+      </a>
 
-          <% if (participants.length === 0) { %>
-            <p>No participants to display.</p>
-          <% } else { %>
-            <% participants.forEach(p => { %>
-              <p><%= p.participantfirstname %> <%= p.participantlastname %></p>
-            <% }) %>
-          <% } %>
-        </div>
+      <!-- Milestones -->
+      <a href="/milestones" class="dashboard-card dashboard-card-link">
+        <h2>Your Milestones</h2>
+        <p class="stat-number"><%= milestones.length %></p>
+        <p class="text-muted-foreground">Total milestones you have earned</p>
+      </a>
 
-        <!-- Upcoming Events -->
-        <div class="dashboard-card">
-          <h2>📅 Upcoming Events</h2>
-          <a href="/events" class="dashboard-section-link">View all →</a>
+      <!-- Donations -->
+      <a href="/donations" class="dashboard-card dashboard-card-link">
+        <h2>Your Donations</h2>
+        <p class="stat-number">
+          $<%= (userDonationTotal || 0).toFixed(2) %>
+        </p>
+        <p class="text-muted-foreground">Total amount you have donated</p>
+      </a>
 
-          <% if (upcomingEvents.length === 0) { %>
-            <p>No upcoming events.</p>
-          <% } else { %>
+    </section>
+
+    <!-- Secondary detail lists -->
+    <section class="dashboard-grid">
+      <!-- Upcoming events -->
+      <article class="dashboard-card">
+        <h2>Upcoming Events</h2>
+        <% if (!upcomingEvents || upcomingEvents.length === 0) { %>
+          <p class="text-muted-foreground">You are not registered for any upcoming events.</p>
+        <% } else { %>
+          <ul class="dashboard-list">
             <% upcomingEvents.forEach(e => { %>
-              <p><strong><%= e.eventname %></strong><br>
-              <%= new Date(e.eventdatetimestart).toLocaleDateString() %></p>
+              <li>
+                <strong><%= e.eventname %></strong>
+                <span class="text-muted-foreground">
+                  <%= new Date(e.eventdatetimestart).toLocaleString() %>
+                </span>
+              </li>
             <% }) %>
-          <% } %>
-        </div>
+          </ul>
+        <% } %>
+      </article>
 
-        <!-- Post Surveys -->
-        <div class="dashboard-card">
-          <h2>📝 Post Surveys</h2>
-          <a href="/surveys/post" class="dashboard-section-link">View all →</a>
-
-          <% if (postSurveyEvents.length === 0) { %>
-            <p>No surveys pending.</p>
-          <% } else { %>
+      <!-- Surveys to complete -->
+      <article class="dashboard-card">
+        <h2>Surveys to Complete</h2>
+        <% if (!postSurveyEvents || postSurveyEvents.length === 0) { %>
+          <p class="text-muted-foreground">No surveys are waiting for you right now.</p>
+        <% } else { %>
+          <ul class="dashboard-list">
             <% postSurveyEvents.forEach(ev => { %>
-              <p><%= ev.eventname %></p>
+              <li>
+                <strong><%= ev.eventname %></strong>
+                <span class="text-muted-foreground">
+                  Help Ella Rises improve by sharing your experience.
+                </span>
+              </li>
             <% }) %>
-          <% } %>
-        </div>
+          </ul>
+        <% } %>
+      </article>
 
-        <!-- Milestones -->
-        <div class="dashboard-card">
-          <h2>🏅 Milestones</h2>
-          <a href="/milestones" class="dashboard-section-link">View all →</a>
-
-          <% if (milestones.length === 0) { %>
-            <p>No milestones earned yet.</p>
-          <% } else { %>
+      <!-- Your milestones -->
+      <article class="dashboard-card">
+        <h2>Your Milestones</h2>
+        <% if (!milestones || milestones.length === 0) { %>
+          <p class="text-muted-foreground">
+            No milestones earned yet. Keep going—you’re just getting started.
+          </p>
+        <% } else { %>
+          <ul class="dashboard-list">
             <% milestones.forEach(m => { %>
-              <p><strong><%= m.milestonetitle %></strong></p>
+              <li>
+                <strong><%= m.milestonetitle %></strong>
+                <span class="text-muted-foreground">
+                  <%= m.milestonedate ? new Date(m.milestonedate).toLocaleDateString() : "" %>
+                </span>
+              </li>
             <% }) %>
-          <% } %>
-        </div>
+          </ul>
+        <% } %>
+      </article>
 
-        <!-- Donations -->
-        <div class="dashboard-card">
-          <h2>💖 Donations</h2>
-          <a href="/donations" class="dashboard-section-link">View all →</a>
-
-          <% if (donations.length === 0) { %>
-            <p>No recent donations.</p>
-          <% } else { %>
-            <% donations.forEach(d => { %>
-              <p>$<%= d.donationamount %> — <%= d.donorname %></p>
-            <% }) %>
-          <% } %>
-        </div>
-
-      </div>
-
-    </div>
+      <!-- Your donations -->
+      <article class="dashboard-card">
+        <h2>Your Donations</h2>
+        <p class="stat-number">
+          $<%= (userDonationTotal || 0).toFixed(2) %>
+        </p>
+        <p class="text-muted-foreground">
+          Total amount you have donated through Ella Rises.
+        </p>
+      </article>
+    </section>
   </div>
 </main>
 

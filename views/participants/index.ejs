@@ -1,119 +1,124 @@
 <%- include("../partials/header") %>
 <%- include("../partials/_navbar") %>
 
-<main class="bg-gradient-hero min-h-screen py-12 page-main">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<main class="register-page-wrapper">
+  <div class="register-card" style="max-width: 900px; width:100%;">
+    <h1 class="register-title">Participants</h1>
+    <p class="register-subtitle">View and manage Ella Rises participants.</p>
 
-    <!-- Header -->
-    <div class="flex-col md:flex-row flex justify-between items-start md:items-center gap-4 mb-8">
-      <div>
-        <h1 class="text-4xl font-bold text-foreground mb-2">Participants</h1>
-        <p class="text-muted-foreground">Manage program participants</p>
-      </div>
-      <a href="/participants/new" class="btn-pill btn-primary flex items-center gap-2">
-        + Add Participant
-      </a>
-    </div>
+    <% if (success && success.length > 0) { %>
+      <div class="alert alert-success"><%= success %></div>
+    <% } %>
+    <% if (error && error.length > 0) { %>
+      <div class="alert alert-danger"><%= error %></div>
+    <% } %>
 
-    <!-- Filters -->
-    <div class="card-pastel mb-8">
-      <div class="flex-col md:flex-row flex gap-4">
-        <div class="flex-1 relative">
-          <span class="input-icon">🔍</span>
-          <input type="text" placeholder="Search participants..." class="input-pastel input-with-icon w-full" />
-        </div>
-
-        <button class="btn-pill bg-white border-2 border-border hover:border-primary flex items-center gap-2">
-          ⚙️ Filter
+    <!-- Top row: search + Add button (managers only) -->
+    <div style="display:flex; justify-content:space-between; gap:1rem; margin-bottom:1rem; align-items:flex-end;">
+      <div class="register-field" style="flex:1; margin-bottom:0; position:relative;">
+        <label>Search participants</label>
+        <input
+          type="text"
+          id="participantSearch"
+          placeholder="Search by name, email, role, or phone…"
+          style="padding-right:2rem;"
+        />
+        <!-- Clear (X) button -->
+        <button
+          type="button"
+          id="clearSearch"
+          aria-label="Clear search"
+          style="
+            position:absolute;
+            right:0.5rem;
+            top:50%;
+            transform:translateY(10%);
+            border:none;
+            background:transparent;
+            font-size:1.1rem;
+            line-height:1;
+            cursor:pointer;
+            color:#9CA3AF;
+            transition:color 0.15s ease, transform 0.15s ease;
+          "
+          onmouseover="this.style.color='#ff8a80'; this.style.transform='translateY(10%) scale(1.25)';"
+          onmouseout="this.style.color='#9CA3AF'; this.style.transform='translateY(10%) scale(1)';"
+        >
+          &times;
         </button>
       </div>
+
+      <% if (currentUser && currentUser.role === 'Manager') { %>
+        <a href="/participants/new" class="btn-pill btn-primary register-btn" style="width:auto; white-space:nowrap;">
+          + Add Participant
+        </a>
+      <% } %>
     </div>
 
-    <!-- Stats -->
-    <div class="grid md:grid-cols-4 gap-4 mb-8">
-      <div class="stat-card">
-        <div class="text-3xl font-bold text-foreground mb-1">124</div>
-        <div class="text-sm text-muted-foreground">Total Participants</div>
-      </div>
-
-      <div class="stat-card">
-        <div class="text-3xl font-bold text-foreground mb-1">98</div>
-        <div class="text-sm text-muted-foreground">Active</div>
-      </div>
-
-      <div class="stat-card">
-        <div class="text-3xl font-bold text-foreground mb-1">26</div>
-        <div class="text-sm text-muted-foreground">Inactive</div>
-      </div>
-
-      <div class="stat-card">
-        <div class="text-3xl font-bold text-foreground mb-1">15</div>
-        <div class="text-sm text-muted-foreground">New This Month</div>
-      </div>
-    </div>
-
-    <!-- Table -->
-    <div class="card-pastel overflow-hidden">
-      <div class="overflow-x-auto">
-        <table class="table-pastel">
-          <thead>
+    <!-- Participants table -->
+    <div style="overflow-x:auto;">
+      <table class="table table-striped" id="participantsTable" style="width:100%; border-collapse:collapse;">
+        <thead>
+          <tr>
+            <th style="text-align:left; padding:0.6rem;">Name</th>
+            <th style="text-align:left; padding:0.6rem;">Role</th>
+            <th style="text-align:left; padding:0.6rem;">Email</th>
+            <th style="text-align:left; padding:0.6rem;">Phone</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% participants.forEach(p => { %>
             <tr>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Program</th>
-              <th>Status</th>
-              <th>Join Date</th>
-              <th>Actions</th>
+              <td style="padding:0.6rem;">
+                <a
+                  href="/participants/<%= p.participantid %>"
+                  class="register-link"
+                  style="color: #ffc2b5; transition:color 0.15s ease, transform 0.15s ease; display:inline-block;"
+                  onmouseover="this.style.transform='translateY(-1px)';"
+                  onmouseout="this.style.transform='translateY(0)';"
+                >
+                  <%= p.participantfirstname %> <%= p.participantlastname %>
+                </a>
+              </td>
+              <td style="padding:0.6rem;"><%= p.participantrole || '' %></td>
+              <td style="padding:0.6rem;"><%= p.participantemail %></td>
+              <td style="padding:0.6rem;"><%= p.participantphone || '' %></td>
             </tr>
-          </thead>
-
-          <tbody>
-            <% participants.forEach(p => { %>
-              <tr>
-                <td class="font-medium text-foreground"><%= p.name %></td>
-                <td class="text-muted-foreground"><%= p.email %></td>
-
-                <td>
-                  <span class="px-3 py-1 rounded-full text-sm bg-primary/10 text-primary">
-                    <%= p.program %>
-                  </span>
-                </td>
-
-                <td>
-                  <% if (p.status === "Active") { %>
-                    <span class="px-3 py-1 rounded-full text-sm bg-accent/10 text-accent">
-                      Active
-                    </span>
-                  <% } else { %>
-                    <span class="px-3 py-1 rounded-full text-sm bg-muted text-muted-foreground">
-                      Inactive
-                    </span>
-                  <% } %>
-                </td>
-
-                <td class="text-muted-foreground"><%= p.joinDate %></td>
-
-                <td>
-                  <div class="flex gap-2">
-                    <a href="/participants/<%= p.id %>/edit" class="text-sm text-primary hover:underline font-medium">Edit</a>
-
-                    <form action="/participants/<%= p.id %>/delete" method="POST">
-                      <button class="text-sm text-destructive hover:underline font-medium">
-                        Delete
-                      </button>
-                    </form>
-                  </div>
-                </td>
-
-              </tr>
-            <% }) %>
-          </tbody>
-
-        </table>
-      </div>
+          <% }) %>
+        </tbody>
+      </table>
     </div>
 
+    <p class="register-bottom" style="margin-top:1.2rem;">
+      Total participants: <strong><%= participants.length %></strong>
+    </p>
   </div>
 </main>
+
+<script>
+  (function () {
+    const input = document.getElementById('participantSearch');
+    const clearBtn = document.getElementById('clearSearch');
+    const table = document.getElementById('participantsTable');
+    if (!input || !table) return;
+
+    function filterRows() {
+      const query = input.value.toLowerCase();
+      const rows = table.querySelectorAll('tbody tr');
+      rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(query) ? '' : 'none';
+      });
+    }
+
+    input.addEventListener('input', filterRows);
+
+    clearBtn.addEventListener('click', function () {
+      input.value = '';
+      filterRows();
+      input.focus();
+    });
+  })();
+</script>
 
 <%- include("../partials/footer") %>

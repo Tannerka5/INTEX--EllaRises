@@ -1,0 +1,457 @@
+<%- include("../partials/header") %>
+<%- include("../partials/_navbar") %>
+
+<main class="register-page-wrapper">
+  <div class="register-card" style="max-width: 720px; width:100%; position:relative;">
+    <!-- Back button -->
+    <a
+      href="/surveys/event/<%= survey.eventoccurrenceid %>"
+      class="btn-pill btn-secondary"
+      style="
+        position:absolute;
+        top:1.2rem;
+        left:1.6rem;
+        padding:0.3rem 0.9rem;
+        font-size:0.8rem;
+      "
+    >
+      ← Back
+    </a>
+
+    <!-- Edit button (managers only) -->
+    <% if (currentUser && currentUser.role === 'Manager') { %>
+      <button
+        type="button"
+        id="editToggle"
+        class="btn-pill btn-secondary"
+        style="
+          position:absolute;
+          top:1.2rem;
+          right:1.6rem;
+          padding:0.3rem 0.9rem;
+          font-size:0.8rem;
+        "
+      >
+        Edit
+      </button>
+    <% } %>
+
+    <div style="text-align:center; margin-top:1.6rem;">
+      <h1 class="register-title">
+        <%= survey.participantfirstname %> <%= survey.participantlastname %>
+      </h1>
+      <p class="register-subtitle">Survey details</p>
+    </div>
+
+    <% if (success && success.length > 0) { %>
+      <div class="alert alert-success"><%= success %></div>
+    <% } %>
+    <% if (error && error.length > 0) { %>
+      <div class="alert alert-danger"><%= error %></div>
+    <% } %>
+
+    <form
+      id="surveyForm"
+      action="/surveys/<%= survey.surveyid %>?_method=PUT"
+      method="POST"
+      class="register-form"
+      style="margin-top:1.4rem;"
+    >
+      <!-- Event (editable) -->
+      <div class="register-field">
+        <label>Event</label>
+        <input
+          type="text"
+          name="eventname"
+          value="<%= survey.eventname %>"
+          disabled
+        />
+      </div>
+
+      <!-- Submission Date (editable) -->
+      <div class="register-field">
+        <label>Submission Date</label>
+        <input
+          type="date"
+          name="surveysubmissiondate"
+          value="<%= survey.surveysubmissiondate ? survey.surveysubmissiondate.toISOString().slice(0,10) : '' %>"
+          disabled
+        />
+      </div>
+
+      <!-- Satisfaction Score with slider -->
+      <div class="register-field">
+        <label>
+          Satisfaction Score:
+          <span id="satValue" style="font-weight:600; margin-left:0.5rem;">
+            <%= survey.surveysatisfactionscore %>
+          </span>
+        </label>
+        <div class="slider-wrapper">
+          <div class="slider-ticks">
+            <span class="slider-tick major"></span>
+            <span class="slider-tick"></span>
+            <span class="slider-tick"></span>
+            <span class="slider-tick"></span>
+            <span class="slider-tick"></span>
+            <span class="slider-tick major"></span>
+            <span class="slider-tick"></span>
+            <span class="slider-tick"></span>
+            <span class="slider-tick"></span>
+            <span class="slider-tick"></span>
+            <span class="slider-tick major"></span>
+          </div>
+          <input
+            type="range"
+            name="surveysatisfactionscore"
+            id="satSlider"
+            min="0"
+            max="10"
+            step="1"
+            value="<%= survey.surveysatisfactionscore %>"
+            class="score-slider"
+            disabled
+          />
+        </div>
+      </div>
+
+      <!-- Usefulness Score with slider -->
+      <div class="register-field">
+        <label>
+          Usefulness Score:
+          <span id="useValue" style="font-weight:600; margin-left:0.5rem;">
+            <%= survey.surveyusefulnessscore %>
+          </span>
+        </label>
+        <div class="slider-wrapper">
+          <div class="slider-ticks">
+            <span class="slider-tick major"></span>
+            <span class="slider-tick"></span>
+            <span class="slider-tick"></span>
+            <span class="slider-tick"></span>
+            <span class="slider-tick"></span>
+            <span class="slider-tick major"></span>
+            <span class="slider-tick"></span>
+            <span class="slider-tick"></span>
+            <span class="slider-tick"></span>
+            <span class="slider-tick"></span>
+            <span class="slider-tick major"></span>
+          </div>
+          <input
+            type="range"
+            name="surveyusefulnessscore"
+            id="useSlider"
+            min="0"
+            max="10"
+            step="1"
+            value="<%= survey.surveyusefulnessscore %>"
+            class="score-slider"
+            disabled
+          />
+        </div>
+      </div>
+
+      <!-- Instructor Score with slider -->
+      <div class="register-field">
+        <label>
+          Instructor Score:
+          <span id="instValue" style="font-weight:600; margin-left:0.5rem;">
+            <%= survey.surveyinstructorscore %>
+          </span>
+        </label>
+        <div class="slider-wrapper">
+          <div class="slider-ticks">
+            <span class="slider-tick major"></span>
+            <span class="slider-tick"></span>
+            <span class="slider-tick"></span>
+            <span class="slider-tick"></span>
+            <span class="slider-tick"></span>
+            <span class="slider-tick major"></span>
+            <span class="slider-tick"></span>
+            <span class="slider-tick"></span>
+            <span class="slider-tick"></span>
+            <span class="slider-tick"></span>
+            <span class="slider-tick major"></span>
+          </div>
+          <input
+            type="range"
+            name="surveyinstructorscore"
+            id="instSlider"
+            min="0"
+            max="10"
+            step="1"
+            value="<%= survey.surveyinstructorscore %>"
+            class="score-slider"
+            disabled
+          />
+        </div>
+      </div>
+
+      <!-- Recommendation Score with slider -->
+      <div class="register-field">
+        <label>
+          Recommendation Score:
+          <span id="recValue" style="font-weight:600; margin-left:0.5rem;">
+            <%= survey.surveyrecommendationscore %>
+          </span>
+        </label>
+        <div class="slider-wrapper">
+          <div class="slider-ticks">
+            <span class="slider-tick major"></span>
+            <span class="slider-tick"></span>
+            <span class="slider-tick"></span>
+            <span class="slider-tick"></span>
+            <span class="slider-tick"></span>
+            <span class="slider-tick major"></span>
+            <span class="slider-tick"></span>
+            <span class="slider-tick"></span>
+            <span class="slider-tick"></span>
+            <span class="slider-tick"></span>
+            <span class="slider-tick major"></span>
+          </div>
+          <input
+            type="range"
+            name="surveyrecommendationscore"
+            id="recSlider"
+            min="0"
+            max="10"
+            step="1"
+            value="<%= survey.surveyrecommendationscore %>"
+            class="score-slider"
+            disabled
+          />
+        </div>
+      </div>
+
+      <!-- Overall score (readonly) -->
+      <div class="register-field">
+        <label>Overall Score (avg)</label>
+        <input
+          type="text"
+          id="overallDisplay"
+          value="<%= Number(survey.surveyoverallscore).toFixed(2) %>"
+          disabled
+        />
+        <input type="hidden" name="surveyoverallscore" id="overallHidden" value="<%= Number(survey.surveyoverallscore).toFixed(2) %>" />
+      </div>
+
+      <!-- NPS Bucket -->
+      <div class="register-field">
+        <label>NPS Bucket</label>
+        <input
+          type="text"
+          name="surveynpsbucket"
+          value="<%= survey.surveynpsbucket || '' %>"
+          disabled
+        />
+      </div>
+
+      <!-- Comments -->
+      <div class="register-field">
+        <label>Comments</label>
+        <textarea
+          name="surveycomments"
+          rows="3"
+          disabled
+          style="width:100%; padding:0.65rem 0.9rem; border-radius:0.6rem; border:1px solid rgba(0,0,0,0.15); font-size:0.95rem;"
+        ><%= survey.surveycomments || '' %></textarea>
+      </div>
+
+      <% if (currentUser && currentUser.role === 'Manager') { %>
+        <div id="editButtons" style="display:none; margin-top:1.4rem; gap:0.8rem; flex-wrap:wrap;">
+          <button
+            type="submit"
+            class="btn-pill btn-primary"
+            style="background-color:#ffc2b5; border:none;"
+          >
+            Save Changes
+          </button>
+          <button type="button" id="cancelEdit" class="btn-pill btn-secondary">
+            Cancel
+          </button>
+        </div>
+      <% } %>
+    </form>
+
+    <% if (currentUser && currentUser.role === 'Manager') { %>
+      <form
+        id="deleteForm"
+        action="/surveys/<%= survey.surveyid %>?_method=DELETE"
+        method="POST"
+        style="margin-top:1.8rem; text-align:right;"
+        onsubmit="return confirmDelete();"
+      >
+        <button
+          type="submit"
+          class="btn-pill"
+          style="background-color:#dc2626; color:white; border:none;"
+        >
+          Delete Survey
+        </button>
+      </form>
+    <% } %>
+  </div>
+</main>
+
+<script>
+  (function () {
+    const form = document.getElementById('surveyForm');
+    const deleteForm = document.getElementById('deleteForm');
+    const editBtn = document.getElementById('editToggle');
+    const editButtons = document.getElementById('editButtons');
+    const cancelBtn = document.getElementById('cancelEdit');
+
+    // Sliders and value labels
+    const satSlider = document.getElementById('satSlider');
+    const useSlider = document.getElementById('useSlider');
+    const instSlider = document.getElementById('instSlider');
+    const recSlider = document.getElementById('recSlider');
+
+    const satValue = document.getElementById('satValue');
+    const useValue = document.getElementById('useValue');
+    const instValue = document.getElementById('instValue');
+    const recValue = document.getElementById('recValue');
+
+    const overallDisplay = document.getElementById('overallDisplay');
+    const overallHidden = document.getElementById('overallHidden');
+
+    // May be null for non‑manager (no edit controls)
+    const npsInput = form ? form.querySelector('input[name="surveynpsbucket"]') : null;
+    const commentsInput = form ? form.querySelector('textarea[name="surveycomments"]') : null;
+    const eventInput = form ? form.querySelector('input[name="eventname"]') : null;
+    const dateInput = form ? form.querySelector('input[name="surveysubmissiondate"]') : null;
+
+    const sliders = [satSlider, useSlider, instSlider, recSlider].filter(Boolean);
+
+    // --- Shared slider fill logic (all roles) ---
+
+    function setSliderFill(slider) {
+      const min = Number(slider.min || 0);
+      const max = Number(slider.max || 10);
+      const val = Number(slider.value || 0);
+      const percent = ((val - min) * 100) / (max - min);
+      slider.style.setProperty('--val', percent + '%');
+    }
+
+    function updateOverall() {
+      if (!satSlider || !useSlider || !instSlider || !recSlider || !overallDisplay || !overallHidden) return;
+      const scores = [
+        Number(satSlider.value),
+        Number(useSlider.value),
+        Number(instSlider.value),
+        Number(recSlider.value)
+      ];
+      const avg = scores.reduce((a, b) => a + b, 0) / scores.length;
+      const avgStr = avg.toFixed(2);
+      overallDisplay.value = avgStr;
+      overallHidden.value = avgStr;
+    }
+
+    function syncAndUpdate() {
+      if (satSlider && satValue) satValue.textContent = satSlider.value;
+      if (useSlider && useValue) useValue.textContent = useSlider.value;
+      if (instSlider && instValue) instValue.textContent = instSlider.value;
+      if (recSlider && recValue) recValue.textContent = recSlider.value;
+
+      sliders.forEach(setSliderFill);
+      updateOverall();
+    }
+
+    sliders.forEach(sl => {
+      setSliderFill(sl);
+      sl.addEventListener('input', syncAndUpdate);
+    });
+
+    syncAndUpdate();
+
+    // --- Manager‑only edit / delete logic (only runs if controls exist) ---
+
+    if (editBtn && form && editButtons && cancelBtn && npsInput && commentsInput) {
+      let editing = false;
+
+      const originalValues = {
+        eventname: eventInput ? eventInput.value : "",
+        surveysubmissiondate: dateInput ? dateInput.value : "",
+        surveysatisfactionscore: satSlider ? satSlider.value : "",
+        surveyusefulnessscore: useSlider ? useSlider.value : "",
+        surveyinstructorscore: instSlider ? instSlider.value : "",
+        surveyrecommendationscore: recSlider ? recSlider.value : "",
+        surveynpsbucket: npsInput.value,
+        surveycomments: commentsInput.value
+      };
+
+      function updateSliderCursor() {
+        sliders.forEach(sl => {
+          sl.style.cursor = editing ? 'grab' : 'auto';
+        });
+      }
+
+      function setEditing(isEditing) {
+        editing = isEditing;
+
+        if (eventInput) eventInput.disabled = !isEditing;
+        if (dateInput) dateInput.disabled = !isEditing;
+
+        sliders.forEach(sl => {
+          sl.disabled = !isEditing;
+        });
+
+        npsInput.disabled = !isEditing;
+        commentsInput.disabled = !isEditing;
+
+        editButtons.style.display = isEditing ? 'flex' : 'none';
+        editBtn.textContent = isEditing ? 'Editing…' : 'Edit';
+
+        updateSliderCursor();
+      }
+
+      function resetValues() {
+        if (eventInput) eventInput.value = originalValues.eventname;
+        if (dateInput) dateInput.value = originalValues.surveysubmissiondate;
+        if (satSlider) satSlider.value = originalValues.surveysatisfactionscore;
+        if (useSlider) useSlider.value = originalValues.surveyusefulnessscore;
+        if (instSlider) instSlider.value = originalValues.surveyinstructorscore;
+        if (recSlider) recSlider.value = originalValues.surveyrecommendationscore;
+        npsInput.value = originalValues.surveynpsbucket;
+        commentsInput.value = originalValues.surveycomments;
+        syncAndUpdate();
+      }
+
+      editBtn.addEventListener('click', function () {
+        if (!editing) {
+          setEditing(true);
+        } else {
+          resetValues();
+          setEditing(false);
+        }
+      });
+
+      cancelBtn.addEventListener('click', function () {
+        resetValues();
+        setEditing(false);
+      });
+
+      sliders.forEach(sl => {
+        sl.addEventListener('mousedown', function () {
+          if (editing) this.style.cursor = 'grabbing';
+        });
+        sl.addEventListener('mouseup', function () {
+          if (editing) this.style.cursor = 'grab';
+        });
+        sl.addEventListener('mouseleave', function () {
+          if (editing) this.style.cursor = 'grab';
+        });
+      });
+
+      updateSliderCursor();
+    }
+
+    // Delete confirmation (works for managers only; deleteForm exists only then)
+    window.confirmDelete = function () {
+      return window.confirm("Are you sure you want to delete this survey? This action cannot be undone.");
+    };
+  })();
+</script>
+
+
+<%- include("../partials/footer") %>

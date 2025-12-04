@@ -1,0 +1,280 @@
+<%- include("../partials/header") %>
+<%- include("../partials/_navbar") %>
+
+<main class="register-page-wrapper">
+  <div class="register-card" style="max-width: 720px; width:100%; position:relative;">
+
+    <!-- Back button (top-left) -->
+    <a
+      href="/participants"
+      class="btn-pill btn-secondary"
+      style="
+        position:absolute;
+        top:1.6rem;
+        left:1.6rem;
+        padding-inline:1.4rem;
+        font-size:0.9rem;
+      "
+    >
+      ← Go Back
+    </a>
+
+    <% if (currentUser && currentUser.role === 'Manager') { %>
+      <button
+        type="button"
+        id="editToggle"
+        class="btn-pill btn-secondary"
+        style="
+          position:absolute;
+          top:1.6rem;
+          right:1.6rem;
+          padding-inline:1.4rem;
+          font-size:0.9rem;
+        "
+      >
+        Edit
+      </button>
+    <% } %>
+
+    <div style="text-align:center;">
+      <h1 class="register-title" style="margin-right:0;">
+        <%= participant.participantfirstname %> <%= participant.participantlastname %>
+      </h1>
+      <p class="register-subtitle">Participant details</p>
+    </div>
+
+
+    <!-- Details / edit form -->
+    <form
+      id="participantForm"
+      action="/participants/<%= participant.participantid %>?_method=PUT"
+      method="POST"
+      class="register-form"
+      style="margin-top:1.4rem;"
+    >
+      <!-- Email -->
+      <div class="register-field">
+        <label>Email</label>
+        <input
+          type="email"
+          name="participantemail"
+          value="<%= participant.participantemail %>"
+          disabled
+        />
+      </div>
+
+      <!-- First Name -->
+      <div class="register-field">
+        <label>First Name</label>
+        <input
+          type="text"
+          name="participantfirstname"
+          value="<%= participant.participantfirstname %>"
+          disabled
+        />
+      </div>
+
+      <!-- Last Name -->
+      <div class="register-field">
+        <label>Last Name</label>
+        <input
+          type="text"
+          name="participantlastname"
+          value="<%= participant.participantlastname %>"
+          disabled
+        />
+      </div>
+
+      <!-- Date of Birth -->
+      <div class="register-field">
+        <label>Date of Birth</label>
+        <input
+          type="date"
+          name="participantdob"
+          value="<%= participant.participantdob ? participant.participantdob.toISOString().slice(0,10) : '' %>"
+          disabled
+        />
+      </div>
+
+      <!-- Role -->
+      <div class="register-field">
+        <label>Role</label>
+        <input
+          type="text"
+          name="participantrole"
+          value="<%= participant.participantrole || '' %>"
+          disabled
+        />
+      </div>
+
+      <!-- Phone -->
+      <div class="register-field">
+        <label>Phone</label>
+        <input
+          type="text"
+          name="participantphone"
+          value="<%= participant.participantphone || '' %>"
+          disabled
+        />
+      </div>
+
+      <!-- City -->
+      <div class="register-field">
+        <label>City</label>
+        <input
+          type="text"
+          name="participantcity"
+          value="<%= participant.participantcity || '' %>"
+          disabled
+        />
+      </div>
+
+      <!-- State -->
+      <div class="register-field">
+        <label>State</label>
+        <input
+          type="text"
+          name="participantstate"
+          value="<%= participant.participantstate || '' %>"
+          disabled
+        />
+      </div>
+
+      <!-- ZIP -->
+      <div class="register-field">
+        <label>ZIP</label>
+        <input
+          type="text"
+          name="participantzip"
+          value="<%= participant.participantzip || '' %>"
+          disabled
+        />
+      </div>
+
+      <!-- School or Employer -->
+      <div class="register-field">
+        <label>School or Employer</label>
+        <input
+          type="text"
+          name="participantschooloremployer"
+          value="<%= participant.participantschooloremployer || '' %>"
+          disabled
+        />
+      </div>
+
+      <!-- Field of Interest -->
+      <div class="register-field">
+        <label>Field of Interest</label>
+        <input
+          type="text"
+          name="participantfieldofinterest"
+          value="<%= participant.participantfieldofinterest || '' %>"
+          disabled
+        />
+      </div>
+
+      <!-- Edit-mode buttons (hidden by default) -->
+      <% if (currentUser && currentUser.role === 'Manager') { %>
+        <div
+          id="editButtons"
+          style="display:none; margin-top:1.4rem; gap:0.8rem; flex-wrap:wrap;"
+        >
+          <button
+            type="submit"
+            class="btn-pill btn-primary"
+            style="background-color:#ffc2b5; border:none;"
+          >
+            Save Changes
+          </button>
+
+          <button
+            type="button"
+            id="cancelEdit"
+            class="btn-pill btn-secondary"
+          >
+            Cancel
+          </button>
+        </div>
+      <% } %>
+    </form>
+
+    <!-- Delete button (bottom, managers only) -->
+    <% if (currentUser && currentUser.role === 'Manager') { %>
+      <form
+        id="deleteForm"
+        action="/participants/<%= participant.participantid %>?_method=DELETE"
+        method="POST"
+        style="margin-top:1.8rem; text-align:right;"
+        onsubmit="return confirmDelete();"
+      >
+        <button
+          type="submit"
+          class="btn-pill"
+          style="
+            background-color:#dc2626;
+            color:white;
+            border:none;
+          "
+        >
+          Delete Participant
+        </button>
+      </form>
+    <% } %>
+  </div>
+</main>
+
+<script>
+  // Toggle edit mode for managers
+  (function () {
+  const editBtn = document.getElementById('editToggle');
+  const form = document.getElementById('participantForm');
+  const editButtons = document.getElementById('editButtons');
+  const cancelBtn = document.getElementById('cancelEdit');
+  if (!editBtn || !form || !editButtons || !cancelBtn) return;
+
+  const inputs = form.querySelectorAll('input');
+  const originalValues = {};
+  inputs.forEach(input => { originalValues[input.name] = input.value; });
+
+  let editing = false;
+
+  function setEditing(isEditing) {
+    editing = isEditing;
+    inputs.forEach(input => { input.disabled = !isEditing; });
+    editButtons.style.display = isEditing ? 'flex' : 'none';
+    editBtn.textContent = isEditing ? 'Editing…' : 'Edit';
+  }
+
+  // Toggle on click
+  editBtn.addEventListener('click', function () {
+    if (!editing) {
+      setEditing(true);
+    } else {
+      // behave like cancel
+      inputs.forEach(input => {
+        if (originalValues.hasOwnProperty(input.name)) {
+          input.value = originalValues[input.name];
+        }
+      });
+      setEditing(false);
+    }
+  });
+
+  // Cancel button (same reset logic)
+  cancelBtn.addEventListener('click', function () {
+    inputs.forEach(input => {
+      if (originalValues.hasOwnProperty(input.name)) {
+        input.value = originalValues[input.name];
+      }
+    });
+    setEditing(false);
+  });
+})();
+
+
+  function confirmDelete() {
+    return window.confirm("Are you sure you want to delete this participant? This action cannot be undone.");
+  }
+</script>
+
+<%- include("../partials/footer") %>

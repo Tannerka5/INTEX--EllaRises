@@ -61,6 +61,44 @@ router.post("/", requireManager, async (req, res) => {
   }
 });
 
+// GET /milestones/:id - show single milestone
+// routes/milestoneRoutes.js
+router.get("/:id", requireLogin, async (req, res) => {
+  try {
+    const milestoneResult = await db.query(`
+      SELECT m.*, p.participantfirstname, p.participantlastname
+      FROM milestone m
+      JOIN participant p ON m.participantid = p.participantid
+      WHERE m.milestoneid = $1
+    `, [req.params.id]);
+
+    if (milestoneResult.rows.length === 0) {
+      req.flash("error", "Milestone not found");
+      return res.redirect("/milestones");
+    }
+
+    const participantsResult = await db.query(`
+      SELECT participantid, participantfirstname, participantlastname, participantdob
+      FROM participant
+      ORDER BY participantlastname, participantfirstname
+    `);
+
+    res.render("milestones/show", {
+      title: "Milestone Details",
+      milestone: milestoneResult.rows[0],
+      participants: participantsResult.rows,   // <-- key line
+      currentUser: req.session.user,
+      success: req.flash("success"),
+      error: req.flash("error")
+    });
+  } catch (err) {
+    console.error(err);
+    req.flash("error", "Failed to load milestone");
+    res.redirect("/milestones");
+  }
+});
+
+
 // GET /milestones/:id/edit - show edit form
 router.get("/:id/edit", requireManager, async (req, res) => {
   try {

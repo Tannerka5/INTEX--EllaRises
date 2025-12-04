@@ -2,9 +2,28 @@
 <%- include("../partials/_navbar") %>
 
 <main class="register-page-wrapper">
-  <div class="register-card" style="max-width: 900px; width:100%;">
-    <h1 class="register-title">Milestones</h1>
-    <p class="register-subtitle">Track participant milestones over time.</p>
+  <div class="register-card" style="max-width: 900px; width:100%; position:relative;">
+    <!-- Back button -->
+    <a
+      href="/surveys"
+      class="btn-pill btn-secondary"
+      style="
+        position:absolute;
+        top:1.2rem;
+        left:1.6rem;
+        padding:0.3rem 0.9rem;
+        font-size:0.8rem;
+      "
+    >
+      ← Back
+    </a>
+
+    <div style="text-align:center;">
+      <h1 class="register-title">
+        <%= event.eventname %>
+      </h1>
+      <p class="register-subtitle">Participant surveys for this event</p>
+    </div>
 
     <% if (success && success.length > 0) { %>
       <div class="alert alert-success"><%= success %></div>
@@ -13,19 +32,19 @@
       <div class="alert alert-danger"><%= error %></div>
     <% } %>
 
-    <!-- Search + Add button -->
-    <div style="display:flex; justify-content:space-between; gap:1rem; margin-bottom:1rem; align-items:flex-end;">
-      <div class="register-field" style="flex:1; margin-bottom:0; position:relative;">
-        <label>Search milestones</label>
+    <!-- Search -->
+    <div style="margin-bottom:1rem; position:relative;">
+      <div class="register-field" style="margin-bottom:0;">
+        <label>Search surveys</label>
         <input
           type="text"
-          id="milestoneSearch"
-          placeholder="Search by title, participant, or date…"
+          id="surveySearch"
+          placeholder="Search by participant name…"
           style="padding-right:2rem;"
         />
         <button
           type="button"
-          id="clearMilestoneSearch"
+          id="clearSurveySearch"
           aria-label="Clear search"
           style="
             position:absolute;
@@ -46,44 +65,42 @@
           &times;
         </button>
       </div>
-
-      <% if (currentUser && currentUser.role === 'Manager') { %>
-        <a href="/milestones/new" class="btn-pill btn-primary register-btn" style="width:auto; white-space:nowrap;">
-          + Add Milestone
-        </a>
-      <% } %>
     </div>
 
-    <!-- Milestones table -->
+    <!-- Table -->
     <div style="overflow-x:auto;">
-      <table class="table table-striped" id="milestonesTable" style="width:100%; border-collapse:collapse;">
+      <table class="table table-striped" id="surveysTable" style="width:100%; border-collapse:collapse;">
         <thead>
           <tr>
-            <th style="text-align:left; padding:0.6rem;">Milestone Title</th>
             <th style="text-align:left; padding:0.6rem;">Participant</th>
-            <th style="text-align:left; padding:0.6rem;">Milestone Date</th>
+            <th style="text-align:center; padding:0.6rem;">Overall Score</th>
+            <th style="text-align:left; padding:0.6rem;">Comments</th>
+            <th style="text-align:left; padding:0.6rem;">Submission Date</th>
           </tr>
         </thead>
         <tbody>
-          <% milestones.forEach(m => { %>
+          <% surveys.forEach(s => { %>
             <tr>
               <td style="padding:0.6rem;">
                 <a
-                  href="/milestones/<%= m.milestoneid %>"
+                  href="/surveys/<%= s.surveyid %>"
                   class="register-link"
-                  style="color:#ffc2b5; transition:color 0.15s ease, transform 0.15s ease; display:inline-block;"
+                  style="color:#ffc2b5; transition:transform 0.15s ease; display:inline-block;"
                   onmouseover="this.style.transform='translateY(-1px)';"
                   onmouseout="this.style.transform='translateY(0)';"
                 >
-                  <%= m.milestonetitle %>
+                  <%= s.participantfirstname %> <%= s.participantlastname %>
                 </a>
               </td>
-              <td style="padding:0.6rem;">
-                <%= m.participantfirstname %> <%= m.participantlastname %>
+              <td style="padding:0.6rem; text-align:center;">
+                <%= s.surveyoverallscore %>
+              </td>
+              <td style="padding:0.6rem; max-width:300px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+                <%= s.surveycomments || '-' %>
               </td>
               <td style="padding:0.6rem;">
-                <% if (m.milestonedate) { %>
-                  <%= m.milestonedate.toISOString().slice(0,10) %>
+                <% if (s.surveysubmissiondate) { %>
+                  <%= s.surveysubmissiondate.toISOString().slice(0,10) %>
                 <% } %>
               </td>
             </tr>
@@ -93,17 +110,17 @@
     </div>
 
     <p class="register-bottom" style="margin-top:1.2rem;">
-      Total milestones: <strong><%= milestones.length %></strong>
+      Total surveys: <strong><%= surveys.length %></strong>
     </p>
   </div>
 </main>
 
 <script>
   (function () {
-    const input = document.getElementById('milestoneSearch');
-    const clearBtn = document.getElementById('clearMilestoneSearch');
-    const table = document.getElementById('milestonesTable');
-    if (!input || !table) return;
+    const input = document.getElementById('surveySearch');
+    const clearBtn = document.getElementById('clearSurveySearch');
+    const table = document.getElementById('surveysTable');
+    if (!input || !table || !clearBtn) return;
 
     function filterRows() {
       const query = input.value.toLowerCase();

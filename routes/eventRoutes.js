@@ -7,7 +7,7 @@ const { requireLogin, requireManager } = require("../middleware/authMiddleware")
 router.get("/", requireLogin, async (req, res) => {
   try {
     const result = await db.query(`
-      SELECT eo.*, et.eventname, et.eventtype, et.eventdescription
+      SELECT eo.*, et.eventname AS template_eventname, et.eventtype, et.eventdescription
       FROM eventoccurrence eo
       JOIN eventtemplate et ON eo.eventtemplateid = et.eventtemplateid
       ORDER BY eo.eventdatetimestart DESC
@@ -43,21 +43,38 @@ router.get("/new", requireManager, async (req, res) => {
   }
 });
 
-// POST /events - create event occurrence
+// POST /events - create event occurrence (NOW WITH eventname)
 router.post("/", requireManager, async (req, res) => {
   const { 
-    eventtemplateid, eventdatetimestart, eventdatetimeend,
-    eventlocation, eventcapacity, eventregistrationdeadline 
+    eventname,
+    eventtemplateid,
+    eventdatetimestart,
+    eventdatetimeend,
+    eventlocation,
+    eventcapacity,
+    eventregistrationdeadline 
   } = req.body;
   
   try {
     await db.query(
       `INSERT INTO eventoccurrence (
-        eventtemplateid, eventdatetimestart, eventdatetimeend,
-        eventlocation, eventcapacity, eventregistrationdeadline
-      ) VALUES ($1, $2, $3, $4, $5, $6)`,
-      [eventtemplateid, eventdatetimestart, eventdatetimeend || null,
-       eventlocation, eventcapacity || null, eventregistrationdeadline || null]
+        eventname,
+        eventtemplateid,
+        eventdatetimestart,
+        eventdatetimeend,
+        eventlocation,
+        eventcapacity,
+        eventregistrationdeadline
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+      [
+        eventname,
+        eventtemplateid,
+        eventdatetimestart,
+        eventdatetimeend || null,
+        eventlocation,
+        eventcapacity || null,
+        eventregistrationdeadline || null
+      ]
     );
     req.flash("success", "Event created successfully");
     res.redirect("/events");
@@ -71,18 +88,25 @@ router.post("/", requireManager, async (req, res) => {
 // GET /events/:id - show single event with registrations
 router.get("/:id", requireLogin, async (req, res) => {
   try {
-    const event = await db.query(`
-      SELECT eo.*, et.eventname, et.eventtype, et.eventdescription
+    const eventResult = await db.query(`
+      SELECT eo.*, et.eventname AS template_eventname, et.eventtype, et.eventdescription
       FROM eventoccurrence eo
       JOIN eventtemplate et ON eo.eventtemplateid = et.eventtemplateid
       WHERE eo.eventoccurrenceid = $1
     `, [req.params.id]);
-    
-    if (event.rows.length === 0) {
+
+    if (eventResult.rows.length === 0) {
       req.flash("error", "Event not found");
       return res.redirect("/events");
     }
-    
+
+    // Fetch all templates for the dropdown in show.ejs
+    const templatesResult = await db.query(`
+      SELECT eventtemplateid, eventname, eventtype
+      FROM eventtemplate
+      ORDER BY eventname
+    `);
+
     const registrations = await db.query(`
       SELECT r.*, p.participantfirstname, p.participantlastname, p.participantemail
       FROM registration r
@@ -90,7 +114,7 @@ router.get("/:id", requireLogin, async (req, res) => {
       WHERE r.eventoccurrenceid = $1
       ORDER BY r.registrationcreatedat DESC
     `, [req.params.id]);
-    
+
     const surveys = await db.query(`
       SELECT s.*, p.participantfirstname, p.participantlastname
       FROM survey s
@@ -98,13 +122,16 @@ router.get("/:id", requireLogin, async (req, res) => {
       WHERE s.eventoccurrenceid = $1
       ORDER BY s.surveysubmissiondate DESC
     `, [req.params.id]);
-    
-    res.render("events/show", { 
+
+    res.render("events/show", {
       title: "Event Details",
-      event: event.rows[0],
+      event: eventResult.rows[0],
+      templates: templatesResult.rows,          // <-- makes templates defined
       registrations: registrations.rows,
       surveys: surveys.rows,
-      currentUser: req.session.user
+      currentUser: req.session.user,
+      success: req.flash("success"),
+      error: req.flash("error")
     });
   } catch (err) {
     console.error(err);
@@ -113,11 +140,12 @@ router.get("/:id", requireLogin, async (req, res) => {
   }
 });
 
+
 // GET /events/:id/edit - show edit form
 router.get("/:id/edit", requireManager, async (req, res) => {
   try {
     const event = await db.query(`
-      SELECT eo.*, et.eventname
+      SELECT eo.*, et.eventname AS template_eventname
       FROM eventoccurrence eo
       JOIN eventtemplate et ON eo.eventtemplateid = et.eventtemplateid
       WHERE eo.eventoccurrenceid = $1
@@ -144,21 +172,39 @@ router.get("/:id/edit", requireManager, async (req, res) => {
   }
 });
 
-// PUT /events/:id - update
+// PUT /events/:id - update (including eventname)
 router.put("/:id", requireManager, async (req, res) => {
   const { 
-    eventtemplateid, eventdatetimestart, eventdatetimeend,
-    eventlocation, eventcapacity, eventregistrationdeadline 
+    eventname,
+    eventtemplateid,
+    eventdatetimestart,
+    eventdatetimeend,
+    eventlocation,
+    eventcapacity,
+    eventregistrationdeadline 
   } = req.body;
   
   try {
     await db.query(
       `UPDATE eventoccurrence SET 
-        eventtemplateid = $1, eventdatetimestart = $2, eventdatetimeend = $3,
-        eventlocation = $4, eventcapacity = $5, eventregistrationdeadline = $6
-      WHERE eventoccurrenceid = $7`,
-      [eventtemplateid, eventdatetimestart, eventdatetimeend || null,
-       eventlocation, eventcapacity || null, eventregistrationdeadline || null, req.params.id]
+        eventname = $1,
+        eventtemplateid = $2,
+        eventdatetimestart = $3,
+        eventdatetimeend = $4,
+        eventlocation = $5,
+        eventcapacity = $6,
+        eventregistrationdeadline = $7
+      WHERE eventoccurrenceid = $8`,
+      [
+        eventname,
+        eventtemplateid,
+        eventdatetimestart,
+        eventdatetimeend || null,
+        eventlocation,
+        eventcapacity || null,
+        eventregistrationdeadline || null,
+        req.params.id
+      ]
     );
     req.flash("success", "Event updated successfully");
     res.redirect("/events/" + req.params.id);

@@ -1,98 +1,142 @@
 <%- include("../partials/header") %>
 <%- include("../partials/_navbar") %>
 
-<main class="bg-gradient-hero min-h-screen py-12 page-main">
-  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+<main class="register-page-wrapper">
+  <div class="register-card" style="max-width: 900px; width:100%;">
+    <h1 class="register-title">Donations</h1>
+    <p class="register-subtitle">Review contributions that support Ella Rises.</p>
 
-    <!-- HEADER -->
-    <div class="text-center mb-12">
-      <h1 class="text-4xl font-bold text-foreground mb-4">Support Our Mission</h1>
-      <p class="text-xl text-muted-foreground">Your donation makes a difference</p>
-    </div>
+    <% if (success && success.length > 0) { %>
+      <div class="alert alert-success"><%= success %></div>
+    <% } %>
+    <% if (error && error.length > 0) { %>
+      <div class="alert alert-danger"><%= error %></div>
+    <% } %>
 
-    <!-- DONATION CTA CARD -->
-    <div class="card-pastel text-center mb-12">
-
-      <div class="w-16 h-16 mx-auto text-primary mb-6 text-5xl">
-        💵
+    <!-- Search + Add button -->
+    <div style="display:flex; justify-content:space-between; gap:1rem; margin-bottom:1rem; align-items:flex-end;">
+      <div class="register-field" style="flex:1; margin-bottom:0; position:relative;">
+        <label>Search donations</label>
+        <input
+          type="text"
+          id="donationSearch"
+          placeholder="Search by amount, participant, or date…"
+          style="padding-right:2rem;"
+        />
+        <button
+          type="button"
+          id="clearDonationSearch"
+          aria-label="Clear search"
+          style="
+            position:absolute;
+            right:0.5rem;
+            top:50%;
+            transform:translateY(10%);
+            border:none;
+            background:transparent;
+            font-size:1.1rem;
+            line-height:1;
+            cursor:pointer;
+            color:#9CA3AF;
+            transition:color 0.15s ease, transform 0.15s ease;
+          "
+          onmouseover="this.style.color='#ff8a80'; this.style.transform='translateY(10%) scale(1.25)';"
+          onmouseout="this.style.color='#9CA3AF'; this.style.transform='translateY(10%) scale(1)';"
+        >
+          &times;
+        </button>
       </div>
 
-      <h2 class="text-2xl font-bold text-foreground mb-4">Make a Donation</h2>
-      <p class="text-muted-foreground mb-8">
-        Help us empower young women through education
-      </p>
-
-      <a href="/donations/new" class="btn-pill btn-primary text-lg px-12">
-        Donate Now
-      </a>
-    </div>
-
-    <!-- DONATION LIST -->
-    <div class="card-pastel">
-      <h2 class="text-2xl font-bold text-foreground mb-6 flex items-center gap-2">
-        <span class="inline-flex w-8 h-8 rounded-full bg-primary/10 items-center justify-center text-primary text-xl">📘</span>
-        <span>
-          <% if (currentUser.role === "Manager") { %>
-            All Donations
-          <% } else { %>
-            Your Donations
-          <% } %>
-        </span>
-      </h2>
-
-      <% if (donations.length === 0) { %>
-        <p class="text-muted-foreground text-center">No donations found.</p>
-      <% } else { %>
-
-        <div class="space-y-4">
-
-          <% donations.forEach(d => { %>
-            <div class="p-4 rounded-xl bg-white/70 shadow-sm flex justify-between items-center">
-
-              <!-- LEFT SIDE -->
-              <div>
-                <p class="font-semibold text-foreground">
-                  <% if (currentUser.role === "Manager") { %>
-                    <%= d.donorname %>
-                  <% } else { %>
-                    Donation
-                  <% } %>
-                </p>
-
-                <p class="text-sm text-muted-foreground mt-1">
-                  <%= new Date(d.donationdate).toLocaleDateString() %>
-                </p>
-              </div>
-
-              <!-- RIGHT SIDE -->
-              <div class="text-right">
-                <p class="text-xl font-bold text-primary">
-                  $<%= Number(d.donationamount).toFixed(2) %>
-                </p>
-
-                <% if (currentUser.role === "Manager") { %>
-                  <div class="mt-2 flex gap-3">
-                    <a href="/donations/<%= d.donationid %>/edit" class="text-secondary font-medium text-sm">Edit</a>
-
-                    <form action="/donations/<%= d.donationid %>?_method=DELETE" method="POST">
-                      <button class="text-red-500 font-medium text-sm hover:underline">
-                        Delete
-                      </button>
-                    </form>
-                  </div>
-                <% } %>
-              </div>
-
-            </div>
-          <% }) %>
-
-        </div>
-
+      <% if (currentUser && currentUser.role === 'Manager') { %>
+        <a href="/donations/new" class="btn-pill btn-primary register-btn" style="width:auto; white-space:nowrap;">
+          + Add Donation
+        </a>
       <% } %>
-
     </div>
+
+    <!-- Donations table -->
+    <div style="overflow-x:auto;">
+      <table class="table table-striped" id="donationsTable" style="width:100%; border-collapse:collapse;">
+        <thead>
+          <tr>
+            <th style="text-align:left; padding:0.6rem;">Amount</th>
+            <th style="text-align:left; padding:0.6rem;">Participant</th>
+            <th style="text-align:left; padding:0.6rem;">Donation Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% donations.forEach(d => { %>
+            <tr>
+              <td style="padding:0.6rem;">
+                <a
+                  href="/donations/<%= d.donationid %>"
+                  class="register-link"
+                  style="color:#ffc2b5; transition:color 0.15s ease, transform 0.15s ease; display:inline-block;"
+                  onmouseover="this.style.transform='translateY(-1px)';"
+                  onmouseout="this.style.transform='translateY(0)';"
+                >
+                  $<%= Number(d.donationamount).toFixed(2) %>
+                </a>
+              </td>
+              <td style="padding:0.6rem;">
+                <%= d.participantfirstname %> <%= d.participantlastname %>
+              </td>
+              <td style="padding:0.6rem;">
+                <% if (d.donationdate) { %>
+                  <%= d.donationdate.toISOString().slice(0,10) %>
+                <% } %>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="register-bottom" style="margin-top:1.2rem;">
+      Total donations: <strong><%= donations.length %></strong>
+    </p>
+
+    <p class="register-bottom"
+      style="margin-top:1.8rem; text-align:center; font-size:1.05rem;">
+    Want to support?
+      <a href="https://givebutter.com/EllaRises"
+        class="register-link"
+        target="_blank"
+        rel="noopener noreferrer"
+        style="color:#ffc2b5; font-weight:700; display:inline-block; transition:transform 0.15s ease;"
+        onmouseover="this.style.transform='translateY(-1px)';"
+        onmouseout="this.style.transform='translateY(0)';"
+      >
+      Donate Now
+      </a>
+    </p>
 
   </div>
 </main>
+
+<script>
+  (function () {
+    const input = document.getElementById('donationSearch');
+    const clearBtn = document.getElementById('clearDonationSearch');
+    const table = document.getElementById('donationsTable');
+    if (!input || !table) return;
+
+    function filterRows() {
+      const query = input.value.toLowerCase();
+      const rows = table.querySelectorAll('tbody tr');
+      rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(query) ? '' : 'none';
+      });
+    }
+
+    input.addEventListener('input', filterRows);
+    clearBtn.addEventListener('click', function () {
+      input.value = '';
+      filterRows();
+      input.focus();
+    });
+  })();
+</script>
 
 <%- include("../partials/footer") %>

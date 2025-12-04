@@ -1,65 +1,161 @@
-<%- include("../partials/header", { title: "Events" }) %>
+<%- include("../partials/header") %>
 <%- include("../partials/_navbar") %>
 
-<section class="bg-gradient-hero min-h-screen py-16">
-  <div class="max-w-7xl mx-auto px-6">
+<main class="register-page-wrapper">
+  <div class="register-card" style="max-width: 1100px; width:100%;">
+    <h1 class="register-title">Events</h1>
+    <p class="register-subtitle">See upcoming and past Ella Rises events.</p>
 
-    <!-- Page Title -->
-    <h1 class="text-4xl font-bold text-foreground mb-10">Events</h1>
+    <% if (success && success.length > 0) { %>
+      <div class="alert alert-success"><%= success %></div>
+    <% } %>
+    <% if (error && error.length > 0) { %>
+      <div class="alert alert-danger"><%= error %></div>
+    <% } %>
 
-    <!-- Add Event Button -->
-    <div class="flex justify-end mb-12">
-      <a href="/events/new" class="btn-pill btn-primary flex items-center gap-2 text-lg px-8 py-3 shadow-md">
-        <span class="text-2xl font-bold">+</span>
-        Add Event
-      </a>
+    <!-- Search + Add button -->
+    <div style="display:flex; justify-content:space-between; gap:1rem; margin-bottom:1rem; align-items:flex-end;">
+      <div class="register-field" style="flex:1; margin-bottom:0; position:relative;">
+        <label>Search events</label>
+        <input
+          type="text"
+          id="eventSearch"
+          placeholder="Search by event name, template, location, or date…"
+          style="padding-right:2rem;"
+        />
+        <button
+          type="button"
+          id="clearEventSearch"
+          aria-label="Clear search"
+          style="
+            position:absolute;
+            right:0.5rem;
+            top:50%;
+            transform:translateY(10%);
+            border:none;
+            background:transparent;
+            font-size:1.1rem;
+            line-height:1;
+            cursor:pointer;
+            color:#9CA3AF;
+            transition:color 0.15s ease, transform 0.15s ease;
+          "
+          onmouseover="this.style.color='#ff8a80'; this.style.transform='translateY(10%) scale(1.25)';"
+          onmouseout="this.style.color='#9CA3AF'; this.style.transform='translateY(10%) scale(1)';"
+        >
+          &times;
+        </button>
+      </div>
+
+      <% if (currentUser && currentUser.role === 'Manager') { %>
+        <a href="/events/new" class="btn-pill btn-primary register-btn" style="width:auto; white-space:nowrap;">
+          + Add Event
+        </a>
+      <% } %>
     </div>
 
-    <!-- Events Grid -->
-    <div class="events-grid">
-      <% events.forEach(event => { %>
-
-        <div class="card-pastel event-card">
-
-          <!-- Icon -->
-          <div class="event-icon">📅</div>
-
-          <!-- Title -->
-          <h3 class="event-card-title"><%= event.eventname %></h3>
-
-          <!-- Date + Time -->
-          <p class="event-card-date">
-            <%= new Date(event.eventdatetimestart).toLocaleDateString() %>
-            at
-            <%= new Date(event.eventdatetimestart).toLocaleTimeString([], {hour:"numeric", minute:"2-digit"}) %>
-          </p>
-
-          <!-- Location -->
-          <% if (event.eventlocation) { %>
-            <p class="event-card-location">
-              <%= event.eventlocation %>
-            </p>
-          <% } %>
-
-          <!-- Attendees -->
-          <p class="event-card-attendees">
-            <%= event.attendees %> attendees
-          </p>
-
-          <!-- Edit Link -->
-          <a 
-            href="/events/<%= event.eventoccurrenceid %>/edit"
-            class="event-edit-link"
-          >
-            Edit Event →
-          </a>
-
-        </div>
-
-      <% }) %>
+    <!-- Events table -->
+    <div style="overflow-x:auto;">
+      <table class="table table-striped" id="eventsTable" style="width:100%; border-collapse:collapse;">
+        <thead>
+          <tr>
+            <th style="text-align:left; padding:0.6rem;">Event Name</th>
+            <th style="text-align:left; padding:0.6rem;">Template Name</th>
+            <th style="text-align:left; padding:0.6rem;">Start</th>
+            <th style="text-align:left; padding:0.6rem;">End</th>
+            <th style="text-align:left; padding:0.6rem;">Location</th>
+            <th style="text-align:left; padding:0.6rem;">Capacity</th>
+            <th style="text-align:left; padding:0.6rem;">Registration Deadline</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% events.forEach(e => { %>
+            <tr>
+              <td style="padding:0.6rem;">
+                <a
+                  href="/events/<%= e.eventoccurrenceid %>"
+                  class="register-link"
+                  style="color:#ffc2b5; transition:color 0.15s ease, transform 0.15s ease; display:inline-block;"
+                  onmouseover="this.style.transform='translateY(-1px)';"
+                  onmouseout="this.style.transform='translateY(0)';"
+                >
+                  <%= e.eventname %>
+                </a>
+              </td>
+              <td style="padding:0.6rem;"><%= e.eventname || e.template_eventname %></td>
+              <td style="padding:0.6rem;">
+                <% if (e.eventdatetimestart) { %>
+                  <%= new Date(e.eventdatetimestart).toLocaleString("en-US", {
+                    year: "numeric",
+                    month: "2-digit",
+                    day: "2-digit",
+                    hour: "numeric",
+                    minute: "2-digit",
+                    hour12: true
+                  }) %>
+                <% } %>
+              </td>
+              <td style="padding:0.6rem;">
+                <% if (e.eventdatetimeend) { %>
+                  <%= new Date(e.eventdatetimeend).toLocaleString("en-US", {
+                    year: "numeric",
+                    month: "2-digit",
+                    day: "2-digit",
+                    hour: "numeric",
+                    minute: "2-digit",
+                    hour12: true
+                  }) %>
+                <% } %>
+              </td>
+              <td style="padding:0.6rem;"><%= e.eventlocation %></td>
+              <td style="padding:0.6rem;"><%= e.eventcapacity || '' %></td>
+              <td style="padding:0.6rem;">
+                <% if (e.eventregistrationdeadline) { %>
+                  <%= new Date(e.eventregistrationdeadline).toLocaleString("en-US", {
+                    year: "numeric",
+                    month: "2-digit",
+                    day: "2-digit",
+                    hour: "numeric",
+                    minute: "2-digit",
+                    hour12: true
+                  }) %>
+                <% } %>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
     </div>
 
+    <p class="register-bottom" style="margin-top:1.2rem;">
+      Total events: <strong><%= events.length %></strong>
+    </p>
   </div>
-</section>
+</main>
+
+<script>
+  (function () {
+    const input = document.getElementById('eventSearch');
+    const clearBtn = document.getElementById('clearEventSearch');
+    const table = document.getElementById('eventsTable');
+    if (!input || !table) return;
+
+    function filterRows() {
+      const query = input.value.toLowerCase();
+      const rows = table.querySelectorAll('tbody tr');
+      rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(query) ? '' : 'none';
+      });
+    }
+
+    input.addEventListener('input', filterRows);
+    clearBtn.addEventListener('click', function () {
+      input.value = '';
+      filterRows();
+      input.focus();
+    });
+  })();
+</script>
 
 <%- include("../partials/footer") %>

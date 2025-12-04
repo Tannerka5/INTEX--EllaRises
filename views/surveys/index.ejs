@@ -1,40 +1,136 @@
 <%- include("../partials/header") %>
 <%- include("../partials/_navbar") %>
 
-<main class="main-container">
-  <%- include("../partials/_flash") %>
-  <div class="card">
-    <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
-      <span>Surveys</span>
-      <% if (currentUser && currentUser.role === "manager") { %>
-        <a href="/surveys/new" class="btn btn-primary">New survey</a>
+<main class="register-page-wrapper">
+  <div class="register-card" style="max-width: 1000px; width:100%;">
+    <h1 class="register-title">Surveys by Event</h1>
+    <p class="register-subtitle">Average scores across all participant feedback.</p>
+
+    <% if (success && success.length > 0) { %>
+      <div class="alert alert-success"><%= success %></div>
+    <% } %>
+    <% if (error && error.length > 0) { %>
+      <div class="alert alert-danger"><%= error %></div>
+    <% } %>
+
+    <!-- Search + Add button -->
+    <div style="display:flex; justify-content:space-between; gap:1rem; margin-bottom:1rem; align-items:flex-end;">
+      <div class="register-field" style="flex:1; margin-bottom:0; position:relative;">
+        <label>Search events</label>
+        <input
+          type="text"
+          id="eventSearch"
+          placeholder="Search by event name…"
+          style="padding-right:2rem;"
+        />
+        <button
+          type="button"
+          id="clearEventSearch"
+          aria-label="Clear search"
+          style="
+            position:absolute;
+            right:0.5rem;
+            top:50%;
+            transform:translateY(10%);
+            border:none;
+            background:transparent;
+            font-size:1.1rem;
+            line-height:1;
+            cursor:pointer;
+            color:#9CA3AF;
+            transition:color 0.15s ease, transform 0.15s ease;
+          "
+          onmouseover="this.style.color='#ff8a80'; this.style.transform='translateY(10%) scale(1.25)';"
+          onmouseout="this.style.color='#9CA3AF'; this.style.transform='translateY(10%) scale(1)';"
+        >
+          &times;
+        </button>
+      </div>
+
+      <% if (currentUser && currentUser.role === 'Manager') { %>
+        <a href="/surveys/new" class="btn-pill btn-primary register-btn" style="width:auto; white-space:nowrap;">
+          + Add Survey
+        </a>
       <% } %>
     </div>
-    <table class="table">
-      <thead>
-        <tr>
-          <th>Participant</th>
-          <th>Event</th>
-          <th>Satisfaction</th>
-          <th>Usefulness</th>
-          <th>Recommend</th>
-          <th>Submitted</th>
-        </tr>
-      </thead>
-      <tbody>
-        <% surveys.forEach(s => { %>
+
+    <!-- Table -->
+    <div style="overflow-x:auto;">
+      <table class="table table-striped" id="eventsTable" style="width:100%; border-collapse:collapse;">
+        <thead>
           <tr>
-            <td><%= s.first_name %> <%= s.last_name %></td>
-            <td><%= s.event_name || "" %></td>
-            <td><%= s.satisfaction %></td>
-            <td><%= s.usefulness %></td>
-            <td><%= s.recommendation_score %></td>
-            <td><%= s.created_at.toISOString().slice(0,10) %></td>
+            <th style="text-align:left; padding:0.6rem;">Event Name</th>
+            <th style="text-align:center; padding:0.6rem;">Avg Satisfaction</th>
+            <th style="text-align:center; padding:0.6rem;">Avg Usefulness</th>
+            <th style="text-align:center; padding:0.6rem;">Avg Instructor</th>
+            <th style="text-align:center; padding:0.6rem;">Avg Recommendation</th>
+            <th style="text-align:center; padding:0.6rem;">Avg Overall</th>
           </tr>
-        <% }) %>
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          <% events.forEach(e => { %>
+            <tr>
+              <td style="padding:0.6rem;">
+                <a
+                  href="/surveys/event/<%= e.eventoccurrenceid %>"
+                  class="register-link"
+                  style="color:#ffc2b5; transition:transform 0.15s ease; display:inline-block;"
+                  onmouseover="this.style.transform='translateY(-1px)';"
+                  onmouseout="this.style.transform='translateY(0)';"
+                >
+                  <%= e.eventname %>
+                </a>
+              </td>
+              <td style="padding:0.6rem; text-align:center;">
+                <%= e.avg_satisfaction || '-' %>
+              </td>
+              <td style="padding:0.6rem; text-align:center;">
+                <%= e.avg_usefulness || '-' %>
+              </td>
+              <td style="padding:0.6rem; text-align:center;">
+                <%= e.avg_instructor || '-' %>
+              </td>
+              <td style="padding:0.6rem; text-align:center;">
+                <%= e.avg_recommendation || '-' %>
+              </td>
+              <td style="padding:0.6rem; text-align:center;">
+                <%= e.avg_overall || '-' %>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="register-bottom" style="margin-top:1.2rem;">
+      Total events with surveys: <strong><%= events.length %></strong>
+    </p>
   </div>
 </main>
+
+<script>
+  (function () {
+    const input = document.getElementById('eventSearch');
+    const clearBtn = document.getElementById('clearEventSearch');
+    const table = document.getElementById('eventsTable');
+    if (!input || !table || !clearBtn) return;
+
+    function filterRows() {
+      const query = input.value.toLowerCase();
+      const rows = table.querySelectorAll('tbody tr');
+      rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(query) ? '' : 'none';
+      });
+    }
+
+    input.addEventListener('input', filterRows);
+    clearBtn.addEventListener('click', function () {
+      input.value = '';
+      filterRows();
+      input.focus();
+    });
+  })();
+</script>
 
 <%- include("../partials/footer") %>

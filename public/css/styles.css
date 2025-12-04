@@ -24,7 +24,7 @@ body {
 }
 
 main, .page-main, .container {
-  padding-top: 40px; /* Adjust this value to match your navbar height */
+  padding-top: 16px; /* Adjust this value to match your navbar height */
 }
 
 body {
@@ -99,22 +99,23 @@ body {
   box-shadow: 0 1px 8px rgba(15, 23, 42, 0.06);
 }
 
+/* Constrain navbar to a centered max-width so left/right margins match */
 .navbar-inner {
-  max-width: 1120px;
-  margin: 0 auto;
-  padding: 0 1.5rem;
+  max-width: 1200px;      /* tweak until the logo and Logout align visually */
+  margin: 0 auto;         /* centers the whole bar */
+  padding: 0 1.5rem;      /* equal left/right padding inside */
 }
 
+/* Main row layout */
 .navbar-main {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 120px;
 }
 
+/* Keep logo snug to the left edge of the inner container */
 .navbar-logo-link {
-  display: flex;
-  align-items: center;
+  margin-left: 0;         /* reset any negative margins */
 }
 
 .navbar-logo-img {
@@ -124,10 +125,11 @@ body {
 
 /* Desktop nav */
 
+/* Keep links tight to the right edge of the inner container */
 .navbar-links {
   display: flex;
   align-items: center;
-  gap: 1.5rem;
+  gap: 1.75rem;
 }
 
 .nav-link {
@@ -148,7 +150,7 @@ body {
 }
 
 .nav-logout-form {
-  display: inline-block;
+  margin: 0;
 }
 
 /* Mobile nav button */
@@ -1423,4 +1425,250 @@ h1 {
 .dashboard-card:hover {
   transform: translateY(-3px);
   box-shadow: 0 26px 40px rgba(15, 23, 42, 0.12);
+}
+
+/* ==============================
+    Slider + tick styling
+   ============================== */
+
+/* Wrapper around ticks + slider */
+.slider-wrapper {
+  position: relative;
+  padding-top: 0.4rem;
+}
+
+/* Tick bar */
+.slider-ticks {
+  position: absolute;
+  /* inset so first/last tick align with thumb travel */
+  left: 21px;          /* ≈ half of thumb width */
+  right: 21px;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 10px;
+  display: flex;
+  justify-content: space-between;
+  pointer-events: none;
+}
+
+.slider-tick {
+  width: 2px;
+  background-color: #c4a57a;
+  height: 6px;
+}
+
+.slider-tick.major {
+  height: 10px;
+  width: 3px;
+  background-color: #8b5e2e;
+}
+
+/* Base slider */
+.score-slider {
+  -webkit-appearance: none;
+  width: 100%;
+  margin: 0;
+  background: transparent;
+  cursor: grab;        /* open hand by default */
+}
+
+/* While dragging: closed hand */
+.score-slider:active {
+  cursor: grabbing;
+}
+
+/* Chrome / Edge / Safari track with filled brown portion */
+.score-slider::-webkit-slider-runnable-track {
+  height: 6px;
+  border-radius: 999px;
+  background: linear-gradient(
+    to right,
+    #b48a57 0%,
+    #b48a57 var(--val, 0%),
+    #e5e7eb var(--val, 0%),
+    #e5e7eb 100%
+  );
+  border: none;
+}
+
+/* Chrome / Edge / Safari thumb */
+.score-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  height: 16px;
+  width: 16px;
+  border-radius: 50%;
+  background: #b48a57;
+  border: 2px solid #f5f5f5;
+  margin-top: -5px;    /* vertically center on 6px track */
+  cursor: inherit;     /* grab / grabbing from input */
+}
+
+/* Firefox track + filled part */
+.score-slider::-moz-range-track {
+  height: 6px;
+  border-radius: 999px;
+  background: #e5e7eb;
+  border: none;
+}
+
+.score-slider::-moz-range-progress {
+  height: 6px;
+  border-radius: 999px;
+  background: #b48a57;
+}
+
+/* Firefox thumb */
+.score-slider::-moz-range-thumb {
+  height: 16px;
+  width: 16px;
+  border-radius: 50%;
+  background: #b48a57;
+  border: 2px solid #f5f5f5;
+  cursor: inherit;
+}
+
+/* IE / old Edge fallback */
+.score-slider::-ms-track {
+  height: 6px;
+  background: transparent;
+  border-color: transparent;
+  color: transparent;
+}
+
+.score-slider::-ms-fill-lower,
+.score-slider::-ms-fill-upper {
+  background: #e5e7eb;
+  border-radius: 999px;
+}
+
+.score-slider::-ms-thumb {
+  height: 16px;
+  width: 16px;
+  border-radius: 50%;
+  background: #b48a57;
+  border: 2px solid #f5f5f5;
+  cursor: inherit;
+}
+/* ==============================
+    END SLIDER + TICK STYLING
+   ============================== */
+
+/* ==============================
+    Navbar link styling updates
+   ============================== */
+
+/* Primary nav links (Home, Impact) - large, dark pink, high contrast */
+.nav-link.nav-link-primary {
+  color: #c2185b;                    /* Dark pink */
+  font-weight: 900;
+  font-size: 1.1rem;                 /* Larger than other links */
+  transition: color var(--duration-fast) var(--ease-standard);
+}
+
+.nav-link.nav-link-primary:hover {
+  color: #a01650;                    /* Even darker on hover */
+}
+
+/* Mobile primary nav links */
+.nav-link-mobile.nav-link-primary {
+  color: #c2185b;                    /* Dark pink */
+  font-weight: 900;
+  font-size: 1.05rem;
+  transition: color var(--duration-fast) var(--ease-standard);
+}
+
+.nav-link-mobile.nav-link-primary:hover {
+  color: #a01650;                    /* Even darker on hover */
+}
+
+/* User label styling */
+.nav-user-label {
+  color: var(--color-text);
+  font-weight: var(--font-weight-medium);
+  font-size: var(--font-size-base);
+  white-space: nowrap;
+}
+
+/* Mobile logout button */
+.btn-logout-mobile {
+  background-color: var(--color-secondary);
+  color: var(--color-text);
+  border: none;
+  cursor: pointer;
+  transition: background-color var(--duration-fast) var(--ease-standard);
+}
+
+.btn-logout-mobile:hover {
+  background-color: var(--color-secondary-hover);
+}
+
+/* On very wide screens, keep it centered with even margins */
+@media (min-width: 1440px) {
+  .navbar-inner {
+    max-width: 1280px;
+  }
+}
+
+/* ==============================
+    END Navbar link styling updates
+   ============================== */
+
+/* 418 Easter Egg – Teapot page */
+.teapot-card {
+  width: 100%;
+  max-width: 520px;
+  margin: 4rem auto;
+  background: linear-gradient(135deg, #fff4ee, #e9f2f7);
+  border-radius: 1.8rem;
+  padding: 2.6rem 2.2rem;
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.12);
+  text-align: center;
+  animation: fadeIn 0.6s ease-out;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.teapot-icon {
+  font-size: 3.4rem;
+  margin-bottom: 1rem;
+}
+
+.teapot-title {
+  font-size: 2.1rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem 0;
+  color: var(--color-foreground);
+}
+
+.teapot-subtitle {
+  font-size: 0.98rem;
+  color: var(--color-muted);
+  max-width: 360px;
+  margin: 0 auto 1.8rem auto;
+}
+
+.teapot-buttons {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.9rem;
+  margin-bottom: 1.6rem;
+}
+
+.teapot-footnote {
+  font-size: 0.85rem;
+  color: var(--color-muted);
+}
+
+/* Make dashboard cards fully clickable but keep normal text color */
+.dashboard-card-link {
+  display: block;
+  text-decoration: none;
+  color: inherit;              /* use regular body color, not link purple */
+}
+
+/* Optional: subtle hover accent instead of purple text */
+.dashboard-card-link:hover {
+  text-decoration: none;
+  transform: translateY(-3px);
+  box-shadow: 0 24px 40px rgba(15, 23, 42, 0.14);
 }

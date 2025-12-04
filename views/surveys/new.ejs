@@ -2,83 +2,442 @@
 <%- include("../partials/_navbar") %>
 
 <main class="register-page-wrapper">
-  <div class="register-card">
+  <div class="register-card" style="max-width: 720px; width:100%;">
     <h1 class="register-title">Add Survey</h1>
-    <p class="register-subtitle">Enter survey results for an event.</p>
+    <p class="register-subtitle">Record participant feedback for an event.</p>
 
     <% if (error && error.length > 0) { %>
       <div class="alert alert-danger"><%= error %></div>
     <% } %>
 
-    <form action="/surveys" method="POST" class="register-form">
+    <form action="/surveys" method="POST" class="register-form" id="surveyForm">
+      <!-- Participant dropdown -->
       <div class="register-field">
         <label>Participant</label>
-        <select name="participantid" required>
-          <option value="">Select participant...</option>
-          <% participants.forEach(p => { %>
-            <option value="<%= p.participantid %>">
-              <%= p.participantlastname %>, <%= p.participantfirstname %>
-            </option>
-          <% }) %>
-        </select>
+
+        <!-- Display-only field -->
+        <input
+          type="text"
+          id="participantDisplay"
+          value=""
+          placeholder="Select a participant…"
+          disabled
+          style="width:100%;"
+        />
+
+        <!-- Toggle button -->
+        <button
+          type="button"
+          id="participantOpenBtn"
+          class="btn-pill btn-secondary"
+          style="
+            margin-top:0.5rem;
+            padding:0.35rem 0.9rem;
+            font-size:0.8rem;
+          "
+        >
+          Choose participant
+        </button>
+
+        <!-- Dropdown container -->
+        <div
+          id="participantSelectWrapper"
+          style="
+            display:none;
+            margin-top:0.5rem;
+            padding:0.75rem;
+            border-radius:0.8rem;
+            background:#ffffff;
+            border:1px solid rgba(0,0,0,0.08);
+            box-shadow:0 10px 25px rgba(15,23,42,0.08);
+          "
+        >
+          <input
+            type="text"
+            id="participantSearch"
+            placeholder="Search participant…"
+            style="width:100%; margin-bottom:0.5rem; padding:0.55rem 0.8rem; border-radius:0.6rem; border:1px solid rgba(0,0,0,0.12);"
+          />
+          <select
+            name="participantid"
+            id="participantSelect"
+            size="6"
+            style="width:100%; border-radius:0.6rem; padding:0.4rem;"
+            required
+          >
+            <% participants.forEach(p => { %>
+              <option value="<%= p.participantid %>">
+                <%= p.participantfirstname %> <%= p.participantlastname %> —
+                <%= p.participantdob ? p.participantdob.toISOString().slice(0,10) : '' %>
+              </option>
+            <% }) %>
+          </select>
+        </div>
       </div>
 
+      <!-- Event dropdown -->
       <div class="register-field">
         <label>Event</label>
-        <select name="eventoccurrenceid" required>
-          <option value="">Select event...</option>
-          <% events.forEach(e => { %>
-            <option value="<%= e.eventoccurrenceid %>">
-              <%= e.eventname %> – <%= new Date(e.eventdatetimestart).toLocaleString() %>
-            </option>
-          <% }) %>
-        </select>
+
+        <input
+          type="text"
+          id="eventDisplay"
+          value=""
+          placeholder="Select an event…"
+          disabled
+          style="width:100%;"
+        />
+
+        <button
+          type="button"
+          id="eventOpenBtn"
+          class="btn-pill btn-secondary"
+          style="
+            margin-top:0.5rem;
+            padding:0.35rem 0.9rem;
+            font-size:0.8rem;
+          "
+        >
+          Choose event
+        </button>
+
+        <div
+          id="eventSelectWrapper"
+          style="
+            display:none;
+            margin-top:0.5rem;
+            padding:0.75rem;
+            border-radius:0.8rem;
+            background:#ffffff;
+            border:1px solid rgba(0,0,0,0.08);
+            box-shadow:0 10px 25px rgba(15,23,42,0.08);
+          "
+        >
+          <input
+            type="text"
+            id="eventSearch"
+            placeholder="Search event…"
+            style="width:100%; margin-bottom:0.5rem; padding:0.55rem 0.8rem; border-radius:0.6rem; border:1px solid rgba(0,0,0,0.12);"
+          />
+          <select
+            name="eventoccurrenceid"
+            id="eventSelect"
+            size="6"
+            style="width:100%; border-radius:0.6rem; padding:0.4rem;"
+            required
+          >
+            <% events.forEach(e => { %>
+              <option value="<%= e.eventoccurrenceid %>">
+                <%= e.eventname %> —
+                <%= e.eventdatetimestart ? new Date(e.eventdatetimestart).toLocaleString("en-US", {
+                  month: "2-digit",
+                  day: "2-digit",
+                  year: "numeric",
+                  hour: "numeric",
+                  minute: "2-digit",
+                  hour12: true
+                }) : "" %>
+              </option>
+            <% }) %>
+          </select>
+        </div>
       </div>
 
+      <!-- Scores: sliders 0–10 -->
+    <!-- Satisfaction -->
       <div class="register-field">
-        <label>Satisfaction Score</label>
-        <input type="number" name="surveysatisfactionscore" min="1" max="10" />
+        <label>
+          Satisfaction Score:
+          <span id="satValue" style="font-weight:600; margin-left:0.5rem;">0</span>
+        </label>
+        <div class="slider-wrapper">
+          <div class="slider-ticks">
+            <span class="slider-tick major"></span>
+            <span class="slider-tick"></span>
+            <span class="slider-tick"></span>
+            <span class="slider-tick"></span>
+            <span class="slider-tick"></span>
+            <span class="slider-tick major"></span>
+            <span class="slider-tick"></span>
+            <span class="slider-tick"></span>
+            <span class="slider-tick"></span>
+            <span class="slider-tick"></span>
+            <span class="slider-tick major"></span>
+          </div>
+          <input
+            type="range"
+            name="surveysatisfactionscore"
+            id="satSlider"
+            min="0"
+            max="10"
+            step="1"
+            value="0"
+            class="score-slider"
+          />
+        </div>
       </div>
 
+      <!-- Usefulness -->
       <div class="register-field">
-        <label>Usefulness Score</label>
-        <input type="number" name="surveyusefulnessscore" min="1" max="10" />
+        <label>
+          Usefulness Score:
+          <span id="useValue" style="font-weight:600; margin-left:0.5rem;">0</span>
+        </label>
+        <div class="slider-wrapper">
+          <div class="slider-ticks">
+            <span class="slider-tick major"></span>
+            <span class="slider-tick"></span>
+            <span class="slider-tick"></span>
+            <span class="slider-tick"></span>
+            <span class="slider-tick"></span>
+            <span class="slider-tick major"></span>
+            <span class="slider-tick"></span>
+            <span class="slider-tick"></span>
+            <span class="slider-tick"></span>
+            <span class="slider-tick"></span>
+            <span class="slider-tick major"></span>
+          </div>
+          <input
+            type="range"
+            name="surveyusefulnessscore"
+            id="useSlider"
+            min="0"
+            max="10"
+            step="1"
+            value="0"
+            class="score-slider"
+          />
+        </div>
       </div>
 
+      <!-- Instructor -->
       <div class="register-field">
-        <label>Instructor Score</label>
-        <input type="number" name="surveyinstructorscore" min="1" max="10" />
+        <label>
+          Instructor Score:
+          <span id="instValue" style="font-weight:600; margin-left:0.5rem;">0</span>
+        </label>
+        <div class="slider-wrapper">
+          <div class="slider-ticks">
+            <span class="slider-tick major"></span>
+            <span class="slider-tick"></span>
+            <span class="slider-tick"></span>
+            <span class="slider-tick"></span>
+            <span class="slider-tick"></span>
+            <span class="slider-tick major"></span>
+            <span class="slider-tick"></span>
+            <span class="slider-tick"></span>
+            <span class="slider-tick"></span>
+            <span class="slider-tick"></span>
+            <span class="slider-tick major"></span>
+          </div>
+          <input
+            type="range"
+            name="surveyinstructorscore"
+            id="instSlider"
+            min="0"
+            max="10"
+            step="1"
+            value="0"
+            class="score-slider"
+          />
+        </div>
       </div>
 
+      <!-- Recommendation -->
       <div class="register-field">
-        <label>Recommendation Score</label>
-        <input type="number" name="surveyrecommendationscore" min="1" max="10" />
+        <label>
+          Recommendation Score:
+          <span id="recValue" style="font-weight:600; margin-left:0.5rem;">0</span>
+        </label>
+        <div class="slider-wrapper">
+          <div class="slider-ticks">
+            <span class="slider-tick major"></span>
+            <span class="slider-tick"></span>
+            <span class="slider-tick"></span>
+            <span class="slider-tick"></span>
+            <span class="slider-tick"></span>
+            <span class="slider-tick major"></span>
+            <span class="slider-tick"></span>
+            <span class="slider-tick"></span>
+            <span class="slider-tick"></span>
+            <span class="slider-tick"></span>
+            <span class="slider-tick major"></span>
+          </div>
+          <input
+            type="range"
+            name="surveyrecommendationscore"
+            id="recSlider"
+            min="0"
+            max="10"
+            step="1"
+            value="0"
+            class="score-slider"
+          />
+        </div>
       </div>
 
-      <div class="register-field">
-        <label>Overall Score</label>
-        <input type="number" name="surveyoverallscore" min="1" max="10" />
-      </div>
+<!-- Overall score (readonly text) -->
+<div class="register-field">
+  <label>Overall Score (avg)</label>
+  <input
+    type="text"
+    id="overallDisplay"
+    value="0.00"
+    disabled
+  />
+  <input type="hidden" name="surveyoverallscore" id="overallHidden" value="0.00" />
+</div>
 
+
+      <!-- NPS bucket & comments as before -->
       <div class="register-field">
         <label>NPS Bucket</label>
-        <input type="text" name="surveynpsbucket" placeholder="Promoter / Passive / Detractor" />
+        <input
+          type="text"
+          name="surveynpsbucket"
+          placeholder="Promoter / Passive / Detractor"
+        />
       </div>
 
       <div class="register-field">
         <label>Comments</label>
-        <textarea name="surveycomments" rows="3" style="width:100%; padding:0.65rem 0.9rem; border-radius:0.6rem; border:1px solid rgba(0,0,0,0.15); font-size:0.95rem;"></textarea>
+        <textarea
+          name="surveycomments"
+          rows="3"
+          style="width:100%; padding:0.65rem 0.9rem; border-radius:0.6rem; border:1px solid rgba(0,0,0,0.15); font-size:0.95rem;"
+        ></textarea>
       </div>
 
       <button type="submit" class="btn-pill btn-primary register-btn">
         Save Survey
       </button>
     </form>
-
-    <p class="register-bottom">
-      <a href="/surveys" class="register-link">Back to Surveys</a>
-    </p>
   </div>
 </main>
+
+<script>
+  (function () {
+    // Participant dropdown
+    const participantDisplay = document.getElementById('participantDisplay');
+    const participantOpenBtn = document.getElementById('participantOpenBtn');
+    const participantWrapper = document.getElementById('participantSelectWrapper');
+    const participantSelect = document.getElementById('participantSelect');
+    const participantSearch = document.getElementById('participantSearch');
+
+    if (participantOpenBtn && participantWrapper) {
+      participantOpenBtn.addEventListener('click', () => {
+        participantWrapper.style.display =
+          participantWrapper.style.display === 'none' ? 'block' : 'none';
+      });
+    }
+
+    if (participantSelect && participantDisplay) {
+      if (participantSelect.selectedOptions[0]) {
+        participantDisplay.value =
+          participantSelect.selectedOptions[0].text.split(' — ')[0];
+      }
+      participantSelect.addEventListener('change', () => {
+        const opt = participantSelect.selectedOptions[0];
+        if (opt) {
+          participantDisplay.value = opt.text.split(' — ')[0];
+        }
+      });
+    }
+
+    if (participantSearch && participantSelect) {
+      participantSearch.addEventListener('input', function () {
+        const q = this.value.toLowerCase();
+        Array.from(participantSelect.options).forEach(opt => {
+          opt.style.display = opt.text.toLowerCase().includes(q) ? '' : 'none';
+        });
+      });
+    }
+
+    // Event dropdown
+    const eventDisplay = document.getElementById('eventDisplay');
+    const eventOpenBtn = document.getElementById('eventOpenBtn');
+    const eventWrapper = document.getElementById('eventSelectWrapper');
+    const eventSelect = document.getElementById('eventSelect');
+    const eventSearch = document.getElementById('eventSearch');
+
+    if (eventOpenBtn && eventWrapper) {
+      eventOpenBtn.addEventListener('click', () => {
+        eventWrapper.style.display =
+          eventWrapper.style.display === 'none' ? 'block' : 'none';
+      });
+    }
+
+    if (eventSelect && eventDisplay) {
+      if (eventSelect.selectedOptions[0]) {
+        eventDisplay.value = eventSelect.selectedOptions[0].text;
+      }
+      eventSelect.addEventListener('change', () => {
+        const opt = eventSelect.selectedOptions[0];
+        if (opt) eventDisplay.value = opt.text;
+      });
+    }
+
+    if (eventSearch && eventSelect) {
+      eventSearch.addEventListener('input', function () {
+        const q = this.value.toLowerCase();
+        Array.from(eventSelect.options).forEach(opt => {
+          opt.style.display = opt.text.toLowerCase().includes(q) ? '' : 'none';
+        });
+      });
+    }
+
+    // Sliders + live overall average with fill
+    const satSlider  = document.getElementById('satSlider');
+    const useSlider  = document.getElementById('useSlider');
+    const instSlider = document.getElementById('instSlider');
+    const recSlider  = document.getElementById('recSlider');
+
+    const satValue = document.getElementById('satValue');
+    const useValue = document.getElementById('useValue');
+    const instValue = document.getElementById('instValue');
+    const recValue = document.getElementById('recValue');
+
+    const overallDisplay = document.getElementById('overallDisplay');
+    const overallHidden  = document.getElementById('overallHidden');
+
+    function setSliderFill(slider) {
+      const min = Number(slider.min);
+      const max = Number(slider.max);
+      const val = Number(slider.value);
+      const percent = ((val - min) * 100) / (max - min);
+      slider.style.setProperty('--val', percent + '%');
+    }
+
+    function updateOverall() {
+      const scores = [
+        Number(satSlider.value),
+        Number(useSlider.value),
+        Number(instSlider.value),
+        Number(recSlider.value)
+      ];
+      const avg = scores.reduce((a, b) => a + b, 0) / scores.length;
+      const avgStr = avg.toFixed(2);
+      overallDisplay.value = avgStr;
+      overallHidden.value = avgStr;
+    }
+
+    function syncAndUpdate() {
+      satValue.textContent  = satSlider.value;
+      useValue.textContent  = useSlider.value;
+      instValue.textContent = instSlider.value;
+      recValue.textContent  = recSlider.value;
+
+      [satSlider, useSlider, instSlider, recSlider].forEach(setSliderFill);
+      updateOverall();
+    }
+
+    [satSlider, useSlider, instSlider, recSlider].forEach(sl => {
+      sl.addEventListener('input', syncAndUpdate);
+      setSliderFill(sl);
+    });
+
+    syncAndUpdate();
+  })();
+</script>
 
 <%- include("../partials/footer") %>

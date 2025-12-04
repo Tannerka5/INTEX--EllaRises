@@ -11,6 +11,17 @@
     <% } %>
 
     <form action="/events" method="POST" class="register-form">
+      <!-- Event Name (NEW, first field) -->
+      <div class="register-field">
+        <label>Event Name</label>
+        <input
+          type="text"
+          name="eventname"
+          placeholder="STEM Workshop – Robotics"
+          required
+        />
+      </div>
+
       <div class="register-field">
         <label>Event Template</label>
         <select name="eventtemplateid" required>

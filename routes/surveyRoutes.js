@@ -3,20 +3,27 @@ const router = express.Router();
 const db = require("../db");
 const { requireLogin, requireManager } = require("../middleware/authMiddleware");
 
-// GET /surveys - list all
+// GET /surveys - index (grouped by event with averages)
 router.get("/", requireLogin, async (req, res) => {
   try {
     const result = await db.query(`
-      SELECT s.*, p.participantfirstname, p.participantlastname, et.eventname
+      SELECT
+        eo.eventoccurrenceid,
+        eo.eventname,
+        ROUND(AVG(s.surveysatisfactionscore)::numeric, 2) AS avg_satisfaction,
+        ROUND(AVG(s.surveyusefulnessscore)::numeric, 2) AS avg_usefulness,
+        ROUND(AVG(s.surveyinstructorscore)::numeric, 2) AS avg_instructor,
+        ROUND(AVG(s.surveyrecommendationscore)::numeric, 2) AS avg_recommendation,
+        ROUND(AVG(s.surveyoverallscore)::numeric, 2) AS avg_overall
       FROM survey s
-      JOIN participant p ON s.participantid = p.participantid
       JOIN eventoccurrence eo ON s.eventoccurrenceid = eo.eventoccurrenceid
-      JOIN eventtemplate et ON eo.eventtemplateid = et.eventtemplateid
-      ORDER BY s.surveysubmissiondate DESC
+      GROUP BY eo.eventoccurrenceid, eo.eventname
+      ORDER BY eo.eventname
     `);
-    res.render("surveys/index", { 
-      title: "Surveys", 
-      surveys: result.rows,
+
+    res.render("surveys/index", {
+      title: "Surveys",
+      events: result.rows,
       currentUser: req.session.user,
       success: req.flash("success"),
       error: req.flash("error")
@@ -28,21 +35,68 @@ router.get("/", requireLogin, async (req, res) => {
   }
 });
 
-// GET /surveys/new - show create form
-router.get("/new", requireManager, async (req, res) => {
+// GET /surveys/event/:id - surveys for specific event
+router.get("/event/:id", requireLogin, async (req, res) => {
   try {
-    const participants = await db.query("SELECT participantid, participantfirstname, participantlastname FROM participant ORDER BY participantlastname");
-    const events = await db.query(`
-      SELECT eo.eventoccurrenceid, et.eventname, eo.eventdatetimestart
+    const eventResult = await db.query(`
+      SELECT eo.eventoccurrenceid, eo.eventname
       FROM eventoccurrence eo
-      JOIN eventtemplate et ON eo.eventtemplateid = et.eventtemplateid
-      ORDER BY eo.eventdatetimestart DESC
+      WHERE eo.eventoccurrenceid = $1
+    `, [req.params.id]);
+
+    if (eventResult.rows.length === 0) {
+      req.flash("error", "Event not found");
+      return res.redirect("/surveys");
+    }
+
+    const surveysResult = await db.query(`
+      SELECT
+        s.surveyid,
+        s.surveyoverallscore,
+        s.surveycomments,
+        s.surveysubmissiondate,
+        p.participantfirstname,
+        p.participantlastname
+      FROM survey s
+      JOIN participant p ON s.participantid = p.participantid
+      WHERE s.eventoccurrenceid = $1
+      ORDER BY s.surveysubmissiondate DESC
+    `, [req.params.id]);
+
+    res.render("surveys/event", {
+      title: "Event Surveys",
+      event: eventResult.rows[0],
+      surveys: surveysResult.rows,
+      currentUser: req.session.user,
+      success: req.flash("success"),
+      error: req.flash("error")
+    });
+  } catch (err) {
+    console.error(err);
+    req.flash("error", "Failed to load event surveys");
+    res.redirect("/surveys");
+  }
+});
+
+// GET /surveys/new - new survey form
+router.get("/new", requireLogin, async (req, res) => {
+  try {
+    const participantsResult = await db.query(`
+      SELECT participantid, participantfirstname, participantlastname, participantdob
+      FROM participant
+      ORDER BY participantlastname, participantfirstname
     `);
-    
-    res.render("surveys/new", { 
-      title: "Add Survey", 
-      participants: participants.rows,
-      events: events.rows,
+
+    const eventsResult = await db.query(`
+      SELECT eventoccurrenceid, eventname, eventdatetimestart
+      FROM eventoccurrence
+      ORDER BY eventdatetimestart DESC
+    `);
+
+    res.render("surveys/new", {
+      title: "New Survey",
+      participants: participantsResult.rows,
+      events: eventsResult.rows,
       currentUser: req.session.user,
       error: req.flash("error")
     });
@@ -53,30 +107,51 @@ router.get("/new", requireManager, async (req, res) => {
   }
 });
 
-// POST /surveys - create
-router.post("/", requireManager, async (req, res) => {
-  const { 
-    participantid, eventoccurrenceid, surveysatisfactionscore, surveyusefulnessscore,
-    surveyinstructorscore, surveyrecommendationscore, surveyoverallscore,
-    surveynpsbucket, surveycomments 
-  } = req.body;
-  
+// POST /surveys - create survey
+router.post("/", requireLogin, async (req, res) => {
   try {
-    await db.query(
-      `INSERT INTO survey (
-        participantid, eventoccurrenceid, surveysatisfactionscore, surveyusefulnessscore,
-        surveyinstructorscore, surveyrecommendationscore, surveyoverallscore,
-        surveynpsbucket, surveycomments, surveysubmissiondate
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW())`,
-      [participantid, eventoccurrenceid, surveysatisfactionscore || null, surveyusefulnessscore || null,
-       surveyinstructorscore || null, surveyrecommendationscore || null, surveyoverallscore || null,
-       surveynpsbucket, surveycomments]
-    );
-    req.flash("success", "Survey created successfully");
+    const {
+      participantid,
+      eventoccurrenceid,
+      surveysatisfactionscore,
+      surveyusefulnessscore,
+      surveyinstructorscore,
+      surveyrecommendationscore,
+      surveyoverallscore,
+      surveynpsbucket,
+      surveycomments
+    } = req.body;
+
+    await db.query(`
+      INSERT INTO survey (
+        participantid,
+        eventoccurrenceid,
+        surveysatisfactionscore,
+        surveyusefulnessscore,
+        surveyinstructorscore,
+        surveyrecommendationscore,
+        surveyoverallscore,
+        surveynpsbucket,
+        surveycomments,
+        surveysubmissiondate
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW())
+    `, [
+      participantid,
+      eventoccurrenceid,
+      surveysatisfactionscore,
+      surveyusefulnessscore,
+      surveyinstructorscore,
+      surveyrecommendationscore,
+      surveyoverallscore,
+      surveynpsbucket,
+      surveycomments
+    ]);
+
+    req.flash("success", "Survey saved successfully");
     res.redirect("/surveys");
   } catch (err) {
     console.error(err);
-    req.flash("error", "Failed to create survey");
+    req.flash("error", "Failed to save survey");
     res.redirect("/surveys/new");
   }
 });
@@ -84,56 +159,28 @@ router.post("/", requireManager, async (req, res) => {
 // GET /surveys/:id - show single survey
 router.get("/:id", requireLogin, async (req, res) => {
   try {
-    const survey = await db.query(`
-      SELECT s.*, p.participantfirstname, p.participantlastname, p.participantemail,
-             et.eventname, eo.eventdatetimestart, eo.eventlocation
+    const result = await db.query(`
+      SELECT
+        s.*,
+        p.participantfirstname,
+        p.participantlastname,
+        eo.eventname
       FROM survey s
       JOIN participant p ON s.participantid = p.participantid
       JOIN eventoccurrence eo ON s.eventoccurrenceid = eo.eventoccurrenceid
-      JOIN eventtemplate et ON eo.eventtemplateid = et.eventtemplateid
       WHERE s.surveyid = $1
     `, [req.params.id]);
-    
-    if (survey.rows.length === 0) {
-      req.flash("error", "Survey not found");
-      return res.redirect("/surveys");
-    }
-    
-    res.render("surveys/show", { 
-      title: "Survey Details",
-      survey: survey.rows[0],
-      currentUser: req.session.user
-    });
-  } catch (err) {
-    console.error(err);
-    req.flash("error", "Failed to load survey");
-    res.redirect("/surveys");
-  }
-});
 
-// GET /surveys/:id/edit - show edit form
-router.get("/:id/edit", requireManager, async (req, res) => {
-  try {
-    const survey = await db.query("SELECT * FROM survey WHERE surveyid = $1", [req.params.id]);
-    if (survey.rows.length === 0) {
+    if (result.rows.length === 0) {
       req.flash("error", "Survey not found");
       return res.redirect("/surveys");
     }
-    
-    const participants = await db.query("SELECT participantid, participantfirstname, participantlastname FROM participant ORDER BY participantlastname");
-    const events = await db.query(`
-      SELECT eo.eventoccurrenceid, et.eventname, eo.eventdatetimestart
-      FROM eventoccurrence eo
-      JOIN eventtemplate et ON eo.eventtemplateid = et.eventtemplateid
-      ORDER BY eo.eventdatetimestart DESC
-    `);
-    
-    res.render("surveys/edit", { 
-      title: "Edit Survey", 
-      survey: survey.rows[0],
-      participants: participants.rows,
-      events: events.rows,
+
+    res.render("surveys/show", {
+      title: "Survey Details",
+      survey: result.rows[0],
       currentUser: req.session.user,
+      success: req.flash("success"),
       error: req.flash("error")
     });
   } catch (err) {
@@ -143,44 +190,65 @@ router.get("/:id/edit", requireManager, async (req, res) => {
   }
 });
 
-// PUT /surveys/:id - update
-router.put("/:id", requireManager, async (req, res) => {
-  const { 
-    participantid, eventoccurrenceid, surveysatisfactionscore, surveyusefulnessscore,
-    surveyinstructorscore, surveyrecommendationscore, surveyoverallscore,
-    surveynpsbucket, surveycomments 
-  } = req.body;
-  
+// PUT /surveys/:id - update survey
+router.put("/:id", requireLogin, requireManager, async (req, res) => {
   try {
-    await db.query(
-      `UPDATE survey SET 
-        participantid = $1, eventoccurrenceid = $2, surveysatisfactionscore = $3,
-        surveyusefulnessscore = $4, surveyinstructorscore = $5, surveyrecommendationscore = $6,
-        surveyoverallscore = $7, surveynpsbucket = $8, surveycomments = $9
-      WHERE surveyid = $10`,
-      [participantid, eventoccurrenceid, surveysatisfactionscore || null, surveyusefulnessscore || null,
-       surveyinstructorscore || null, surveyrecommendationscore || null, surveyoverallscore || null,
-       surveynpsbucket, surveycomments, req.params.id]
-    );
-    req.flash("success", "Survey updated successfully");
-    res.redirect("/surveys/" + req.params.id);
+    const {
+      surveysatisfactionscore,
+      surveyusefulnessscore,
+      surveyinstructorscore,
+      surveyrecommendationscore,
+      surveynpsbucket,
+      surveycomments
+    } = req.body;
+
+    const avgOverall = (
+      (Number(surveysatisfactionscore) +
+        Number(surveyusefulnessscore) +
+        Number(surveyinstructorscore) +
+        Number(surveyrecommendationscore)) / 4
+    ).toFixed(2);
+
+    await db.query(`
+      UPDATE survey SET
+        surveysatisfactionscore = $1,
+        surveyusefulnessscore = $2,
+        surveyinstructorscore = $3,
+        surveyrecommendationscore = $4,
+        surveyoverallscore = $5,
+        surveynpsbucket = $6,
+        surveycomments = $7
+      WHERE surveyid = $8
+    `, [
+      surveysatisfactionscore,
+      surveyusefulnessscore,
+      surveyinstructorscore,
+      surveyrecommendationscore,
+      avgOverall,
+      surveynpsbucket,
+      surveycomments,
+      req.params.id
+    ]);
+
+    req.flash("success", "Survey updated");
+    res.redirect(`/surveys/${req.params.id}`);
   } catch (err) {
     console.error(err);
     req.flash("error", "Failed to update survey");
-    res.redirect("/surveys/" + req.params.id + "/edit");
+    res.redirect(`/surveys/${req.params.id}`);
   }
 });
 
-// DELETE /surveys/:id - delete
-router.delete("/:id", requireManager, async (req, res) => {
+// DELETE /surveys/:id - delete survey
+router.delete("/:id", requireLogin, requireManager, async (req, res) => {
   try {
     await db.query("DELETE FROM survey WHERE surveyid = $1", [req.params.id]);
-    req.flash("success", "Survey deleted successfully");
+    req.flash("success", "Survey deleted");
     res.redirect("/surveys");
   } catch (err) {
     console.error(err);
     req.flash("error", "Failed to delete survey");
-    res.redirect("/surveys");
+    res.redirect(`/surveys/${req.params.id}`);
   }
 });
 

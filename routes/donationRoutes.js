@@ -64,22 +64,32 @@ router.post("/", requireManager, async (req, res) => {
 // GET /donations/:id - show single donation
 router.get("/:id", requireLogin, async (req, res) => {
   try {
-    const donation = await db.query(`
-      SELECT d.*, p.participantfirstname, p.participantlastname, p.participantemail
+    const donationResult = await db.query(`
+      SELECT d.*, p.participantfirstname, p.participantlastname, p.participantid
       FROM donation d
       JOIN participant p ON d.participantid = p.participantid
       WHERE d.donationid = $1
     `, [req.params.id]);
-    
-    if (donation.rows.length === 0) {
+
+    if (donationResult.rows.length === 0) {
       req.flash("error", "Donation not found");
       return res.redirect("/donations");
     }
-    
-    res.render("donations/show", { 
+
+    // Fetch all participants for the dropdown
+    const participantsResult = await db.query(`
+      SELECT participantid, participantfirstname, participantlastname, participantdob
+      FROM participant
+      ORDER BY participantlastname, participantfirstname
+    `);
+
+    res.render("donations/show", {
       title: "Donation Details",
-      donation: donation.rows[0],
-      currentUser: req.session.user
+      donation: donationResult.rows[0],
+      participants: participantsResult.rows,   // <-- key line
+      currentUser: req.session.user,
+      success: req.flash("success"),
+      error: req.flash("error")
     });
   } catch (err) {
     console.error(err);
@@ -87,6 +97,7 @@ router.get("/:id", requireLogin, async (req, res) => {
     res.redirect("/donations");
   }
 });
+
 
 // GET /donations/:id/edit - show edit form
 router.get("/:id/edit", requireManager, async (req, res) => {

@@ -31,6 +31,8 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride("_method"));
 
+app.use(express.static("public"));
+
 app.use(
   session({
     secret: process.env.SESSION_SECRET || "secret",
@@ -55,6 +57,15 @@ app.use("/surveys", surveyRoutes);
 app.use("/donations", donationRoutes);
 app.use("/dashboard", dashboardRoutes);
 app.use("/impact", impactRoutes);
+
+// 418 Easter egg – I'm a teapot
+app.get("/418", (req, res) => {
+  res.status(418); // HTTP 418
+  res.render("418", {
+    title: "418 – I'm a Teapot",
+    currentUser: req.session ? req.session.user : null
+  });
+});
 
 // 404
 app.use((req, res) => {
