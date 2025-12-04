@@ -14,6 +14,8 @@ const surveyRoutes = require("./routes/surveyRoutes");
 const donationRoutes = require("./routes/donationRoutes");
 const dashboardRoutes = require("./routes/dashboardRoutes");
 const impactRoutes = require("./routes/impactRoutes");
+const usersRoutes = require("./routes/usersRoutes");
+
 
 const { attachUserToLocals } = require("./middleware/authMiddleware");
 
@@ -57,6 +59,7 @@ app.use("/surveys", surveyRoutes);
 app.use("/donations", donationRoutes);
 app.use("/dashboard", dashboardRoutes);
 app.use("/impact", impactRoutes);
+app.use("/users", usersRoutes);
 
 // 418 Easter egg – I'm a teapot
 app.get("/418", (req, res) => {

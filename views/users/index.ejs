@@ -3,14 +3,8 @@
 
 <main class="register-page-wrapper">
   <div class="register-card" style="max-width: 900px; width:100%;">
-    <h1 class="register-title">Milestones</h1>
-    <p class="register-subtitle">
-      <% if (currentUser && currentUser.role === 'Manager') { %>
-        Track participant milestones over time.
-      <% } else { %>
-        Milestones you have earned with Ella Rises.
-      <% } %>
-    </p>
+    <h1 class="register-title">Users</h1>
+    <p class="register-subtitle">Manage user accounts and permissions.</p>
 
     <% if (success && success.length > 0) { %>
       <div class="alert alert-success"><%= success %></div>
@@ -22,16 +16,16 @@
     <!-- Search + Add button -->
     <div style="display:flex; justify-content:space-between; gap:1rem; margin-bottom:1rem; align-items:flex-end;">
       <div class="register-field" style="flex:1; margin-bottom:0; position:relative;">
-        <label>Search milestones</label>
+        <label>Search users</label>
         <input
           type="text"
-          id="milestoneSearch"
-          placeholder="Search by title<% if (currentUser && currentUser.role === 'Manager') { %>, participant<% } %>, or date…"
+          id="userSearch"
+          placeholder="Search by name, email, or role…"
           style="padding-right:2rem;"
         />
         <button
           type="button"
-          id="clearMilestoneSearch"
+          id="clearUserSearch"
           aria-label="Clear search"
           style="
             position:absolute;
@@ -53,59 +47,58 @@
         </button>
       </div>
 
-      <% if (currentUser && currentUser.role === 'Manager') { %>
-        <a href="/milestones/new" class="btn-pill btn-primary register-btn" style="width:auto; white-space:nowrap;">
-          + Add Milestone
-        </a>
-      <% } %>
+      <a href="/users/new" class="btn-pill btn-primary register-btn" style="width:auto; white-space:nowrap;">
+        + Add User
+      </a>
     </div>
 
-    <!-- Milestones table -->
+    <!-- Users table -->
     <div style="overflow-x:auto;">
-      <table class="table table-striped" id="milestonesTable" style="width:100%; border-collapse:collapse;">
+      <table class="table table-striped" id="usersTable" style="width:100%; border-collapse:collapse;">
         <thead>
           <tr>
-            <th style="text-align:left; padding:0.6rem;">Milestone Title</th>
-            <% if (currentUser && currentUser.role === 'Manager') { %>
-              <th style="text-align:left; padding:0.6rem;">Participant</th>
-            <% } %>
-            <th style="text-align:left; padding:0.6rem;">Milestone Date</th>
+            <th style="text-align:left; padding:0.6rem;">Full Name</th>
+            <th style="text-align:left; padding:0.6rem;">Email</th>
+            <th style="text-align:left; padding:0.6rem;">Role</th>
           </tr>
         </thead>
         <tbody>
-          <% if (!milestones || milestones.length === 0) { %>
+          <% if (!users || users.length === 0) { %>
             <tr>
-              <td colspan="<%= currentUser && currentUser.role === 'Manager' ? '3' : '2' %>" style="padding:1rem; text-align:center; color:#9CA3AF;">
-                <% if (currentUser && currentUser.role === 'Manager') { %>
-                  No milestones have been added yet.
-                <% } else { %>
-                  No milestones earned yet. Keep going—you're just getting started!
-                <% } %>
+              <td colspan="3" style="padding:1rem; text-align:center; color:#9CA3AF;">
+                No users found.
               </td>
             </tr>
           <% } else { %>
-            <% milestones.forEach(m => { %>
+            <% users.forEach(u => { %>
               <tr>
                 <td style="padding:0.6rem;">
                   <a
-                    href="/milestones/<%= m.milestoneid %>"
+                    href="/users/<%= u.id %>"
                     class="register-link"
                     style="color:#ffc2b5; transition:color 0.15s ease, transform 0.15s ease; display:inline-block;"
                     onmouseover="this.style.transform='translateY(-1px)';"
                     onmouseout="this.style.transform='translateY(0)';"
                   >
-                    <%= m.milestonetitle %>
+                    <%= u.full_name %>
                   </a>
                 </td>
-                <% if (currentUser && currentUser.role === 'Manager') { %>
-                  <td style="padding:0.6rem;">
-                    <%= m.participantfirstname %> <%= m.participantlastname %>
-                  </td>
-                <% } %>
                 <td style="padding:0.6rem;">
-                  <% if (m.milestonedate) { %>
-                    <%= m.milestonedate.toISOString().slice(0,10) %>
-                  <% } %>
+                  <%= u.email %>
+                </td>
+                <td style="padding:0.6rem;">
+                  <span style="
+                    display:inline-block;
+                    padding:0.25rem 0.75rem;
+                    border-radius:999px;
+                    font-size:0.85rem;
+                    font-weight:600;
+                    <%= u.role === 'Manager' 
+                      ? 'background-color:#d0e1eb; color:#18181B;' 
+                      : 'background-color:#ffe8c8; color:#18181B;' %>
+                  ">
+                    <%= u.role %>
+                  </span>
                 </td>
               </tr>
             <% }) %>
@@ -115,16 +108,16 @@
     </div>
 
     <p class="register-bottom" style="margin-top:1.2rem;">
-      Total milestones: <strong><%= milestones.length %></strong>
+      Total users: <strong><%= users.length %></strong>
     </p>
   </div>
 </main>
 
 <script>
   (function () {
-    const input = document.getElementById('milestoneSearch');
-    const clearBtn = document.getElementById('clearMilestoneSearch');
-    const table = document.getElementById('milestonesTable');
+    const input = document.getElementById('userSearch');
+    const clearBtn = document.getElementById('clearUserSearch');
+    const table = document.getElementById('usersTable');
     if (!input || !table) return;
 
     function filterRows() {

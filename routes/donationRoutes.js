@@ -6,25 +6,51 @@ const { requireLogin, requireManager } = require("../middleware/authMiddleware")
 // GET /donations - list all
 router.get("/", requireLogin, async (req, res) => {
   try {
-    const result = await db.query(`
-      SELECT d.*, p.participantfirstname, p.participantlastname
-      FROM donation d
-      JOIN participant p ON d.participantid = p.participantid
-      ORDER BY d.donationdate DESC
-    `);
-    res.render("donations/index", { 
-      title: "Donations", 
-      donations: result.rows,
+    let donations;
+
+    if (req.session.user.role === "Manager") {
+      const result = await db.query(`
+        SELECT
+          d.donationid,
+          d.donationamount,
+          d.donationdate,
+          p.participantid,
+          p.participantfirstname,
+          p.participantlastname
+        FROM donation d
+        JOIN participant p ON d.participantid = p.participantid
+        ORDER BY d.donationdate DESC;
+      `);
+      donations = result.rows;
+    } else {
+      const result = await db.query(`
+        SELECT
+          d.donationid,
+          d.donationamount,
+          d.donationdate,
+          p.participantid,
+          p.participantfirstname,
+          p.participantlastname
+        FROM donation d
+        JOIN participant p ON d.participantid = p.participantid
+        WHERE d.participantid = $1
+        ORDER BY d.donationdate DESC;
+      `, [req.session.user.participantid]);
+      donations = result.rows;
+    }
+
+    res.render("donations/index", {
+      title: "Donations",
       currentUser: req.session.user,
-      success: req.flash("success"),
-      error: req.flash("error")
+      donations
     });
   } catch (err) {
-    console.error(err);
-    req.flash("error", "Failed to load donations");
+    console.error("Donations route error:", err);
+    req.flash("error", "Unable to load donations.");
     res.redirect("/");
   }
 });
+
 
 // GET /donations/new - show create form
 router.get("/new", requireManager, async (req, res) => {

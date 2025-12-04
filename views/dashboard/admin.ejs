@@ -13,13 +13,13 @@
   <div class="dashboard-grid">
 
     <!-- PARTICIPANTS -->
-    <div class="dashboard-card">
+    <a href="/participants" class="dashboard-card dashboard-card-link">
       <h2 class="text-xl font-semibold mb-2">Participants</h2>
-      <div class="text-4xl font-bold text-primary mb-2"><%= stats.participants %></div>
+      <div class="text-4xl font-bold text-primary mb-2"><%= participantCount %></div>
       <p class="text-muted-foreground mb-4">Total Registered Participants</p>
 
       <h3 class="font-semibold mb-2">Recently added:</h3>
-      <% recentParticipants.forEach(p => { %>
+      <% recentParticipants.slice(0, 3).forEach(p => { %>
         <p class="mb-2">
           <strong><%= p.participantfirstname %> <%= p.participantlastname %></strong>
           <br>
@@ -28,36 +28,32 @@
           </span>
         </p>
       <% }) %>
-
-      <a href="/participants" class="dashboard-section-link mt-3 inline-block">Manage all participants →</a>
-    </div>
+    </a>
 
     <!-- EVENTS -->
-    <div class="dashboard-card">
+    <a href="/events" class="dashboard-card dashboard-card-link">
       <h2 class="text-xl font-semibold mb-2">Events</h2>
-      <div class="text-4xl font-bold text-secondary mb-2"><%= stats.events %></div>
+      <div class="text-4xl font-bold text-secondary mb-2"><%= eventCount %></div>
       <p class="text-muted-foreground mb-4">Total Events on Calendar</p>
 
       <h3 class="font-semibold mb-2">Upcoming Events:</h3>
-      <% upcomingEvents.forEach(e => { %>
+      <% upcomingEvents.slice(0, 3).forEach(e => { %>
         <p class="mb-2">
           <strong><%= new Date(e.eventdatetimestart).toLocaleString() %></strong>
           <br>
           <span class="text-muted-foreground text-sm"><%= e.eventname %></span>
         </p>
       <% }) %>
-
-      <a href="/events" class="dashboard-section-link mt-3 inline-block">Manage events →</a>
-    </div>
+    </a>
 
     <!-- SURVEYS -->
-    <div class="dashboard-card">
+    <a href="/surveys" class="dashboard-card dashboard-card-link">
       <h2 class="text-xl font-semibold mb-2">Survey Results</h2>
-      <div class="text-4xl font-bold text-accent mb-2"><%= stats.surveys %></div>
+      <div class="text-4xl font-bold text-accent mb-2"><%= surveyCount %></div>
       <p class="text-muted-foreground mb-4">Completed Post-Event Surveys</p>
 
       <h3 class="font-semibold mb-2">Recently Completed Surveys:</h3>
-      <% recentSurveys.forEach(s => { %>
+      <% recentSurveys.slice(0, 3).forEach(s => { %>
         <p class="mb-2">
           <strong><%= s.eventname %></strong>
           <br>
@@ -66,40 +62,51 @@
           </span>
         </p>
       <% }) %>
+    </a>
 
-      <a href="/surveys/results" class="dashboard-section-link mt-3 inline-block">Manage surveys →</a>
-    </div>
+    <!-- MILESTONES -->
+    <a href="/milestones" class="dashboard-card dashboard-card-link">
+      <h2 class="text-xl font-semibold mb-2">Milestones</h2>
+      <div class="text-4xl font-bold text-accent mb-2"><%= milestoneTotal %></div>
+      <p class="text-muted-foreground mb-4">Total milestones awarded</p>
 
-  </div>
-
-  <!-- ANALYTICS CARDS (UNCHANGED) -->
-  <div class="dashboard-grid mt-12">
-
-    <!-- Milestones -->
-    <div class="dashboard-card">
-      <h2 class="text-xl font-bold mb-4">🏅 Top Milestone Earners</h2>
-      <% milestoneLeaders.forEach(m => { %>
+      <h3 class="font-semibold mb-2">Top Earners:</h3>
+      <% milestoneLeaders.slice(0, 3).forEach(m => { %>
         <p class="mb-2">
           <strong><%= m.participantfirstname %> <%= m.participantlastname %></strong><br>
           <span class="text-muted-foreground text-sm"><%= m.total %> milestones</span>
         </p>
       <% }) %>
-      <a href="/milestones/manage" class="dashboard-section-link">Open milestone manager →</a>
-    </div>
+    </a>
 
-    <!-- Donations -->
-    <div class="dashboard-card">
-      <h2 class="text-xl font-bold mb-4">💖 Recent Donations</h2>
-      <% donations.forEach(d => { %>
+    <!-- DONATIONS -->
+    <a href="/donations" class="dashboard-card dashboard-card-link">
+      <h2 class="text-xl font-semibold mb-2">Donations</h2>
+      <div class="text-4xl font-bold text-pink-500 mb-2">
+        $<%= donationTotal.toFixed(2) %>
+      </div>
+      <p class="text-muted-foreground mb-4">Total donation amount recorded</p>
+
+      <h3 class="font-semibold mb-2">Recent Donations:</h3>
+      <% donations.slice(0, 3).forEach(d => { %>
         <p class="mb-2">
-          <strong>$<%= d.donationamount %></strong><br>
-            <span class="text-muted-foreground text-sm">
-              By <%= d.participantfirstname %> <%= d.participantlastname %>
-            </span>
+          <strong>$<%= Number(d.donationamount).toFixed(2) %></strong><br>
+          <span class="text-muted-foreground text-sm">
+            By <%= d.donorname %>
+          </span>
         </p>
       <% }) %>
-      <a href="/donations" class="dashboard-section-link">Manage donations →</a>
-    </div>
+    </a>
+
+    <!-- USERS (NEW) -->
+    <a href="/users" class="dashboard-card dashboard-card-link">
+      <h2 class="text-xl font-semibold mb-2">Users</h2>
+      <div class="text-4xl font-bold text-purple-500 mb-2"><%= userCount || 0 %></div>
+      <p class="text-muted-foreground mb-4">Total system users (Managers & Users)</p>
+      <p class="text-sm text-muted-foreground">
+        Manage user accounts, roles, and permissions.
+      </p>
+    </a>
 
   </div>
 

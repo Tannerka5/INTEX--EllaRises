@@ -6,22 +6,51 @@ const { requireLogin, requireManager } = require("../middleware/authMiddleware")
 // GET /milestones - list all
 router.get("/", requireLogin, async (req, res) => {
   try {
-    const result = await db.query(`
-      SELECT m.*, p.participantfirstname, p.participantlastname
-      FROM milestone m
-      JOIN participant p ON m.participantid = p.participantid
-      ORDER BY m.milestonedate DESC
-    `);
-    res.render("milestones/index", { 
-      title: "Milestones", 
-      milestones: result.rows,
+    let milestones;
+
+    if (req.session.user.role === "Manager") {
+      // Managers see ALL milestones
+      const result = await db.query(`
+        SELECT
+          m.milestoneid,
+          m.milestonetitle,
+          m.milestonedate,
+          p.participantid,
+          p.participantfirstname,
+          p.participantlastname
+        FROM milestone m
+        JOIN participant p ON m.participantid = p.participantid
+        ORDER BY m.milestonedate DESC NULLS LAST,
+                 p.participantlastname,
+                 p.participantfirstname;
+      `);
+      milestones = result.rows;
+    } else {
+      // Users see ONLY their own milestones
+      const result = await db.query(`
+        SELECT
+          m.milestoneid,
+          m.milestonetitle,
+          m.milestonedate,
+          p.participantid,
+          p.participantfirstname,
+          p.participantlastname
+        FROM milestone m
+        JOIN participant p ON m.participantid = p.participantid
+        WHERE m.participantid = $1
+        ORDER BY m.milestonedate DESC NULLS LAST;
+      `, [req.session.user.participantid]);
+      milestones = result.rows;
+    }
+
+    res.render("milestones/index", {
+      title: "Milestones",
       currentUser: req.session.user,
-      success: req.flash("success"),
-      error: req.flash("error")
+      milestones
     });
   } catch (err) {
     console.error(err);
-    req.flash("error", "Failed to load milestones");
+    req.flash("error", "Unable to load milestones.");
     res.redirect("/");
   }
 });
