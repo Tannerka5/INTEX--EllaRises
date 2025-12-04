@@ -1,13 +1,6 @@
-
-DROP TABLE IF EXISTS donation CASCADE;
-DROP TABLE IF EXISTS milestone CASCADE;
-DROP TABLE IF EXISTS survey CASCADE;
-DROP TABLE IF EXISTS registration CASCADE;
-DROP TABLE IF EXISTS eventoccurrence CASCADE;
-DROP TABLE IF EXISTS eventtemplate CASCADE;
-DROP TABLE IF EXISTS participant CASCADE;
-DROP TABLE IF EXISTS users CASCADE;
-
+-- ============================================================
+-- TABLE: participant
+-- ============================================================
 CREATE TABLE participant (
     participantid INTEGER PRIMARY KEY,
     participantemail TEXT UNIQUE NOT NULL,
@@ -23,6 +16,9 @@ CREATE TABLE participant (
     participantfieldofinterest TEXT
 );
 
+-- ============================================================
+-- TABLE: eventtemplate
+-- ============================================================
 CREATE TABLE eventtemplate (
     eventtemplateid INTEGER PRIMARY KEY,
     eventname TEXT UNIQUE NOT NULL,
@@ -32,10 +28,12 @@ CREATE TABLE eventtemplate (
     eventdefaultcapacity INTEGER
 );
 
+-- ============================================================
+-- TABLE: eventoccurrence
+-- ============================================================
 CREATE TABLE eventoccurrence (
     eventoccurrenceid INTEGER PRIMARY KEY,
     eventtemplateid INTEGER NOT NULL REFERENCES eventtemplate(eventtemplateid),
-    eventname TEXT NOT NULL,
     eventdatetimestart TIMESTAMP NOT NULL,
     eventdatetimeend TIMESTAMP,
     eventlocation TEXT,
@@ -43,6 +41,9 @@ CREATE TABLE eventoccurrence (
     eventregistrationdeadline TIMESTAMP
 );
 
+-- ============================================================
+-- TABLE: registration
+-- ============================================================
 CREATE TABLE registration (
     registrationid INTEGER PRIMARY KEY,
     participantid INTEGER NOT NULL REFERENCES participant(participantid),
@@ -53,6 +54,13 @@ CREATE TABLE registration (
     registrationcreatedat TIMESTAMP
 );
 
+-- Unique constraint: one registration per participant per event occurrence
+CREATE UNIQUE INDEX registration_unique_pair
+    ON registration (participantid, eventoccurrenceid);
+
+-- ============================================================
+-- TABLE: survey
+-- ============================================================
 CREATE TABLE survey (
     surveyid INTEGER PRIMARY KEY,
     participantid INTEGER NOT NULL REFERENCES participant(participantid),
@@ -67,6 +75,13 @@ CREATE TABLE survey (
     surveysubmissiondate TIMESTAMP
 );
 
+-- Unique constraint: one survey per participant per event occurrence
+CREATE UNIQUE INDEX survey_unique_pair
+    ON survey (participantid, eventoccurrenceid);
+
+-- ============================================================
+-- TABLE: milestone
+-- ============================================================
 CREATE TABLE milestone (
     milestoneid INTEGER PRIMARY KEY,
     participantid INTEGER NOT NULL REFERENCES participant(participantid),
@@ -74,19 +89,24 @@ CREATE TABLE milestone (
     milestonedate DATE NOT NULL
 );
 
+-- ============================================================
+-- TABLE: donation
+-- ============================================================
 CREATE TABLE donation (
     donationid INTEGER PRIMARY KEY,
     participantid INTEGER NOT NULL REFERENCES participant(participantid),
     donationdate DATE NOT NULL,
-    donationamount NUMERIC(10,2) NOT NULL
+    donationamount NUMERIC
 );
 
+-- ============================================================
+-- TABLE: users
+-- ============================================================
 CREATE TABLE users (
-    id integer NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1 ),
-    email character varying(50) COLLATE pg_catalog."default" NOT NULL,
-    password character varying(100) COLLATE pg_catalog."default" NOT NULL,
-    role character varying(7) COLLATE pg_catalog."default" NOT NULL,
-    created_date date NOT NULL DEFAULT CURRENT_DATE,
-    full_name character varying(50) COLLATE pg_catalog."default" NOT NULL,
-    CONSTRAINT users_pkey PRIMARY KEY (id)
+    id INTEGER PRIMARY KEY,
+    email TEXT NOT NULL UNIQUE REFERENCES participant(participantemail),
+    password VARCHAR(100) NOT NULL,
+    role VARCHAR(7) NOT NULL,
+    created_date DATE NOT NULL DEFAULT CURRENT_DATE,
+    full_name VARCHAR(50) NOT NULL
 );
