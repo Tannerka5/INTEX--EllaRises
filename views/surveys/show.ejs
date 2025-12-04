@@ -89,24 +89,18 @@
         </label>
         <div class="slider-wrapper">
           <div class="slider-ticks">
-            <span class="slider-tick major"></span>
-            <span class="slider-tick"></span>
-            <span class="slider-tick"></span>
-            <span class="slider-tick"></span>
-            <span class="slider-tick"></span>
-            <span class="slider-tick major"></span>
-            <span class="slider-tick"></span>
-            <span class="slider-tick"></span>
-            <span class="slider-tick"></span>
-            <span class="slider-tick"></span>
-            <span class="slider-tick major"></span>
+            <span class="slider-tick major"></span> <!-- 0 -->
+            <span class="slider-tick"></span>        <!-- 1 -->
+            <span class="slider-tick"></span>        <!-- 2 -->
+            <span class="slider-tick"></span>        <!-- 3 -->
+            <span class="slider-tick major"></span>  <!-- 5 -->
           </div>
           <input
             type="range"
             name="surveysatisfactionscore"
             id="satSlider"
             min="0"
-            max="10"
+            max="5"
             step="1"
             value="<%= survey.surveysatisfactionscore %>"
             class="score-slider"
@@ -129,12 +123,6 @@
             <span class="slider-tick"></span>
             <span class="slider-tick"></span>
             <span class="slider-tick"></span>
-            <span class="slider-tick"></span>
-            <span class="slider-tick major"></span>
-            <span class="slider-tick"></span>
-            <span class="slider-tick"></span>
-            <span class="slider-tick"></span>
-            <span class="slider-tick"></span>
             <span class="slider-tick major"></span>
           </div>
           <input
@@ -142,7 +130,7 @@
             name="surveyusefulnessscore"
             id="useSlider"
             min="0"
-            max="10"
+            max="5"
             step="1"
             value="<%= survey.surveyusefulnessscore %>"
             class="score-slider"
@@ -165,12 +153,6 @@
             <span class="slider-tick"></span>
             <span class="slider-tick"></span>
             <span class="slider-tick"></span>
-            <span class="slider-tick"></span>
-            <span class="slider-tick major"></span>
-            <span class="slider-tick"></span>
-            <span class="slider-tick"></span>
-            <span class="slider-tick"></span>
-            <span class="slider-tick"></span>
             <span class="slider-tick major"></span>
           </div>
           <input
@@ -178,7 +160,7 @@
             name="surveyinstructorscore"
             id="instSlider"
             min="0"
-            max="10"
+            max="5"
             step="1"
             value="<%= survey.surveyinstructorscore %>"
             class="score-slider"
@@ -201,12 +183,6 @@
             <span class="slider-tick"></span>
             <span class="slider-tick"></span>
             <span class="slider-tick"></span>
-            <span class="slider-tick"></span>
-            <span class="slider-tick major"></span>
-            <span class="slider-tick"></span>
-            <span class="slider-tick"></span>
-            <span class="slider-tick"></span>
-            <span class="slider-tick"></span>
             <span class="slider-tick major"></span>
           </div>
           <input
@@ -214,7 +190,7 @@
             name="surveyrecommendationscore"
             id="recSlider"
             min="0"
-            max="10"
+            max="5"
             step="1"
             value="<%= survey.surveyrecommendationscore %>"
             class="score-slider"
@@ -315,7 +291,7 @@
     const overallDisplay = document.getElementById('overallDisplay');
     const overallHidden = document.getElementById('overallHidden');
 
-    // May be null for non‑manager (no edit controls)
+    // May be null for non-manager (no edit controls)
     const npsInput = form ? form.querySelector('input[name="surveynpsbucket"]') : null;
     const commentsInput = form ? form.querySelector('textarea[name="surveycomments"]') : null;
     const eventInput = form ? form.querySelector('input[name="eventname"]') : null;
@@ -327,7 +303,7 @@
 
     function setSliderFill(slider) {
       const min = Number(slider.min || 0);
-      const max = Number(slider.max || 10);
+      const max = Number(slider.max || 5);
       const val = Number(slider.value || 0);
       const percent = ((val - min) * 100) / (max - min);
       slider.style.setProperty('--val', percent + '%');
@@ -364,7 +340,7 @@
 
     syncAndUpdate();
 
-    // --- Manager‑only edit / delete logic (only runs if controls exist) ---
+    // --- Manager-only edit / delete logic (only runs if controls exist) ---
 
     if (editBtn && form && editButtons && cancelBtn && npsInput && commentsInput) {
       let editing = false;
@@ -452,6 +428,5 @@
     };
   })();
 </script>
-
 
 <%- include("../partials/footer") %>

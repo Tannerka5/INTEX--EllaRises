@@ -1672,3 +1672,88 @@ h1 {
   transform: translateY(-3px);
   box-shadow: 0 24px 40px rgba(15, 23, 42, 0.14);
 }
+
+/* Card Wrapper */
+.survey-index-card {
+  background: #ffffff;
+  padding: 2rem;
+  border-radius: 1.2rem;
+  max-width: 1000px;
+  margin: 2rem auto;
+  box-shadow: 0 8px 28px rgba(0,0,0,0.08);
+}
+
+/* Title Area */
+.survey-index-title {
+  text-align: center;
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 0.3rem;
+}
+
+.survey-index-subtitle {
+  text-align: center;
+  color: #6b7280;
+  margin-bottom: 2rem;
+  font-size: 1.05rem;
+}
+
+/* Table */
+.survey-index-table-container {
+  overflow-x: auto;
+  margin-top: 1rem;
+}
+
+.survey-index-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 0.6rem;
+}
+
+.survey-index-table thead th {
+  padding: 0.75rem;
+  text-align: left;
+  font-size: 0.95rem;
+  color: #6b7280;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.survey-index-table tbody tr {
+  background: #fafafa;
+}
+
+.survey-index-table tbody td {
+  padding: 0.85rem;
+  font-size: 1rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.survey-index-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* Score cell */
+.avg-score-cell {
+  text-align: center;
+  font-weight: 600;
+}
+
+/* View Surveys Button */
+.survey-view-btn {
+  background: #fda899;
+  padding: 0.45rem 1rem;
+  border-radius: 0.5rem;
+  text-decoration: none;
+  color: white;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+
+.survey-view-btn:hover {
+  background: #fc8e7f;
+}
+
+.view-btn-cell {
+  text-align: center;
+}
+

@@ -2,7 +2,23 @@
 <%- include("../partials/_navbar") %>
 
 <main class="register-page-wrapper">
-  <div class="register-card" style="max-width: 720px; width:100%;">
+  <div class="register-card" style="max-width: 720px; width:100%; position: relative;">
+
+    <!-- Back button -->
+    <a
+      href="/surveys"
+      class="btn-pill btn-secondary"
+      style="
+        position:absolute;
+        top:1.2rem;
+        left:1.6rem;
+        padding:0.3rem 0.9rem;
+        font-size:0.8rem;
+      "
+    >
+      ← Back
+    </a>
+
     <h1 class="register-title">Add Survey</h1>
     <p class="register-subtitle">Record participant feedback for an event.</p>
 
@@ -143,8 +159,8 @@
         </div>
       </div>
 
-      <!-- Scores: sliders 0–10 -->
-    <!-- Satisfaction -->
+      <!-- Scores: sliders 0–5 -->
+      <!-- Satisfaction -->
       <div class="register-field">
         <label>
           Satisfaction Score:
@@ -152,24 +168,18 @@
         </label>
         <div class="slider-wrapper">
           <div class="slider-ticks">
-            <span class="slider-tick major"></span>
-            <span class="slider-tick"></span>
-            <span class="slider-tick"></span>
-            <span class="slider-tick"></span>
-            <span class="slider-tick"></span>
-            <span class="slider-tick major"></span>
-            <span class="slider-tick"></span>
-            <span class="slider-tick"></span>
-            <span class="slider-tick"></span>
-            <span class="slider-tick"></span>
-            <span class="slider-tick major"></span>
+            <span class="slider-tick major"></span> <!-- 0 -->
+            <span class="slider-tick"></span>        <!-- 1 -->
+            <span class="slider-tick"></span>        <!-- 2 -->
+            <span class="slider-tick"></span>        <!-- 3 -->
+            <span class="slider-tick major"></span>  <!-- 5 -->
           </div>
           <input
             type="range"
             name="surveysatisfactionscore"
             id="satSlider"
             min="0"
-            max="10"
+            max="5"
             step="1"
             value="0"
             class="score-slider"
@@ -189,12 +199,6 @@
             <span class="slider-tick"></span>
             <span class="slider-tick"></span>
             <span class="slider-tick"></span>
-            <span class="slider-tick"></span>
-            <span class="slider-tick major"></span>
-            <span class="slider-tick"></span>
-            <span class="slider-tick"></span>
-            <span class="slider-tick"></span>
-            <span class="slider-tick"></span>
             <span class="slider-tick major"></span>
           </div>
           <input
@@ -202,7 +206,7 @@
             name="surveyusefulnessscore"
             id="useSlider"
             min="0"
-            max="10"
+            max="5"
             step="1"
             value="0"
             class="score-slider"
@@ -222,12 +226,6 @@
             <span class="slider-tick"></span>
             <span class="slider-tick"></span>
             <span class="slider-tick"></span>
-            <span class="slider-tick"></span>
-            <span class="slider-tick major"></span>
-            <span class="slider-tick"></span>
-            <span class="slider-tick"></span>
-            <span class="slider-tick"></span>
-            <span class="slider-tick"></span>
             <span class="slider-tick major"></span>
           </div>
           <input
@@ -235,7 +233,7 @@
             name="surveyinstructorscore"
             id="instSlider"
             min="0"
-            max="10"
+            max="5"
             step="1"
             value="0"
             class="score-slider"
@@ -255,12 +253,6 @@
             <span class="slider-tick"></span>
             <span class="slider-tick"></span>
             <span class="slider-tick"></span>
-            <span class="slider-tick"></span>
-            <span class="slider-tick major"></span>
-            <span class="slider-tick"></span>
-            <span class="slider-tick"></span>
-            <span class="slider-tick"></span>
-            <span class="slider-tick"></span>
             <span class="slider-tick major"></span>
           </div>
           <input
@@ -268,7 +260,7 @@
             name="surveyrecommendationscore"
             id="recSlider"
             min="0"
-            max="10"
+            max="5"
             step="1"
             value="0"
             class="score-slider"
@@ -276,18 +268,17 @@
         </div>
       </div>
 
-<!-- Overall score (readonly text) -->
-<div class="register-field">
-  <label>Overall Score (avg)</label>
-  <input
-    type="text"
-    id="overallDisplay"
-    value="0.00"
-    disabled
-  />
-  <input type="hidden" name="surveyoverallscore" id="overallHidden" value="0.00" />
-</div>
-
+      <!-- Overall score (readonly text) -->
+      <div class="register-field">
+        <label>Overall Score (avg)</label>
+        <input
+          type="text"
+          id="overallDisplay"
+          value="0.00"
+          disabled
+        />
+        <input type="hidden" name="surveyoverallscore" id="overallHidden" value="0.00" />
+      </div>
 
       <!-- NPS bucket & comments as before -->
       <div class="register-field">
