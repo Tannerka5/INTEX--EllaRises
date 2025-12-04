@@ -1,183 +1,93 @@
 <%- include("../partials/header") %>
 <%- include("../partials/_navbar") %>
 
-<main class="bg-gradient-hero min-h-screen py-12 page-main">
+<main class="bg-gradient-hero min-h-screen py-12 dashboard-main dashboard-container">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
     <!-- Welcome Section -->
-    <div class="mb-8">
+    <div class="mb-12">
       <h1 class="text-4xl font-bold text-foreground mb-2">
-        Welcome back, <%= currentUser?.name || "Participant" %>!
+        Welcome back, <%= currentUser.full_name %>!
       </h1>
-      <p class="text-muted-foreground">Track your progress and upcoming activities</p>
+      <p class="text-muted-foreground">Track your activities and stay involved</p>
     </div>
 
-    <!-- Progress Overview -->
-    <div class="grid md:grid-cols-3 gap-6 mb-8">
-      <div class="stat-card">
-        <div class="stat-icon">📅</div>
-        <div class="text-3xl font-bold text-foreground mb-1">5</div>
-        <div class="text-sm text-muted-foreground">Upcoming Events</div>
+    <div class="dashboard-grid">
+
+        <!-- Participants -->
+        <div class="dashboard-card">
+          <h2>👥 Participants</h2>
+          <a href="/participants" class="dashboard-section-link">View all →</a>
+
+          <% if (participants.length === 0) { %>
+            <p>No participants to display.</p>
+          <% } else { %>
+            <% participants.forEach(p => { %>
+              <p><%= p.participantfirstname %> <%= p.participantlastname %></p>
+            <% }) %>
+          <% } %>
+        </div>
+
+        <!-- Upcoming Events -->
+        <div class="dashboard-card">
+          <h2>📅 Upcoming Events</h2>
+          <a href="/events" class="dashboard-section-link">View all →</a>
+
+          <% if (upcomingEvents.length === 0) { %>
+            <p>No upcoming events.</p>
+          <% } else { %>
+            <% upcomingEvents.forEach(e => { %>
+              <p><strong><%= e.eventname %></strong><br>
+              <%= new Date(e.eventdatetimestart).toLocaleDateString() %></p>
+            <% }) %>
+          <% } %>
+        </div>
+
+        <!-- Post Surveys -->
+        <div class="dashboard-card">
+          <h2>📝 Post Surveys</h2>
+          <a href="/surveys/post" class="dashboard-section-link">View all →</a>
+
+          <% if (postSurveyEvents.length === 0) { %>
+            <p>No surveys pending.</p>
+          <% } else { %>
+            <% postSurveyEvents.forEach(ev => { %>
+              <p><%= ev.eventname %></p>
+            <% }) %>
+          <% } %>
+        </div>
+
+        <!-- Milestones -->
+        <div class="dashboard-card">
+          <h2>🏅 Milestones</h2>
+          <a href="/milestones" class="dashboard-section-link">View all →</a>
+
+          <% if (milestones.length === 0) { %>
+            <p>No milestones earned yet.</p>
+          <% } else { %>
+            <% milestones.forEach(m => { %>
+              <p><strong><%= m.milestonetitle %></strong></p>
+            <% }) %>
+          <% } %>
+        </div>
+
+        <!-- Donations -->
+        <div class="dashboard-card">
+          <h2>💖 Donations</h2>
+          <a href="/donations" class="dashboard-section-link">View all →</a>
+
+          <% if (donations.length === 0) { %>
+            <p>No recent donations.</p>
+          <% } else { %>
+            <% donations.forEach(d => { %>
+              <p>$<%= d.donationamount %> — <%= d.donorname %></p>
+            <% }) %>
+          <% } %>
+        </div>
+
       </div>
 
-      <div class="stat-card">
-        <div class="stat-icon">🏅</div>
-        <div class="text-3xl font-bold text-foreground mb-1">12</div>
-        <div class="text-sm text-muted-foreground">Achievements Earned</div>
-      </div>
-
-      <div class="stat-card">
-        <div class="stat-icon">🎯</div>
-        <div class="text-3xl font-bold text-foreground mb-1">85%</div>
-        <div class="text-sm text-muted-foreground">Goals Completed</div>
-      </div>
     </div>
-
-    <div class="grid lg:grid-cols-2 gap-8">
-
-      <!-- Upcoming Events -->
-      <div class="card-pastel">
-        <h2 class="text-2xl font-bold text-foreground mb-6 flex items-center gap-2">
-          📅
-          Upcoming Events
-        </h2>
-
-        <div class="space-y-4">
-          <div class="p-4 rounded-2xl bg-primary/5 border-l-4 border-primary">
-            <div class="flex justify-between items-start mb-2">
-              <h3 class="font-semibold text-foreground">STEAM Workshop</h3>
-              <span class="text-sm text-muted-foreground">Tomorrow</span>
-            </div>
-            <p class="text-sm text-muted-foreground mb-2">
-              Robotics and coding session
-            </p>
-            <p class="text-sm text-primary font-medium">3:00 PM – 5:00 PM</p>
-          </div>
-
-          <div class="p-4 rounded-2xl bg-secondary/5 border-l-4 border-secondary">
-            <div class="flex justify-between items-start mb-2">
-              <h3 class="font-semibold text-foreground">Ballet Practice</h3>
-              <span class="text-sm text-muted-foreground">Friday</span>
-            </div>
-            <p class="text-sm text-muted-foreground mb-2">
-              Weekly ballet training
-            </p>
-            <p class="text-sm text-secondary font-medium">4:00 PM – 6:00 PM</p>
-          </div>
-
-          <div class="p-4 rounded-2xl bg-accent/5 border-l-4 border-accent">
-            <div class="flex justify-between items-start mb-2">
-              <h3 class="font-semibold text-foreground">Mentorship Session</h3>
-              <span class="text-sm text-muted-foreground">Next Week</span>
-            </div>
-            <p class="text-sm text-muted-foreground mb-2">
-              Monthly check-in with mentor
-            </p>
-            <p class="text-sm text-accent font-medium">2:00 PM – 3:00 PM</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Recent Achievements -->
-      <div class="card-pastel">
-        <h2 class="text-2xl font-bold text-foreground mb-6 flex items-center gap-2">
-          🏆
-          Recent Achievements
-        </h2>
-
-        <div class="space-y-4">
-
-          <div class="p-4 rounded-2xl bg-gradient-card flex items-start gap-4">
-            <div class="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-white text-xl">
-              🏆
-            </div>
-            <div class="flex-1">
-              <h3 class="font-semibold text-foreground mb-1">Science Fair Winner</h3>
-              <p class="text-sm text-muted-foreground">First place in regional competition</p>
-              <p class="text-xs text-muted-foreground mt-2">Earned 2 days ago</p>
-            </div>
-          </div>
-
-          <div class="p-4 rounded-2xl bg-gradient-card flex items-start gap-4">
-            <div class="w-12 h-12 rounded-full bg-secondary flex items-center justify-center text-white text-xl">
-              ⭐
-            </div>
-            <div class="flex-1">
-              <h3 class="font-semibold text-foreground mb-1">Perfect Attendance</h3>
-              <p class="text-sm text-muted-foreground">100% attendance for 3 months</p>
-              <p class="text-xs text-muted-foreground mt-2">Earned 1 week ago</p>
-            </div>
-          </div>
-
-          <div class="p-4 rounded-2xl bg-gradient-card flex items-start gap-4">
-            <div class="w-12 h-12 rounded-full bg-accent flex items-center justify-center text-white text-xl">
-              💡
-            </div>
-            <div class="flex-1">
-              <h3 class="font-semibold text-foreground mb-1">Innovation Award</h3>
-              <p class="text-sm text-muted-foreground">Outstanding creativity</p>
-              <p class="text-xs text-muted-foreground mt-2">Earned 2 weeks ago</p>
-            </div>
-          </div>
-
-        </div>
-      </div>
-    </div>
-
-    <!-- Active Programs -->
-    <div class="mt-8 card-pastel">
-      <h2 class="text-2xl font-bold text-foreground mb-6 flex items-center gap-2">
-        📘
-        Your Programs
-      </h2>
-
-      <div class="grid md:grid-cols-3 gap-4">
-
-        <div class="p-4 rounded-2xl bg-primary/5 border-2 border-primary/20">
-          <h3 class="font-semibold text-foreground mb-2">STEAM Education</h3>
-          <div class="mb-3">
-            <div class="flex justify-between text-sm mb-1">
-              <span class="text-muted-foreground">Progress</span>
-              <span class="font-medium text-primary">75%</span>
-            </div>
-            <div class="w-full h-2 bg-muted rounded-full overflow-hidden">
-              <div class="h-full bg-primary rounded-full" style="width: 75%;"></div>
-            </div>
-          </div>
-          <p class="text-sm text-muted-foreground">12 of 16 sessions completed</p>
-        </div>
-
-        <div class="p-4 rounded-2xl bg-secondary/5 border-2 border-secondary/20">
-          <h3 class="font-semibold text-foreground mb-2">Ballet & Dance</h3>
-          <div class="mb-3">
-            <div class="flex justify-between text-sm mb-1">
-              <span class="text-muted-foreground">Progress</span>
-              <span class="font-medium text-secondary">60%</span>
-            </div>
-            <div class="w-full h-2 bg-muted rounded-full overflow-hidden">
-              <div class="h-full bg-secondary rounded-full" style="width: 60%;"></div>
-            </div>
-          </div>
-          <p class="text-sm text-muted-foreground">9 of 15 classes completed</p>
-        </div>
-
-        <div class="p-4 rounded-2xl bg-accent/5 border-2 border-accent/20">
-          <h3 class="font-semibold text-foreground mb-2">Mentorship</h3>
-          <div class="mb-3">
-            <div class="flex justify-between text-sm mb-1">
-              <span class="text-muted-foreground">Progress</span>
-              <span class="font-medium text-accent">90%</span>
-            </div>
-            <div class="w-full h-2 bg-muted rounded-full overflow-hidden">
-              <div class="h-full bg-accent rounded-full" style="width: 90%;"></div>
-            </div>
-          </div>
-          <p class="text-sm text-muted-foreground">9 of 10 sessions completed</p>
-        </div>
-
-      </div>
-    </div>
-
   </div>
 </main>
 

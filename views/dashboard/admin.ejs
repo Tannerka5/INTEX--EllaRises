@@ -1,147 +1,113 @@
 <%- include("../partials/header") %>
 <%- include("../partials/_navbar") %>
 
-<main class="bg-gradient-hero min-h-screen py-12 page-main">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<main class="bg-gradient-hero min-h-screen py-12 dashboard-main dashboard-container">
 
-    <!-- Header -->
-    <div class="mb-8">
-      <h1 class="text-4xl font-bold text-foreground mb-2">Admin Dashboard</h1>
-      <p class="text-muted-foreground">Manage all aspects of Ella Rises</p>
+  <!-- Welcome -->
+  <div class="mb-10">
+    <h1 class="text-4xl font-bold text-foreground mb-2">Welcome, <%= currentUser.full_name %>!</h1>
+    <p class="text-muted-foreground">Manager Dashboard Overview</p>
+  </div>
+
+  <!-- TOP SUMMARY STATS -->
+  <div class="dashboard-grid">
+    
+    <!-- Participants Count -->
+    <div class="dashboard-card text-center">
+      <h2 class="text-xl font-semibold mb-2">👥 Participants</h2>
+      <div class="text-4xl font-bold text-primary mb-2"><%= stats.participants %></div>
+      <p class="text-muted-foreground">Total Registered Participants</p>
+      <a href="/participants" class="dashboard-section-link mt-3 inline-block">Manage participants →</a>
     </div>
 
-    <!-- Stats -->
-    <div class="grid md:grid-cols-4 gap-6 mb-8">
-      <div class="stat-card">
-        <div class="stat-icon">👥</div>
-        <div class="text-3xl font-bold text-foreground mb-1">124</div>
-        <div class="text-sm text-muted-foreground">Active Participants</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-icon">📅</div>
-        <div class="text-3xl font-bold text-foreground mb-1">18</div>
-        <div class="text-sm text-muted-foreground">Upcoming Events</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-icon">💵</div>
-        <div class="text-3xl font-bold text-foreground mb-1">$45K</div>
-        <div class="text-sm text-muted-foreground">Total Donations</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-icon">📈</div>
-        <div class="text-3xl font-bold text-foreground mb-1">92%</div>
-        <div class="text-sm text-muted-foreground">Completion Rate</div>
-      </div>
+    <!-- Events Count -->
+    <div class="dashboard-card text-center">
+      <h2 class="text-xl font-semibold mb-2">📅 Events</h2>
+      <div class="text-4xl font-bold text-secondary mb-2"><%= stats.events %></div>
+      <p class="text-muted-foreground">Total Events Scheduled</p>
+      <a href="/events" class="dashboard-section-link mt-3 inline-block">Manage events →</a>
     </div>
 
-    <!-- Management Cards -->
-    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-
-      <a href="/participants" class="card-pastel hover-scale">
-        <div class="flex items-center gap-4 mb-4">
-          <div class="icon-box bg-primary/10">👥</div>
-          <h3 class="text-xl font-bold text-foreground">Participants</h3>
-        </div>
-        <p class="text-muted-foreground mb-4">
-          Manage participant profiles, track progress, and more
-        </p>
-        <div class="text-primary font-semibold">Manage Participants →</div>
-      </a>
-
-      <a href="/events" class="card-pastel hover-scale">
-        <div class="flex items-center gap-4 mb-4">
-          <div class="icon-box bg-secondary/10">📅</div>
-          <h3 class="text-xl font-bold text-foreground">Events</h3>
-        </div>
-        <p class="text-muted-foreground mb-4">
-          Schedule events, manage registrations, track attendance
-        </p>
-        <div class="text-secondary font-semibold">Manage Events →</div>
-      </a>
-
-      <a href="/milestones" class="card-pastel hover-scale">
-        <div class="flex items-center gap-4 mb-4">
-          <div class="icon-box bg-accent/10">🏆</div>
-          <h3 class="text-xl font-bold text-foreground">Milestones</h3>
-        </div>
-        <p class="text-muted-foreground mb-4">
-          Track achievements, celebrate successes
-        </p>
-        <div class="text-accent font-semibold">Manage Milestones →</div>
-      </a>
-
-      <a href="/surveys" class="card-pastel hover-scale">
-        <div class="flex items-center gap-4 mb-4">
-          <div class="icon-box bg-warm/10">📝</div>
-          <h3 class="text-xl font-bold text-foreground">Surveys</h3>
-        </div>
-        <p class="text-muted-foreground mb-4">
-          Create surveys, collect feedback, analyze responses
-        </p>
-        <div class="text-warm font-semibold">Manage Surveys →</div>
-      </a>
-
-      <a href="/donations" class="card-pastel hover-scale">
-        <div class="flex items-center gap-4 mb-4">
-          <div class="icon-box bg-lavender/10">💵</div>
-          <h3 class="text-xl font-bold text-foreground">Donations</h3>
-        </div>
-        <p class="text-muted-foreground mb-4">
-          Track donations, manage donors, generate reports
-        </p>
-        <div class="text-lavender font-semibold">Manage Donations →</div>
-      </a>
-
-      <a href="/impact" class="card-pastel hover-scale">
-        <div class="flex items-center gap-4 mb-4">
-          <div class="icon-box bg-primary/10">📈</div>
-          <h3 class="text-xl font-bold text-foreground">Impact Report</h3>
-        </div>
-        <p class="text-muted-foreground mb-4">
-          View program metrics and success stories
-        </p>
-        <div class="text-primary font-semibold">View Impact →</div>
-      </a>
-
-    </div>
-
-    <!-- Recent Activity -->
-    <div class="mt-8 card-pastel">
-      <h2 class="text-2xl font-bold text-foreground mb-6">Recent Activity</h2>
-
-      <div class="space-y-4">
-
-        <div class="activity-row">
-          <div class="activity-icon bg-primary/10">👥</div>
-          <div class="flex-1">
-            <p class="font-medium text-foreground">New participant registered</p>
-            <p class="text-sm text-muted-foreground">Maria Garcia joined STEAM program</p>
-          </div>
-          <span class="text-sm text-muted-foreground">2 hours ago</span>
-        </div>
-
-        <div class="activity-row">
-          <div class="activity-icon bg-secondary/10">📅</div>
-          <div class="flex-1">
-            <p class="font-medium text-foreground">Event scheduled</p>
-            <p class="text-sm text-muted-foreground">Ballet Workshop added</p>
-          </div>
-          <span class="text-sm text-muted-foreground">5 hours ago</span>
-        </div>
-
-        <div class="activity-row">
-          <div class="activity-icon bg-accent/10">💵</div>
-          <div class="flex-1">
-            <p class="font-medium text-foreground">Donation received</p>
-            <p class="text-sm text-muted-foreground">$500 from Anonymous</p>
-          </div>
-          <span class="text-sm text-muted-foreground">1 day ago</span>
-        </div>
-
-      </div>
+    <!-- Surveys Count -->
+    <div class="dashboard-card text-center">
+      <h2 class="text-xl font-semibold mb-2">📝 Surveys</h2>
+      <div class="text-4xl font-bold text-accent mb-2"><%= stats.surveys %></div>
+      <p class="text-muted-foreground">Completed Post-Event Surveys</p>
+      <a href="/surveys/results" class="dashboard-section-link mt-3 inline-block">View results →</a>
     </div>
 
   </div>
+
+  <!-- MANAGER CONTROL CARDS -->
+  <div class="dashboard-grid mt-12">
+
+    <!-- Participants Preview -->
+    <div class="dashboard-card">
+      <h2 class="text-xl font-bold mb-4">👥 Recent Participants</h2>
+      <% recentParticipants.forEach(p => { %>
+        <p class="mb-2">
+          <strong><%= p.participantfirstname %> <%= p.participantlastname %></strong>
+          <br><span class="text-muted-foreground text-sm"><%= p.participantschooloremployer || "" %></span>
+        </p>
+      <% }) %>
+      <a href="/participants" class="dashboard-section-link">Manage all participants →</a>
+    </div>
+
+    <!-- Upcoming Events Preview -->
+    <div class="dashboard-card">
+      <h2 class="text-xl font-bold mb-4">📅 Upcoming Events</h2>
+      <% upcomingEvents.forEach(e => { %>
+        <p class="mb-2">
+          <strong><%= e.eventname %></strong><br>
+          <span class="text-muted-foreground text-sm"><%= new Date(e.eventdatetimestart).toLocaleString() %></span>
+        </p>
+      <% }) %>
+      <a href="/events" class="dashboard-section-link">Manage all events →</a>
+    </div>
+
+    <!-- Recent Surveys -->
+    <div class="dashboard-card">
+      <h2 class="text-xl font-bold mb-4">📝 Recent Surveys</h2>
+      <% recentSurveys.forEach(s => { %>
+        <p class="mb-2">
+          <strong><%= s.eventname %></strong><br>
+          <span class="text-muted-foreground text-sm">By <%= s.participantfirstname %> <%= s.participantlastname %></span>
+        </p>
+      <% }) %>
+      <a href="/surveys/results" class="dashboard-section-link">View survey results →</a>
+    </div>
+
+  </div>
+
+  <!-- ANALYTICS CARDS -->
+  <div class="dashboard-grid mt-12">
+
+    <!-- Milestones -->
+    <div class="dashboard-card">
+      <h2 class="text-xl font-bold mb-4">🏅 Top Milestone Earners</h2>
+      <% milestoneLeaders.forEach(m => { %>
+        <p class="mb-2">
+          <strong><%= m.participantfirstname %> <%= m.participantlastname %></strong><br>
+          <span class="text-muted-foreground text-sm"><%= m.total %> milestones</span>
+        </p>
+      <% }) %>
+      <a href="/milestones/manage" class="dashboard-section-link">Open milestone manager →</a>
+    </div>
+
+    <!-- Donations -->
+    <div class="dashboard-card">
+      <h2 class="text-xl font-bold mb-4">💖 Recent Donations</h2>
+      <% donations.forEach(d => { %>
+        <p class="mb-2">
+          <strong>$<%= d.donationamount %></strong><br>
+          <span class="text-muted-foreground text-sm">By <%= d.donorname %></span>
+        </p>
+      <% }) %>
+      <a href="/donations" class="dashboard-section-link">Manage donations →</a>
+    </div>
+
+  </div>
+
 </main>
 
 <%- include("../partials/footer") %>

@@ -1,30 +1,31 @@
-const db = require("../db/knex");
+const db = require("../db");
 
 async function getImpactPage(req, res) {
-  // satisfaction metric
-  const avgSatisfactionRow = await db("survey")
-    .avg("surveysatisfactionscore as avg")
-    .first();
+  // Avg satisfaction
+  const satisfactionResult = await db.query(
+    `SELECT ROUND(AVG(surveysatisfactionscore), 1) AS avg
+     FROM survey`
+  );
+  const avgSatisfaction = satisfactionResult.rows[0].avg || 0;
 
-  // recommendation metric
-  const avgRecommendRow = await db("survey")
-    .avg("surveyrecommendationscore as avg")
-    .first();
+  // Avg recommendation
+  const recommendResult = await db.query(
+    `SELECT ROUND(AVG(surveyrecommendationscore), 1) AS avg
+     FROM survey`
+  );
+  const avgRecommend = recommendResult.rows[0].avg || 0;
 
-  // milestones
-  const totalMilestonesRow = await db("milestone")
-    .count("milestoneid as count")
-    .first();
+  // Total milestones completed
+  const milestoneResult = await db.query(
+    `SELECT COUNT(*) AS count FROM milestone`
+  );
+  const totalMilestones = milestoneResult.rows[0].count || 0;
 
-  // donations
-  const totalDonationsRow = await db("donation")
-    .sum("donationamount as total")
-    .first();
-
-  const avgSatisfaction = Number(avgSatisfactionRow.avg || 0).toFixed(1);
-  const avgRecommend = Number(avgRecommendRow.avg || 0).toFixed(1);
-  const totalMilestones = totalMilestonesRow.count || 0;
-  const totalDonations = Number(totalDonationsRow.total || 0).toFixed(2);
+  // Total donations $ amount
+  const donationResult = await db.query(
+    `SELECT COALESCE(SUM(donationamount), 0) AS total FROM donation`
+  );
+  const totalDonations = Number(donationResult.rows[0].total).toFixed(2);
 
   res.render("impact/index", {
     title: "Impact",

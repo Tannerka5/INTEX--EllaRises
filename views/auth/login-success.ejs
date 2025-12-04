@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Success</title>
+    <style>
+        body { 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            font-family: Arial; 
+            flex-direction: column;
+        }
+        .dancer {
+            position: relative;
+            width: 60px;
+            height: 120px;
+            animation: dance 0.8s infinite alternate ease-in-out;
+        }
+        .dancer .head {
+            width: 28px;
+            height: 28px;
+            background: #444;
+            border-radius: 50%;
+            margin: 0 auto;
+        }
+        .dancer .body {
+            width: 10px;
+            height: 45px;
+            background: #444;
+            margin: 0 auto;
+        }
+        .dancer .leg {
+            width: 10px;
+            height: 35px;
+            background: #444;
+            position: absolute;
+            bottom: 0;
+        }
+        .dancer .leg.left {
+            left: 8px;
+            transform-origin: top;
+            animation: leftLeg 0.8s infinite alternate ease-in-out;
+        }
+        .dancer .leg.right {
+            right: 8px;
+            transform-origin: top;
+            animation: rightLeg 0.8s infinite alternate ease-in-out;
+        }
+        .dancer .arm {
+            width: 10px;
+            height: 30px;
+            background: #444;
+            position: absolute;
+            top: 28px;
+        }
+        .dancer .arm.left {
+            left: -10px;
+            transform-origin: top right;
+            animation: leftArm 0.8s infinite alternate ease-in-out;
+        }
+        .dancer .arm.right {
+            right: -10px;
+            transform-origin: top left;
+            animation: rightArm 0.8s infinite alternate ease-in-out;
+        }
+        @keyframes dance {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-10px); }
+        }
+        @keyframes leftLeg {
+            0% { transform: rotate(10deg); }
+            100% { transform: rotate(-25deg); }
+        }
+        @keyframes rightLeg {
+            0% { transform: rotate(-10deg); }
+            100% { transform: rotate(25deg); }
+        }
+        @keyframes leftArm {
+            0% { transform: rotate(20deg); }
+            100% { transform: rotate(-20deg); }
+        }
+        @keyframes rightArm {
+            0% { transform: rotate(-20deg); }
+            100% { transform: rotate(20deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="dancer">
+        <div class="head"></div>
+        <div class="body"></div>
+        <div class="leg left"></div>
+        <div class="leg right"></div>
+        <div class="arm left"></div>
+        <div class="arm right"></div>
+    </div>
+    <h3>Success</h3>
+    <p>Logging you in...</p>
+
+    <script>
+        setTimeout(() => {
+            window.location.href = "/dashboard"; 
+        }, 2000); 
+    </script>
+</body>
+</html>

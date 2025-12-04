@@ -1,23 +1,24 @@
-const db = require("../db/knex");
+const db = require("../db");
 
 async function adminDashboard(req, res) {
   // participants
-  const totalParticipants =
-    (await db("participant").count("participantid as count").first()).count || 0;
+  const totalParticipants = Number(
+    (await db.query("SELECT COUNT(*) FROM participant")).rows[0].count
+  );
 
-  // events (count event occurrences, not templates)
-  const totalEvents =
-    (await db("eventoccurrence").count("eventoccurrenceid as count").first()).count || 0;
+  // events
+  const totalEvents = Number(
+    (await db.query("SELECT COUNT(*) FROM eventoccurrence")).rows[0].count
+  );
 
   // surveys
-  const totalSurveys =
-    (await db("survey").count("surveyid as count").first()).count || 0;
+  const totalSurveys = Number(
+    (await db.query("SELECT COUNT(*) FROM survey")).rows[0].count
+  );
 
   // donations
-  const totalDonations =
-    Number(
-      (await db("donation").sum("donationamount as total").first()).total || 0
-    ).toFixed(2);
+  const donationRow = (await db.query("SELECT COALESCE(SUM(donationamount),0) AS total FROM donation")).rows[0];
+  const totalDonations = Number(donationRow.total).toFixed(2);
 
   res.render("dashboard/admin", {
     title: "Admin Dashboard",
@@ -30,12 +31,16 @@ async function adminDashboard(req, res) {
   });
 }
 
-async function userDashboard(req, res) {
-  const totalEvents =
-    (await db("eventoccurrence").count("eventoccurrenceid as count").first()).count || 0;
+const db = require("../db");
 
-  const totalSurveys =
-    (await db("survey").count("surveyid as count").first()).count || 0;
+async function userDashboard(req, res) {
+  const totalEvents = Number(
+    (await db.query("SELECT COUNT(*) FROM eventoccurrence")).rows[0].count
+  );
+
+  const totalSurveys = Number(
+    (await db.query("SELECT COUNT(*) FROM survey")).rows[0].count
+  );
 
   res.render("dashboard/user", {
     title: "User Dashboard",
