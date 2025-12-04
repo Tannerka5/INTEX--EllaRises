@@ -1,7 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const db = require("../db");
-const { requireLogin } = require("../middleware/authMiddleware");
+const { requireLogin, requireManager } = require("../middleware/authMiddleware");
+
 
 /* ---------------------------------------------------------
    GET /dashboard  — redirect based on role
@@ -105,104 +106,95 @@ router.get("/user", requireLogin, async (req, res) => {
    GET /dashboard/admin  — Manager dashboard
 --------------------------------------------------------- */
 
-router.get("/admin", requireLogin, async (req, res) => {
-  try {
-    if (req.session.user.role !== "Manager") {
-      return res.redirect("/dashboard/user");
-    }
+router.get("/admin", requireManager, async (req, res) => {
+  const stats = {};
 
-    // Global counts + total donation dollars
-    const [pCountRes, eCountRes, sCountRes, mCountRes, dSumRes] = await Promise.all([
-      db.query("SELECT COUNT(*) AS count FROM participant"),
-      db.query("SELECT COUNT(*) AS count FROM eventoccurrence"),
-      db.query("SELECT COUNT(*) AS count FROM survey"),
-      db.query("SELECT COUNT(*) AS count FROM milestone"),
-      db.query("SELECT COALESCE(SUM(donationamount), 0) AS total FROM donation")
-    ]);
+  // total participants
+  const totalParticipants = await db.query(`SELECT COUNT(*) FROM participant`);
+  stats.participants = totalParticipants.rows[0].count;
 
-    const participantCount = Number(pCountRes.rows[0].count);
-    const eventCount = Number(eCountRes.rows[0].count);
-    const surveyCount = Number(sCountRes.rows[0].count);
-    const milestoneTotal = Number(mCountRes.rows[0].count);
-    const donationTotal = Number(dSumRes.rows[0].total);
+  // total events
+  const totalEvents = await db.query(`SELECT COUNT(*) FROM eventoccurrence`);
+  stats.events = totalEvents.rows[0].count;
 
-    // Recent / summary lists
-    const [
-      recentParticipantsRes,
-      upcomingEventsRes,
-      recentSurveysRes,
-      milestoneLeadersRes,
-      donationsRes
-    ] = await Promise.all([
-      db.query(`
-        SELECT participantfirstname, participantlastname, participantschooloremployer
-        FROM participant
-        ORDER BY participantid DESC
-        LIMIT 5;
-      `),
-      db.query(`
-        SELECT eo.eventdatetimestart, et.eventname
-        FROM eventoccurrence eo
-        JOIN eventtemplate et ON eo.eventtemplateid = et.eventtemplateid
-        WHERE eo.eventdatetimestart > NOW()
-        ORDER BY eo.eventdatetimestart ASC
-        LIMIT 5;
-      `),
-      db.query(`
-        SELECT
-          s.surveysubmissiondate,
-          p.participantfirstname,
-          p.participantlastname,
-          et.eventname
-        FROM survey s
-        JOIN participant p ON s.participantid = p.participantid
-        JOIN eventoccurrence eo ON s.eventoccurrenceid = eo.eventoccurrenceid
-        JOIN eventtemplate et ON eo.eventtemplateid = et.eventtemplateid
-        ORDER BY s.surveysubmissiondate DESC
-        LIMIT 5;
-      `),
-      db.query(`
-        SELECT
-          p.participantfirstname,
-          p.participantlastname,
-          COUNT(m.milestoneid) AS total
-        FROM milestone m
-        JOIN participant p ON m.participantid = p.participantid
-        GROUP BY p.participantfirstname, p.participantlastname
-        ORDER BY total DESC
-        LIMIT 5;
-      `),
-      db.query(`
-        SELECT
-          d.donationamount,
-          d.donationdate,
-          p.participantfirstname || ' ' || p.participantlastname AS donorname
-        FROM donation d
-        JOIN participant p ON p.participantid = d.participantid
-        ORDER BY donationdate DESC
-        LIMIT 5;
-      `)
-    ]);
+  // total surveys
+  const totalSurveys = await db.query(`SELECT COUNT(*) FROM survey`);
+  stats.surveys = totalSurveys.rows[0].count;
 
-    res.render("dashboard/admin", {
-      title: "Manager Dashboard",
-      currentUser: req.session.user,
-      participantCount,
-      eventCount,
-      surveyCount,
-      milestoneTotal,
-      donationTotal,
-      recentParticipants: recentParticipantsRes.rows,
-      upcomingEvents: upcomingEventsRes.rows,
-      recentSurveys: recentSurveysRes.rows,
-      milestoneLeaders: milestoneLeadersRes.rows,
-      donations: donationsRes.rows
-    });
-  } catch (err) {
-    console.error(err);
-    req.flash("error", "Unable to load manager dashboard.");
-    res.redirect("/");
-  }
+  // recent participants
+  const recentParticipants = await db.query(`
+    SELECT participantfirstname, participantlastname, participantschooloremployer
+    FROM participant
+    ORDER BY participantid DESC
+    LIMIT 4
+  `);
+
+  // upcoming events
+  const upcomingEvents = await db.query(`
+    SELECT et.eventname, eo.eventdatetimestart
+    FROM eventoccurrence eo
+    JOIN eventtemplate et ON eo.eventtemplateid = et.eventtemplateid
+    WHERE eo.eventdatetimestart >= NOW()
+    ORDER BY eo.eventdatetimestart ASC
+    LIMIT 4
+  `);
+
+  // recent surveys
+  const recentSurveys = await db.query(`
+    SELECT 
+      s.surveysubmissiondate,
+      p.participantfirstname,
+      p.participantlastname,
+      et.eventname
+    FROM survey s
+    JOIN participant p ON s.participantid = p.participantid
+    JOIN eventoccurrence eo ON s.eventoccurrenceid = eo.eventoccurrenceid
+    JOIN eventtemplate et ON eo.eventtemplateid = et.eventtemplateid
+    ORDER BY s.surveysubmissiondate DESC
+    LIMIT 4;
+  `);
+
+  // milestone leaders
+  const milestoneLeaders = await db.query(`
+    SELECT 
+      p.participantfirstname,
+      p.participantlastname,
+      COUNT(m.milestoneid) AS total
+    FROM milestone m
+    JOIN participant p ON m.participantid = p.participantid
+    GROUP BY p.participantfirstname, p.participantlastname
+    ORDER BY total DESC
+    LIMIT 4;
+  `);
+
+
+  // donations
+  const donations = await db.query(`
+    SELECT 
+      d.donationamount,
+      d.donationdate,
+      p.participantfirstname,
+      p.participantlastname
+    FROM donation d
+    JOIN participant p 
+      ON d.participantid = p.participantid
+    ORDER BY d.donationid DESC
+    LIMIT 4;
+  `);
+
+
+  res.render("dashboard/admin", {
+    currentUser: req.session.user,
+    stats,
+    recentParticipants: recentParticipants.rows,
+    upcomingEvents: upcomingEvents.rows,
+    recentSurveys: recentSurveys.rows,
+    milestoneLeaders: milestoneLeaders.rows,
+    donations: donations.rows,
+    success: req.flash("success"),
+    error: req.flash("error")
+  });
 });
+
 
 module.exports = router;
