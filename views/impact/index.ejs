@@ -1,156 +1,123 @@
 <%- include("../partials/header") %>
 <%- include("../partials/_navbar") %>
 
-<main class="page-main">
+<main class="dashboard-main bg-gradient-hero">
+  <div class="dashboard-container">
 
-  <!-- HERO -->
-  <section class="bg-gradient-hero py-28">
-    <div class="section-inner" style="max-width: 820px; text-align: center;">
-      <h1 class="text-5xl font-bold text-foreground mb-6">Our Impact</h1>
-      <p class="text-xl text-muted-foreground">
+
+
+    <!-- Header -->
+    <header style="margin-bottom:2rem; display:flex; flex-direction:column; align-items:center;">
+
+      <div 
+        style="
+          width:100%;
+          display:flex;
+          align-items:center;
+          justify-content:center;
+          gap:1.5rem;
+          margin-bottom:1rem;
+        "
+      >
+        <!-- Left flower -->
+        <img 
+          src="/images/flower-left.avif" 
+          alt="Decorative Flower" 
+          style="max-width:140px; width:100%; opacity:0.9;"
+        />
+
+        <!-- Title -->
+        <h1 class="page-title" style="white-space:nowrap; text-align:center;">
+          Ella Rises Community Impact
+        </h1>
+
+        <!-- Right flower -->
+        <img 
+          src="/images/flower-right.avif" 
+          alt="Decorative Flower" 
+          style="max-width:140px; width:100%; opacity:0.9;"
+        />
+      </div>
+
+      <p class="text-muted-foreground" style="max-width:700px; text-align:center;">
         Transforming lives and building brighter futures through education,
         culture, mentorship, and community.
       </p>
+    </header>
 
-      <!-- New CTA to full dashboard -->
-      <div style="margin-top:2rem; display:flex; justify-content:center; gap:0.75rem; flex-wrap:wrap;">
-        <a href="/impact/tableau" class="btn-pill btn-primary" style="margin-bottom: 40px;">
-          Open Interactive Impact Tableau Dashboard
-        </a>
+
+    <!-- Tableau Embed -->
+    <section class="card-pastel" style="padding:1.5rem;">
+      <div class='tableauPlaceholder' id='vizImpactDashboard' style='position: relative'>
+        <noscript>
+          <a href='#'>
+            <img alt='Dashboard 1'
+                 src='https://public.tableau.com/static/images/In/Intex1-14-2025/Dashboard1/1_rss.png'
+                 style='border: none' />
+          </a>
+        </noscript>
+        <object class='tableauViz' style='display:none;'>
+          <param name='host_url' value='https%3A%2F%2Fpublic.tableau.com%2F' />
+          <param name='embed_code_version' value='3' />
+          <param name='site_root' value='' />
+          <param name='name' value='Intex1-14-2025/Dashboard1' />
+          <param name='tabs' value='no' />
+          <param name='toolbar' value='yes' />
+          <param name='static_image' value='https://public.tableau.com/static/images/In/Intex1-14-2025/Dashboard1/1.png' />
+          <param name='animate_transition' value='yes' />
+          <param name='display_static_image' value='yes' />
+          <param name='display_spinner' value='yes' />
+          <param name='display_overlay' value='yes' />
+          <param name='display_count' value='yes' />
+          <param name='language' value='en-US' />
+        </object>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- IMPACT STATS SECTION (wrapped) -->
-  <section class="py-24 bg-white">
-    <div class="section-inner impact-wrapper-card">
+    <!-- IMPACT IMAGES GALLERY -->
+    <section style="margin-top:3rem;">
+      <h2 class="page-title" style="text-align:center; margin-bottom:1rem;">
+        Our Community In Action
+      </h2>
 
-      <h2><center>Organizational Highlights</center></h2>
-
-      <div class="impact-row">
-        <div class="impact-vertical-card">
-          <h3 class="impact-title">Young Women Served</h3>
-          <p class="impact-number">NEED DATA</p>
-          <p class="impact-sub">Since 2020</p>
-        </div>
-
-        <div class="impact-vertical-card">
-          <h3 class="impact-title">Programs Completed</h3>
-          <p class="impact-number">NEED DATA</p>
-          <p class="impact-sub">All program categories</p>
-        </div>
-
-        <div class="impact-vertical-card">
-          <h3 class="impact-title">Success Rate</h3>
-          <p class="impact-number">NEED DATA</p>
-          <p class="impact-sub">Across initiatives</p>
-        </div>
-
-        <div class="impact-vertical-card">
-          <h3 class="impact-title">Community Reach</h3>
-          <p class="impact-number">NEED DATA</p>
-          <p class="impact-sub">Families & participants</p>
-        </div>
+      <div 
+        style="
+          display:grid; 
+          grid-template-columns:repeat(auto-fit, minmax(250px, 1fr)); 
+          gap:1.5rem;
+        "
+      >
+        <img src="/images/impact1.avif" alt="Impact 1" style="width:100%; border-radius:12px;">
+        <img src="/images/impact2.avif" alt="Impact 2" style="width:100%; border-radius:12px;">
+        <img src="/images/impact3.avif" alt="Impact 3" style="width:100%; border-radius:12px;">
+        <img src="/images/impact4.avif" alt="Impact 4" style="width:100%; border-radius:12px;">
       </div>
+    </section>
 
-    </div>
-  </section>
-
-  <!-- PROGRAM STATISTICS SECTION (wrapped) -->
-  <section class="py-24 bg-gradient-section">
-    <div class="section-inner impact-wrapper-card">
-
-      <h2><center>Program Statistics</center></h2>
-
-      <div class="impact-row">
-        <div class="impact-vertical-card">
-          <h3 class="impact-title">STEAM Education</h3>
-          <p class="impact-number">NEED DATA</p>
-          <p class="impact-sub">Participants reached</p>
-        </div>
-
-        <div class="impact-vertical-card">
-          <h3 class="impact-title">Arts & Culture</h3>
-          <p class="impact-number">NEED DATA</p>
-          <p class="impact-sub">Community events</p>
-        </div>
-
-        <div class="impact-vertical-card">
-          <h3 class="impact-title">Mentorship</h3>
-          <p class="impact-number">NEED DATA</p>
-          <p class="impact-sub">Mentor–mentee pairs</p>
-        </div>
-
-        <div class="impact-vertical-card">
-          <h3 class="impact-title">Scholarships</h3>
-          <p class="impact-number">NEED DATA</p>
-          <p class="impact-sub">Total awarded</p>
-        </div>
-      </div>
-
-    </div>
-  </section>
-
-  <!-- TESTIMONIAL CAROUSEL -->
-  <section class="py-24 bg-white">
-    <div class="section-inner">
-
-      <h2><center>What Participants Are Saying</center></h2><br>
-
-      <div class="testimonial-carousel">
-        
-        <div class="testimonial-slide active">
-          <p class="testimonial-text">
-            “Ella Rises helped me discover my passion for engineering!”
-          </p>
-          <p class="testimonial-author">— Maria, Age 17</p>
-        </div>
-
-        <div class="testimonial-slide">
-          <p class="testimonial-text">
-            “My mentor helped me build confidence and apply for scholarships.”
-          </p>
-          <p class="testimonial-author">— Sofia, Age 18</p>
-        </div>
-
-        <div class="testimonial-slide">
-          <p class="testimonial-text">
-            “I learned so much about my culture through Ella Rises.”
-          </p>
-          <p class="testimonial-author">— Isabella, Age 16</p>
-        </div>
-
-      </div>
-
-    </div>
-  </section>
-
-  <!-- CTA -->
-  <section class="cta-section">
-    <div class="cta-inner text-center">
-      <h2>Help Us Create More Success Stories</h2>
-      <p class="cta-subtitle">Your support empowers young women.</p>
-
-      <a href="https://givebutter.com/EllaRises" class="btn-pill btn-primary text-lg px-12" target="_blank">
-        Donate Today
-      </a>
-    </div>
-  </section>
-
+  </div>
 </main>
 
 <%- include("../partials/footer") %>
 
-<!-- CAROUSEL LOGIC -->
-<script>
-  const slides = document.querySelectorAll(".testimonial-slide");
-  let index = 0;
+<script type='text/javascript'>
+  (function () {
+    var divElement = document.getElementById('vizImpactDashboard');
+    if (!divElement) return;
+    var vizElement = divElement.getElementsByTagName('object')[0];
 
-  function rotateSlides() {
-    slides[index].classList.remove("active");
-    index = (index + 1) % slides.length;
-    slides[index].classList.add("active");
-  }
+    if (divElement.offsetWidth > 800) {
+      vizElement.style.width = '100%';
+      vizElement.style.height = (divElement.offsetWidth * 0.75) + 'px';
+    } else if (divElement.offsetWidth > 500) {
+      vizElement.style.width = '100%';
+      vizElement.style.height = (divElement.offsetWidth * 0.75) + 'px';
+    } else {
+      vizElement.style.width = '100%';
+      vizElement.style.height = '1777px';
+    }
 
-  setInterval(rotateSlides, 8000);
+    var scriptElement = document.createElement('script');
+    scriptElement.src = 'https://public.tableau.com/javascripts/api/viz_v1.js';
+    vizElement.parentNode.insertBefore(scriptElement, vizElement);
+  })();
 </script>

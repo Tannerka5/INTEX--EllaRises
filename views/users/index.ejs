@@ -101,7 +101,10 @@
 
                 <!-- ROLE -->
                 <td class="cell">
-                <span class="display-mode"><%= u.role %></span>
+                <span class="display-mode">
+                    <%= (u.role === "Manager" && u.id === 1) ? "Administrator" : u.role %>
+                </span>
+
 
                 <% if (superManager && u.id !== 1) { %>
                     <select class="edit-mode inline-input edit-role" style="display:none;">
