@@ -1,159 +1,161 @@
 # 🎀 Ella Rises Program Management System
 
-A full-stack web application built for the INTEX project, helping **Ella Rises** manage events, participants, donations, surveys, and organizational impact.  
-Designed to resemble the aesthetic and user experience of **EllaRises.org** with soft pastel visuals, elegant rounded components, and a polished professional UI.
+A full-stack web application built for the **INTEX** project to help **Ella Rises** manage events, participants, registrations, donations, surveys, and organizational impact.  
+The system mirrors the soft, elegant aesthetic of **EllaRises.org**, using pastel gradients, rounded components, and a clean, approachable UI.
+
+---
+
+## ✨ Overview
+
+This platform provides a unified internal system for Ella Rises staff, volunteers, and program users.  
+It includes role-based dashboards, event scheduling, participant tracking, donation visibility, and survey collection—all integrated into a polished, intuitive experience.
 
 ---
 
 ## 📌 Features
 
-### Public Pages
+### **Public Pages**
+- Landing page with mission statement and donation CTA  
+- Impact page with program metrics  
+- Public donation link to GiveButter  
+- Mobile-responsive header, footer, and layout  
 
-- Landing page with mission statement and donation CTA
-- Impact page with real program metrics
-- Public donation link to GiveButter
-- Mobile-responsive header and footer
+---
 
-### Authenticated System
+### **Authenticated System**
+- Login & logout  
+- Secure password hashing  
+- Role-based dashboards  
+  - **Manager Dashboard**  
+  - **Super User Dashboard**  
+  - **User Dashboard**  
 
-- Login + logout
-- Role-based dashboards
-  - **Manager Dashboard** – full access
-  - **User Dashboard** – limited access
-- Secure authentication using hashed passwords
+---
 
-### Core Management Tools
+## **Core Management Tools**
 
-- Event templates & event occurrences
-- Participant management
-- Registrations
-- Milestones
-- Surveys
-- Donations
+### **Events**
+- Event Templates (create, edit, delete)  
+- Event Occurrences (schedule, update, cancel)  
+- User event registration and unregistering  
+- Capacity management  
 
-### UI & Styling
+### **Participants**
+- Full record management for managers  
+- Profile details, milestones, surveys, and donation history  
 
-- Custom CSS (no Tailwind required)
-- Pastel gradients & elevated cards
-- Rounded UI components inspired by EllaRises.org
-- Reusable partials (`_navbar`, `header`, `footer`)
+### **Users**
+- Super Users manage system user accounts  
+- Access levels set by assigned role  
+
+### **Milestones**
+- Create and manage milestone categories  
+- Track progress for each program user  
+
+### **Surveys**
+- Create and manage surveys  
+- Collect user responses  
+- Display completion statistics  
+
+### **Donations**
+- View donation history  
+- Aggregate donation visibility  
+- Integrated link to GiveButter  
+
+---
+
+## 🎨 UI & Styling
+
+- Fully custom CSS  
+- Pastel gradients, soft shadows, and elevated card components  
+- Rounded UI inspired by **EllaRises.org**  
 
 ---
 
 ## 🛠 Tech Stack
 
-**Backend:**
+### **Backend**
+- Node.js  
+- Express.js  
+- EJS  
+- Knex.js or native `pg`  
+- express-session  
 
-- Node.js
-- Express.js
-- EJS
-- Knex.js or native `pg`
-- Express-session
+### **Database**
+- PostgreSQL  
 
-**Database:**
-
-- PostgreSQL
-- Schema located in `db/schema.sql`
-
-**Frontend:**
-
-- EJS templates
-- Custom CSS in `public/css/styles.css`
-- Static assets in `public/images`
+### **Frontend**
+- EJS templates  
+- Custom CSS in `public/css/styles.css`  
+- Static assets in `public/images`  
 
 ---
 
-:)
+## 🔐 Role-Based Functionality
 
-## 🧰 Installation & Setup
+### **Super Users**
+Manage system user accounts and perform all manager-level functions.
 
-### Clone repo, install dependencies, edit .env file, create db
+---
 
-```bash
-git clone https://github.com/your-repo/INTEX--EllaRises.git
-cd INTEX--EllaRises
+### **Managers**
+Manage events, participants, milestones, surveys, donations, registrations, and view organizational metrics.
 
-npm install
+---
 
+### **Standard Users**
+View personal profile information, milestones, surveys, donation history, event registrations, and register/unregister for events.
 
-Edit .env file with your information:
+---
 
-DB_HOST=localhost
-DB_USER=postgres
-DB_PASSWORD=yourpassword
-DB_NAME=intex--ellarises
-SESSION_SECRET=supersecretvalue
-PORT=3000
+## 📊 Dashboards
 
+### **Manager Dashboard**
+Displays:
+- Upcoming events and registration counts  
+- Survey completion statistics  
+- Milestone progress overviews  
+- Recent donations  
+- Quick access to management tools  
 
-Create db:
+---
 
-CREATE DATABASE intex--ellarises;
+### **User Dashboard**
+Displays:
+- Events registered for  
+- Surveys completed  
+- Milestones achieved  
+- Donations made  
+- Personalized engagement overview  
 
+---
 
-Load db schema:
+## 🔒 Data Security
 
-psql -d ellarises -f db/schema.sql
+The Ella Rises system follows secure authentication practices to ensure user data remains protected.
 
+### **Password Hashing**
+All user passwords are encrypted using **bcrypt**, an industry-standard hashing algorithm.  
+This includes:
 
-Start server:
+- Salted hashing to prevent lookup-table attacks  
+- One-way encryption so passwords cannot be reversed  
+- Secure comparison during login, avoiding plain-text password storage  
 
-npm run dev
+No raw passwords are ever stored in the database.
 
+---
 
-App runs at http://localhost:3000
+## TESTING FOR TAs
 
+**Super Manager**  
+Email: `supermanager@gmail.com`  
+Password: `supermanager1`  
 
-====================================================
-Run the following SQL script to create users table.
+**Manager**  
+Email: `manager@gmail.com`  
+Password: `manager1`  
 
-Create test user and test manager through the manager page while running the site.
-To give the test manager the manager role, after registering, go into pgadmin and
-edit the role to be "Manager" instead of "User".
-
-The users must be created in the register page because bcrypt will hash the password
-before adding it to the database users table.
-
-Good luck!
-
-SQL Script:
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
--- Table: public.users
-
--- DROP TABLE IF EXISTS public.users;
-
-CREATE TABLE IF NOT EXISTS public.users
-(
-    id integer NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1 ),
-    email character varying(50) COLLATE pg_catalog."default" NOT NULL,
-    password character varying(100) COLLATE pg_catalog."default" NOT NULL,
-    role character varying(7) COLLATE pg_catalog."default" NOT NULL,
-    created_date date NOT NULL DEFAULT CURRENT_DATE,
-    full_name character varying(50) COLLATE pg_catalog."default" NOT NULL,
-    CONSTRAINT users_pkey PRIMARY KEY (id)
-)
-
-TABLESPACE pg_default;
-
-ALTER TABLE IF EXISTS public.users
-    OWNER to postgres;
-========================================================================================
-
-
-
-
-
-
-
-
-
-If you're reading this you're gay
-
-
-
-
-
-
-
-
-```
+**User**  
+Email: `user@gmail.com`  
+Password: `user1`  
