@@ -1,0 +1,25 @@
+# Ignore development environment files
+.env
+.env.*
+.gitignore
+.git/
+
+# Ignore dependencies (EB installs them automatically)
+node_modules/
+
+# Ignore logs
+*.log
+logs/
+
+# Ignore local notes and extras
+notes
+setup.sql
+*.md
+*.sql
+
+# Ignore OS junk
+.DS_Store
+
+# Ignore editor settings
+.vscode/
+.idea/

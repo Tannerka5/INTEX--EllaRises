@@ -100,14 +100,7 @@
                 <%= p.participantdob ? p.participantdob.toISOString().slice(0,10) : '' %>
                 </option>
             <% }) %>
-        </select>
-            <option value="">None</option>
-            <% participants.forEach(p => { %>
-              <option value="<%= p.participantid %>">
-                <%= p.participantlastname %>, <%= p.participantfirstname %> —
-                <%= p.participantdob ? p.participantdob.toISOString().slice(0,10) : '' %>
-              </option>
-            <% }) %>
+              </select>
           </select>
         </div>
       </div>

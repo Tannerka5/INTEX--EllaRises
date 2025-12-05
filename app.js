@@ -80,11 +80,20 @@ app.use((req, res) => {
   res.status(404).render("404");
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Ella Rises app running on http://localhost:${PORT}`);
-});
+console.log("### ENV VALUES ###");
+console.log("DB_HOST:", process.env.DB_HOST);
+console.log("DB_USER:", process.env.DB_USER);
+console.log("DB_PASSWORD:", process.env.DB_PASSWORD);
+console.log("DB_NAME:", process.env.DB_NAME);
+console.log("DB_PORT:", process.env.DB_PORT);
+console.log("DB_SSL:", process.env.DB_SSL);
+console.log("### END ENV ###");
 
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`Ella Rises app running on port ${PORT}`);
+});
 
 app.use((req, res) => {
   res.status(404).render("404");

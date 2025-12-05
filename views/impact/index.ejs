@@ -51,19 +51,22 @@
       <div class='tableauPlaceholder' id='vizImpactDashboard' style='position: relative'>
         <noscript>
           <a href='#'>
-            <img alt='Dashboard 1'
-                 src='https://public.tableau.com/static/images/In/Intex1-14-2025/Dashboard1/1_rss.png'
-                 style='border: none' />
+            <img 
+              alt='Impact KPIs #1 & #2'
+              src='https://public.tableau.com/static/images/Ne/New-Intex1-14-2025/ImpactKPIs12/1_rss.png'
+              style='border:none'
+            />
           </a>
         </noscript>
+
         <object class='tableauViz' style='display:none;'>
           <param name='host_url' value='https%3A%2F%2Fpublic.tableau.com%2F' />
           <param name='embed_code_version' value='3' />
           <param name='site_root' value='' />
-          <param name='name' value='Intex1-14-2025/Dashboard1' />
+          <param name='name' value='New-Intex1-14-2025/ImpactKPIs12' />
           <param name='tabs' value='no' />
           <param name='toolbar' value='yes' />
-          <param name='static_image' value='https://public.tableau.com/static/images/In/Intex1-14-2025/Dashboard1/1.png' />
+          <param name='static_image' value='https://public.tableau.com/static/images/Ne/New-Intex1-14-2025/ImpactKPIs12/1.png' />
           <param name='animate_transition' value='yes' />
           <param name='display_static_image' value='yes' />
           <param name='display_spinner' value='yes' />
@@ -73,6 +76,7 @@
         </object>
       </div>
     </section>
+
 
     <!-- IMPACT IMAGES GALLERY -->
     <section style="margin-top:3rem;">
@@ -103,17 +107,18 @@
   (function () {
     var divElement = document.getElementById('vizImpactDashboard');
     if (!divElement) return;
+
     var vizElement = divElement.getElementsByTagName('object')[0];
 
     if (divElement.offsetWidth > 800) {
       vizElement.style.width = '100%';
-      vizElement.style.height = (divElement.offsetWidth * 0.75) + 'px';
+      vizElement.style.height = '827px';
     } else if (divElement.offsetWidth > 500) {
       vizElement.style.width = '100%';
-      vizElement.style.height = (divElement.offsetWidth * 0.75) + 'px';
+      vizElement.style.height = '827px';
     } else {
       vizElement.style.width = '100%';
-      vizElement.style.height = '1777px';
+      vizElement.style.height = '1677px';
     }
 
     var scriptElement = document.createElement('script');
@@ -121,3 +126,4 @@
     vizElement.parentNode.insertBefore(scriptElement, vizElement);
   })();
 </script>
+

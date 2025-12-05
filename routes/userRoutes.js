@@ -31,15 +31,29 @@ router.get("/", requireManager, async (req, res) => {
 /* ----------------------------------------------
    GET /users/new — New user form
 ---------------------------------------------- */
-router.get("/new", requireManager, (req, res) => {
-  res.render("users/new", {
-    title: "Add User",
-    currentUser: req.session.user,
-    superManager: isSuperManager(req.session.user),
-    error: req.flash("error"),
-    success: req.flash("success")
-  });
+router.get("/new", requireManager, async (req, res) => {
+  try {
+    const participants = await db.query(`
+      SELECT participantid, participantfirstname, participantlastname, participantdob
+      FROM participant
+      ORDER BY participantlastname ASC
+    `);
+
+    res.render("users/new", {
+      title: "Add User",
+      currentUser: req.session.user,
+      superManager: isSuperManager(req.session.user),
+      error: req.flash("error"),
+      success: req.flash("success"),
+      participants: participants.rows
+    });
+  } catch (err) {
+    console.error("Error loading participants:", err);
+    req.flash("error", "Could not load participant list");
+    res.redirect("/users");
+  }
 });
+
 
 /* ----------------------------------------------
    POST /users/new — Create a new user
