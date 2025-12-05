@@ -144,7 +144,7 @@ No raw passwords are ever stored in the database.
 ---
 
 ## TESTING FOR TAs
-For running on a localhost machine (rather than on AWS), you'll need to create a DB in PGAdmin4 titled 'INTEX--EllaRises', and use the .sql scripts (CREATE, INSERT). You'll need to then run the website using npm install, then npm init (go through those setup procedures, and then run npm run dev // node app.js. This will then load the website if opened on localhost:3000. Go to Log in, Sign up, and then enter the SUPER manager credentials FIRST, and then in PGAdmin, go and change ROLE to Manager, and ensure its ID primary key is set to 1. This would be auto-configured for you in AWS, but testing on localhost doesn't do that. You would also need to create the Manager account and also elevate its ROLE to Manager. Keep User set to User.
+For running on a localhost machine (rather than on AWS), you'll need to create a DB in PGAdmin4 titled 'INTEX--EllaRises', and use the .sql scripts (CREATE, INSERT -- these are located under IS 402 Deliverables). You'll need to then run the website using npm install, then npm init (go through those setup procedures, and then run npm run dev // node app.js. This will then load the website if opened on localhost:3000. Go to Log in, Sign up, and then enter the SUPER manager credentials FIRST, and then in PGAdmin, go and change ROLE to Manager, and ensure its ID primary key is set to 1. This would be auto-configured for you in AWS, but testing on localhost doesn't do that. You would also need to create the Manager account and also elevate its ROLE to Manager. Keep User set to User.
 
 **Super Manager**  
 Full Name: Super Manager
