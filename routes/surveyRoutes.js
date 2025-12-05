@@ -18,8 +18,10 @@ router.get("/", requireLogin, async (req, res) => {
       const result = await db.query(`
         SELECT
           eo.eventoccurrenceid,
+          eo.eventdatetimestart,
           et.eventtemplateid,
           et.eventname,
+          COUNT(s.surveyid) AS survey_count,
           ROUND(AVG(s.surveysatisfactionscore)::numeric, 2) AS avg_satisfaction,
           ROUND(AVG(s.surveyusefulnessscore)::numeric, 2) AS avg_usefulness,
           ROUND(AVG(s.surveyinstructorscore)::numeric, 2) AS avg_instructor,
@@ -28,8 +30,8 @@ router.get("/", requireLogin, async (req, res) => {
         FROM survey s
         JOIN eventoccurrence eo ON s.eventoccurrenceid = eo.eventoccurrenceid
         JOIN eventtemplate et ON eo.eventtemplateid = et.eventtemplateid
-        GROUP BY eo.eventoccurrenceid, et.eventname, et.eventtemplateid
-        ORDER BY et.eventname
+        GROUP BY eo.eventoccurrenceid, eo.eventdatetimestart, et.eventname, et.eventtemplateid
+        ORDER BY eo.eventdatetimestart DESC NULLS LAST
       `);
 
       return res.render("surveys/index", {
@@ -50,7 +52,8 @@ router.get("/", requireLogin, async (req, res) => {
         s.surveyoverallscore,
         s.surveysubmissiondate,
         s.surveycomments,
-        et.eventname
+        et.eventname,
+        eo.eventdatetimestart
       FROM survey s
       JOIN eventoccurrence eo ON s.eventoccurrenceid = eo.eventoccurrenceid
       JOIN eventtemplate et ON eo.eventtemplateid = et.eventtemplateid
@@ -72,6 +75,7 @@ router.get("/", requireLogin, async (req, res) => {
     res.redirect("/");
   }
 });
+
 
 
 // ==========================================
@@ -233,35 +237,46 @@ router.delete("/:id", requireLogin, requireManager, async (req, res) => {
 });
 
 // ==========================================
-// GET /surveys/event/:id – Surveys for one event template
+// GET /surveys/event/:id – Surveys for one EVENT OCCURRENCE
 // (Manager only)
 // ==========================================
 router.get("/event/:id", requireLogin, requireManager, async (req, res) => {
   try {
+    // Get event occurrence details
     const eventResult = await db.query(`
-      SELECT eventtemplateid, eventname
-      FROM eventtemplate
-      WHERE eventtemplateid = $1
+      SELECT 
+        eo.eventoccurrenceid,
+        eo.eventdatetimestart,
+        et.eventtemplateid,
+        et.eventname
+      FROM eventoccurrence eo
+      JOIN eventtemplate et ON eo.eventtemplateid = et.eventtemplateid
+      WHERE eo.eventoccurrenceid = $1
     `, [req.params.id]);
 
     if (eventResult.rows.length === 0) {
-      req.flash("error", "Event not found");
+      req.flash("error", "Event occurrence not found");
       return res.redirect("/surveys");
     }
 
+    // Get all surveys for THIS specific event occurrence
     const surveysResult = await db.query(`
       SELECT
         s.surveyid,
+        s.surveysatisfactionscore,
+        s.surveyusefulnessscore,
+        s.surveyinstructorscore,
+        s.surveyrecommendationscore,
         s.surveyoverallscore,
         s.surveynpsbucket,
         s.surveysubmissiondate,
         s.surveycomments,
         p.participantfirstname,
-        p.participantlastname
+        p.participantlastname,
+        p.participantid
       FROM survey s
       JOIN participant p ON s.participantid = p.participantid
-      JOIN eventoccurrence eo ON s.eventoccurrenceid = eo.eventoccurrenceid
-      WHERE eo.eventtemplateid = $1
+      WHERE s.eventoccurrenceid = $1
       ORDER BY s.surveysubmissiondate DESC
     `, [req.params.id]);
 

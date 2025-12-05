@@ -9,30 +9,6 @@
     <p class="text-muted-foreground">Manager Dashboard Overview</p>
   </div>
 
-  <!-- User Maintenance button (top right) -->
-  <div style="display:flex; justify-content:flex-end; margin-bottom:1.5rem;">
-    <a 
-      href="/users"
-      style="
-        background:#FFD9D2 !important;
-        color:#000 !important;
-        padding:0.5rem 1.2rem;
-        border-radius:9999px;
-        font-weight:500;
-        text-decoration:none !important;
-        box-shadow:0 1px 3px rgba(0,0,0,0.1);
-        transition:background 0.15s ease, box-shadow 0.15s ease;
-      "
-      onmouseover="this.style.background='#ffa89a'; this.style.boxShadow='0 2px 6px rgba(0,0,0,0.15)'"
-      onmouseout="this.style.background='#ffb5a7'; this.style.boxShadow='0 1px 3px rgba(0,0,0,0.1)'"
-    >
-      User Maintenance
-    </a>
-  </div>
-
-
-
-
   <!-- TOP SUMMARY CARDS -->
   <div class="dashboard-grid">
 
@@ -122,7 +98,7 @@
       <% }) %>
     </a>
 
-    <!-- USERS (commenting this out because we already have a user maintenance button)
+    <!-- USERS (NEW) -->
     <a href="/users" class="dashboard-card dashboard-card-link">
       <h2 class="text-xl font-semibold mb-2">Users</h2>
       <div class="text-4xl font-bold text-purple-500 mb-2"><%= userCount || 0 %></div>
@@ -130,7 +106,7 @@
       <p class="text-sm text-muted-foreground">
         Manage user accounts, roles, and permissions.
       </p>
-    </a> -->
+    </a>
 
   </div>
 

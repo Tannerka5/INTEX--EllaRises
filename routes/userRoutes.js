@@ -1,242 +1,238 @@
 const express = require("express");
 const router = express.Router();
-const bcrypt = require("bcrypt");
 const db = require("../db");
-const { requireManager } = require("../middleware/authMiddleware");
+const bcrypt = require("bcrypt");
+const { requireLogin, requireManager } = require("../middleware/authMiddleware");
 
-function isSuperManager(user) {
-  return user && user.id === 1;
-}
-
-/* ----------------------------------------------
-   GET /users — User Maintenance homepage
----------------------------------------------- */
-router.get("/", requireManager, async (req, res) => {
-  const users = await db.query(`
-    SELECT id, email, full_name, role, created_date
-    FROM users
-    ORDER BY id ASC
-  `);
-
-  res.render("users/index", {
-    title: "User Maintenance",
-    users: users.rows,
-    currentUser: req.session.user,
-    superManager: isSuperManager(req.session.user),
-    success: req.flash("success"),
-    error: req.flash("error")
-  });
-});
-
-/* ----------------------------------------------
-   GET /users/new — New user form
----------------------------------------------- */
-router.get("/new", requireManager, (req, res) => {
-  res.render("users/new", {
-    title: "Add User",
-    currentUser: req.session.user,
-    superManager: isSuperManager(req.session.user),
-    error: req.flash("error"),
-    success: req.flash("success")
-  });
-});
-
-/* ----------------------------------------------
-   POST /users/new — Create a new user
----------------------------------------------- */
-router.post("/new", requireManager, async (req, res) => {
+/* ---------------------------
+   GET /users (index) - Manager only
+   --------------------------- */
+router.get("/", requireLogin, requireManager, async (req, res) => {
   try {
-    const { full_name, email, password, role } = req.body;
+    const result = await db.query(`
+      SELECT id, full_name, email, role, participantid
+      FROM users
+      ORDER BY full_name;
+    `);
 
-    // Validate email uniqueness
-    const existing = await db.query(`SELECT id FROM users WHERE email=$1`, [email]);
-    if (existing.rowCount > 0) {
-      req.flash("error", "Email already exists");
-      return res.redirect("/users/new");
-    }
+    res.render("users/index", {
+      title: "Users",
+      currentUser: req.session.user,
+      users: result.rows,
+      success: req.flash("success"),
+      error: req.flash("error")
+    });
+  } catch (err) {
+    console.error(err);
+    req.flash("error", "Unable to load users.");
+    res.redirect("/dashboard");
+  }
+});
 
-    // Managers cannot assign Manager role unless super manager
-    let userRole = "User";
-    if (isSuperManager(req.session.user) && role === "Manager") {
-      userRole = "Manager";
-    }
+/* ---------------------------
+   GET /users/new - Manager only
+   --------------------------- */
+router.get("/new", requireLogin, requireManager, async (req, res) => {
+  try {
+    const participants = await db.query(`
+      SELECT participantid, participantfirstname, participantlastname, participantdob
+      FROM participant
+      ORDER BY participantlastname, participantfirstname;
+    `);
 
-    const hash = await bcrypt.hash(password, 10);
+    res.render("users/new", {
+      title: "Add User",
+      currentUser: req.session.user,
+      participants: participants.rows,
+      error: req.flash("error")
+    });
+  } catch (err) {
+    console.error(err);
+    req.flash("error", "Unable to load form.");
+    res.redirect("/users");
+  }
+});
+
+/* ---------------------------
+   POST /users - Manager only
+   --------------------------- */
+router.post("/", requireLogin, requireManager, async (req, res) => {
+  try {
+    const { full_name, email, password, role, participantid } = req.body;
+
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     await db.query(
-      `INSERT INTO users (full_name, email, password, role, created_date)
-       VALUES ($1, $2, $3, $4, CURRENT_DATE)`,
-      [full_name, email, hash, userRole]
+      `
+      INSERT INTO users (full_name, email, password, role, participantid)
+      VALUES ($1, $2, $3, $4, $5);
+      `,
+      [full_name, email, hashedPassword, role, participantid || null]
     );
 
-    req.flash("success", "User created successfully");
+    req.flash("success", "User created successfully.");
     res.redirect("/users");
   } catch (err) {
     console.error(err);
-    req.flash("error", "Failed to create user");
+    req.flash("error", "Unable to create user.");
     res.redirect("/users/new");
   }
 });
 
-/* ----------------------------------------------
-   POST /users/:id/edit-inline — Inline editing
----------------------------------------------- */
-router.post("/:id/edit-inline", requireManager, async (req, res) => {
+/* ---------------------------
+   GET /users/:id (show) - View own profile OR manager viewing any
+   --------------------------- */
+router.get("/:id", requireLogin, async (req, res) => {
   try {
-    const { full_name, email, role, password } = req.body;
-    const id = parseInt(req.params.id);
-    const current = req.session.user;
-    const isSuper = current.id === 1;
+    const result = await db.query(
+      `
+      SELECT id, full_name, email, role, participantid
+      FROM users
+      WHERE id = $1;
+      `,
+      [req.params.id]
+    );
 
-    console.log("=== /users/:id/edit-inline HIT ===");
-    console.log("Params id:", id);
-    console.log("Raw body:", req.body);
-
-    const updates = [];
-    const values = [];
-    let n = 1;
-
-    if (full_name) {
-      updates.push(`full_name = $${n++}`);
-      values.push(full_name);
+    if (result.rows.length === 0) {
+      req.flash("error", "User not found.");
+      return res.redirect("/users");
     }
 
-    if (email) {
-      const dup = await db.query(
-        `SELECT id FROM users WHERE email=$1 AND id != $2`,
-        [email, id]
-      );
-      console.log("Duplicate email check rows:", dup.rowCount);
-      if (dup.rowCount > 0) {
-        console.log("Email already exists, aborting update.");
-        return res.status(400).send("Email already exists");
-      }
+    const user = result.rows[0];
 
-      updates.push(`email = $${n++}`);
-      values.push(email);
+    // Users can only view their own profile, Managers can view any
+    if (req.session.user.role !== "Manager" && req.session.user.id !== parseInt(req.params.id)) {
+      req.flash("error", "You do not have permission to view this profile.");
+      return res.redirect("/dashboard");
     }
 
-    if (role && isSuper) {
-      updates.push(`role = $${n++}`);
-      values.push(role);
-    }
-
-    if (password) {
-      const hash = await bcrypt.hash(password, 10);
-      updates.push(`password = $${n++}`);
-      values.push(hash);
-    }
-
-    console.log("Updates array:", updates);
-    console.log("Values array:", values);
-
-    if (updates.length === 0) {
-      console.log("No updates to apply, returning.");
-      return res.status(200).send("No changes");
-    }
-
-    values.push(id);
-
-    const sql = `UPDATE users SET ${updates.join(", ")} WHERE id = $${n}`;
-    console.log("Final SQL:", sql);
-    console.log("Final values:", values);
-
-    await db.query(sql, values);
-
-    console.log("Update successful for user id", id);
-    res.status(200).send("OK");
+    res.render("users/show", {
+      title: "User Details",
+      currentUser: req.session.user,
+      user: user,
+      isOwnProfile: req.session.user.id === user.id,
+      success: req.flash("success"),
+      error: req.flash("error")
+    });
   } catch (err) {
-    console.error("Error in /users/:id/edit-inline:", err);
-    res.status(500).send("Server error");
+    console.error(err);
+    req.flash("error", "Unable to load user.");
+    res.redirect("/users");
   }
 });
 
-
-
-
-/* ----------------------------------------------
-   GET /users/:id/delete — Delete user
----------------------------------------------- */
-router.get("/:id/delete", requireManager, async (req, res) => {
+/* ---------------------------
+   PUT /users/:id (update) - Update own profile OR manager updating any
+   --------------------------- */
+router.put("/:id", requireLogin, async (req, res) => {
   try {
-    const targetId = parseInt(req.params.id);
-    const current = req.session.user;
+    const { full_name, email, role, password } = req.body;
+    const userId = parseInt(req.params.id);
+    const isOwnProfile = req.session.user.id === userId;
+    const isManager = req.session.user.role === "Manager";
 
-    // Can't delete super manager
-    if (targetId === 1) {
-      req.flash("error", "Cannot delete the super manager");
-      return res.redirect("/users");
+    // Users can only edit their own profile, Managers can edit any
+    if (!isManager && !isOwnProfile) {
+      req.flash("error", "You do not have permission to edit this profile.");
+      return res.redirect("/dashboard");
     }
 
-    // Only super manager can delete other managers
-    const targetUser = await db.query(`SELECT role FROM users WHERE id=$1`, [targetId]);
-    const targetRole = targetUser.rows[0]?.role;
+    // Build update query based on what's being changed
+    let updateQuery;
+    let params;
 
-    if (targetRole === "Manager" && !isSuperManager(current)) {
-      req.flash("error", "Only the super manager can delete other managers.");
-      return res.redirect("/users");
+    if (password && password.length > 0 && isOwnProfile) {
+      // Update password (only for own profile)
+      const hashedPassword = await bcrypt.hash(password, 10);
+      updateQuery = `
+        UPDATE users
+        SET full_name = $1, email = $2, password = $3
+        WHERE id = $4;
+      `;
+      params = [full_name, email, hashedPassword, userId];
+    } else if (isManager && !isOwnProfile) {
+      // Manager updating another user (can change role)
+      updateQuery = `
+        UPDATE users
+        SET full_name = $1, email = $2, role = $3
+        WHERE id = $4;
+      `;
+      params = [full_name, email, role, userId];
+    } else if (isManager && isOwnProfile) {
+      // Manager updating their own profile (can change password)
+      if (password && password.length > 0) {
+        const hashedPassword = await bcrypt.hash(password, 10);
+        updateQuery = `
+          UPDATE users
+          SET full_name = $1, email = $2, password = $3, role = $4
+          WHERE id = $5;
+        `;
+        params = [full_name, email, hashedPassword, role, userId];
+      } else {
+        updateQuery = `
+          UPDATE users
+          SET full_name = $1, email = $2, role = $3
+          WHERE id = $4;
+        `;
+        params = [full_name, email, role, userId];
+      }
+    } else {
+      // Regular user updating their own profile (no role change)
+      updateQuery = `
+        UPDATE users
+        SET full_name = $1, email = $2
+        WHERE id = $3;
+      `;
+      params = [full_name, email, userId];
     }
 
-    await db.query(`DELETE FROM users WHERE id=$1`, [targetId]);
+    await db.query(updateQuery, params);
 
-    req.flash("success", "User deleted successfully");
+    // Update session if editing own profile
+    if (isOwnProfile) {
+      req.session.user.full_name = full_name;
+      req.session.user.email = email;
+      if (isManager) {
+        req.session.user.role = role;
+      }
+    }
+
+    req.flash("success", "Profile updated successfully.");
+    res.redirect(`/users/${userId}`);
+  } catch (err) {
+    console.error(err);
+    req.flash("error", "Unable to update profile.");
+    res.redirect(`/users/${req.params.id}`);
+  }
+});
+
+/* ---------------------------
+   DELETE /users/:id - Manager only (cannot delete own account)
+   --------------------------- */
+router.delete("/:id", requireLogin, requireManager, async (req, res) => {
+  try {
+    // Prevent deleting own account
+    if (req.session.user.id === parseInt(req.params.id)) {
+      req.flash("error", "You cannot delete your own account.");
+      return res.redirect(`/users/${req.params.id}`);
+    }
+
+    await db.query(
+      `
+      DELETE FROM users
+      WHERE id = $1;
+      `,
+      [req.params.id]
+    );
+
+    req.flash("success", "User deleted.");
     res.redirect("/users");
   } catch (err) {
     console.error(err);
-    req.flash("error", "Failed to delete user");
+    req.flash("error", "Unable to delete user.");
     res.redirect("/users");
   }
 });
-
-/* ----------------------------------------------
-   PROMOTE / DEMOTE (super manager only)
----------------------------------------------- */
-router.get("/:id/promote", requireManager, async (req, res) => {
-  if (!isSuperManager(req.session.user)) {
-    req.flash("error", "Only the super manager can promote users.");
-    return res.redirect("/users");
-  }
-
-  const id = parseInt(req.params.id);
-  if (id === 1) return res.redirect("/users"); // super manager can't be changed
-
-  await db.query(`UPDATE users SET role='Manager' WHERE id=$1`, [id]);
-  req.flash("success", "User promoted to manager.");
-  res.redirect("/users");
-});
-
-router.get("/:id/demote", requireManager, async (req, res) => {
-  if (!isSuperManager(req.session.user)) {
-    req.flash("error", "Only the super manager can demote managers.");
-    return res.redirect("/users");
-  }
-
-  const id = parseInt(req.params.id);
-  if (id === 1) return res.redirect("/users");
-
-  await db.query(`UPDATE users SET role='User' WHERE id=$1`, [id]);
-  req.flash("success", "User demoted to standard user.");
-  res.redirect("/users");
-});
-
-// only be able to view passwords you are allowed to
-router.get("/:id/password", requireManager, async (req, res) => {
-  const targetId = parseInt(req.params.id);
-  const current = req.session.user;
-
-  const target = await db.query(`SELECT role, password FROM users WHERE id=$1`, [targetId]);
-
-  if (target.rowCount === 0) return res.status(404).send("Not found");
-  const targetRole = target.rows[0].role;
-
-  const canSee =
-    (current.role === "Manager" && targetRole === "User") ||
-    (current.id === 1 && targetId !== 1);
-
-  if (!canSee) return res.status(403).send("Forbidden");
-
-  res.send(target.rows[0].password);
-});
-
 
 module.exports = router;

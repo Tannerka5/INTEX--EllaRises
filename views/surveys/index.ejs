@@ -1,77 +1,136 @@
 <%- include("../partials/header") %>
 <%- include("../partials/_navbar") %>
 
-<link rel="stylesheet" href="/css/surveys-index.css">
+<main class="register-page-wrapper">
+  <div class="register-card" style="max-width: 900px; width:100%;">
+    <h1 class="register-title">Survey Summary</h1>
+    <p class="register-subtitle">Survey responses by event occurrence</p>
 
-<main>
-  <br><br><br><br><br><br><br>
-  <div class="survey-index-card">
-    <a href="/surveys/new" class="survey-view-btn">Add Survey</a>
-    <h1 class="survey-index-title">Survey Summary</h1>
-    <p class="survey-index-subtitle">Average ratings by event</p>
-
+    <% if (success && success.length > 0) { %>
+      <div class="alert alert-success"><%= success %></div>
+    <% } %>
     <% if (error && error.length > 0) { %>
       <div class="alert alert-danger"><%= error %></div>
     <% } %>
 
-    <% 
-      // Group events by event name
-      const grouped = {};
+    <!-- Search + Add button -->
+    <div style="display:flex; justify-content:space-between; gap:1rem; margin-bottom:1rem; align-items:flex-end;">
+      <div class="register-field" style="flex:1; margin-bottom:0; position:relative;">
+        <label>Search events</label>
+        <input
+          type="text"
+          id="surveySearch"
+          placeholder="Search by event name, date, or count…"
+          style="padding-right:2rem;"
+        />
+        <button
+          type="button"
+          id="clearSurveySearch"
+          aria-label="Clear search"
+          style="
+            position:absolute;
+            right:0.5rem;
+            top:50%;
+            transform:translateY(10%);
+            border:none;
+            background:transparent;
+            font-size:1.1rem;
+            line-height:1;
+            cursor:pointer;
+            color:#9CA3AF;
+            transition:color 0.15s ease, transform 0.15s ease;
+          "
+          onmouseover="this.style.color='#ff8a80'; this.style.transform='translateY(10%) scale(1.25)';"
+          onmouseout="this.style.color='#9CA3AF'; this.style.transform='translateY(10%) scale(1)';"
+        >
+          &times;
+        </button>
+      </div>
 
-      events.forEach(ev => {
-        const name = ev.eventname;
-        if (!grouped[name]) {
-          grouped[name] = {
-            eventname: name,
-            avg_overall: [],
-            rows: []
-          };
-        }
-        grouped[name].avg_overall.push(Number(ev.avg_overall));
-        grouped[name].rows.push(ev);
-      });
+      <% if (currentUser && currentUser.role === 'Manager') { %>
+        <a href="/surveys/new" class="btn-pill btn-primary register-btn" style="width:auto; white-space:nowrap;">
+          + Add Survey
+        </a>
+      <% } %>
+    </div>
 
-      const summarized = Object.values(grouped).map(g => {
-        const avg = g.avg_overall.reduce((a, b) => a + b, 0) / g.avg_overall.length;
-        return {
-          eventname: g.eventname,
-          avg_overall: avg.toFixed(2),
-          id: g.rows[0].eventtemplateid
-        };
-      });
-    %>
-
-    <div class="survey-index-table-container">
-      <table class="survey-index-table">
+    <!-- Surveys table -->
+    <div style="overflow-x:auto; max-height:500px; overflow-y:auto; border:1px solid rgba(0,0,0,0.08); border-radius:0.8rem; position:relative;">
+      <table class="table table-striped" id="surveysTable" style="width:100%; border-collapse:collapse;">
         <thead>
-          <tr>
-            <th>Event</th>
-            <th style="text-align:center;">Average Score</th>
-            <th style="text-align:center;">View Surveys</th>
+          <tr style="position:sticky; top:0; background:#fff; z-index:10; box-shadow:0 2px 4px rgba(0,0,0,0.05);">
+            <th style="text-align:left; padding:0.6rem; background:#fff;">Event Name</th>
+            <th style="text-align:left; padding:0.6rem; background:#fff;">Date</th>
+            <th style="text-align:center; padding:0.6rem; background:#fff;">Average Score</th>
+            <th style="text-align:center; padding:0.6rem; background:#fff;">Survey Count</th>
           </tr>
         </thead>
-
         <tbody>
-          <% summarized.forEach(e => { %>
+          <% if (!events || events.length === 0) { %>
             <tr>
-              <td><%= e.eventname %></td>
-
-              <td class="avg-score-cell">
-                <%= e.avg_overall %>
-              </td>
-
-              <td class="view-btn-cell">
-                <a href="/surveys/event/<%= e.id %>" class="survey-view-btn">
-                  View Surveys
-                </a>
+              <td colspan="4" style="padding:1rem; text-align:center; color:#9CA3AF;">
+                No survey data available.
               </td>
             </tr>
-          <% }) %>
+          <% } else { %>
+            <% events.forEach(e => { %>
+              <tr>
+                <td style="padding:0.6rem;">
+                  <a
+                    href="/surveys/event/<%= e.eventoccurrenceid %>"
+                    class="register-link"
+                    style="color:#ffc2b5; transition:color 0.15s ease, transform 0.15s ease; display:inline-block;"
+                    onmouseover="this.style.transform='translateY(-1px)';"
+                    onmouseout="this.style.transform='translateY(0)';"
+                  >
+                    <%= e.eventname %>
+                  </a>
+                </td>
+                <td style="padding:0.6rem;">
+                  <%= e.eventdatetimestart ? new Date(e.eventdatetimestart).toLocaleDateString() : '—' %>
+                </td>
+                <td style="padding:0.6rem; text-align:center; font-weight:600;">
+                  <%= e.avg_overall %>
+                </td>
+                <td style="padding:0.6rem; text-align:center; font-weight:600; color:#6B7280;">
+                  <%= e.survey_count %>
+                </td>
+              </tr>
+            <% }) %>
+          <% } %>
         </tbody>
       </table>
     </div>
 
+    <p class="register-bottom" style="margin-top:1.2rem;">
+      Total event occurrences: <strong><%= events.length %></strong>
+    </p>
   </div>
 </main>
+
+<script>
+  (function () {
+    const input = document.getElementById('surveySearch');
+    const clearBtn = document.getElementById('clearSurveySearch');
+    const table = document.getElementById('surveysTable');
+    if (!input || !table) return;
+
+    function filterRows() {
+      const query = input.value.toLowerCase();
+      const rows = table.querySelectorAll('tbody tr');
+      rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(query) ? '' : 'none';
+      });
+    }
+
+    input.addEventListener('input', filterRows);
+    clearBtn.addEventListener('click', function () {
+      input.value = '';
+      filterRows();
+      input.focus();
+    });
+  })();
+</script>
 
 <%- include("../partials/footer") %>
