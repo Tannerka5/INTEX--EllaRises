@@ -76,18 +76,15 @@ It includes role-based dashboards, event scheduling, participant tracking, donat
 
 ### **Backend**
 - Node.js  
-- Express.js  
-- EJS  
-- Knex.js or native `pg`  
-- express-session  
-
-### **Database**
-- PostgreSQL  
+- AWS Hosting
+- AWS RDS
+- HTTPS Encryption
+- DNS
 
 ### **Frontend**
-- EJS templates  
+- EJS views  
 - Custom CSS in `public/css/styles.css`  
-- Static assets in `public/images`  
+- Static assets in `public/images`
 
 ---
 
