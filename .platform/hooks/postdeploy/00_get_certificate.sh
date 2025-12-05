@@ -1,23 +1,33 @@
 #!/usr/bin/env bash
 # .platform/hooks/postdeploy/00_get_certificate.sh
 
-# Remove any existing certificate for this domain first
-sudo certbot delete --cert-name ellarises-intex-1-14.is404.net --non-interactive || true
+# Wait for nginx to be fully started
+sleep 5
 
-# Request new certificate with correct domain
-sudo certbot certonly --nginx \
+# Stop nginx temporarily
+sudo systemctl stop nginx
+
+# Get certificate using standalone mode (more reliable)
+sudo certbot certonly --standalone \
   -d ellarises-intex-1-14.is404.net \
   --non-interactive \
   --agree-tos \
   --email koapono@byu.edu \
-  --force-renewal
+  --preferred-challenges http
 
-# Configure nginx to use the certificate
+# Create nginx HTTPS configuration
 sudo tee /etc/nginx/conf.d/https.conf > /dev/null <<'EOF'
 server {
     listen 80;
     server_name ellarises-intex-1-14.is404.net;
-    return 301 https://$host$request_uri;
+    
+    location /.well-known/acme-challenge/ {
+        root /var/www/html;
+    }
+    
+    location / {
+        return 301 https://$host$request_uri;
+    }
 }
 
 server {
@@ -28,6 +38,7 @@ server {
     ssl_certificate_key /etc/letsencrypt/live/ellarises-intex-1-14.is404.net/privkey.pem;
     
     ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers HIGH:!aNULL:!MD5;
     ssl_prefer_server_ciphers on;
 
     location / {
@@ -44,5 +55,9 @@ server {
 }
 EOF
 
-# Reload nginx
-sudo systemctl reload nginx
+# Start nginx
+sudo systemctl start nginx
+
+# Log what happened
+echo "Certificate installation completed at $(date)" >> /tmp/cert-install.log
+ls -la /etc/letsencrypt/live/ >> /tmp/cert-install.log 2>&1
