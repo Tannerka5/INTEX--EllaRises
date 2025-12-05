@@ -1,10 +1,5 @@
-# Node modules
-node_modules/
-
-# Environment variables
-.env
-
-# Zip archives
 *.zip
-
 .DS_Store
+__MACOSX
+.env
+node_modules/
