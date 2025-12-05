@@ -6,3 +6,5 @@ node_modules/
 
 # Zip archives
 *.zip
+
+.DS_Store
